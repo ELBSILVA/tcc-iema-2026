@@ -1,0 +1,29 @@
+name: Baixar fontes
+on:
+  workflow_dispatch:
+  push:
+    paths: [".github/workflows/fontes.yml"]
+permissions:
+  contents: write
+jobs:
+  fontes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Baixar woff2 (fontsource via jsDelivr)
+        run: |
+          mkdir -p fonts
+          baixa(){ curl -fsSL -o "fonts/$1-$2.woff2" "https://cdn.jsdelivr.net/npm/@fontsource/$1@5/files/$1-latin-$2-normal.woff2"; }
+          for w in 400 600 700 800 900; do baixa nunito $w; done
+          for w in 400 500 600 700; do baixa barlow $w; done
+          for w in 500 600 700; do baixa barlow-condensed $w; done
+          for w in 500 600 700 800; do baixa fraunces $w; done
+          for w in 400 500 600 700; do baixa dm-sans $w; done
+          ls -l fonts
+      - name: Salvar no repositório
+        run: |
+          git config user.name "TCC IEMA 2026"
+          git config user.email "tcc-iema@users.noreply.github.com"
+          git add fonts
+          git commit -m "Fontes dos apps (woff2)" || echo "sem mudanças"
+          git push
