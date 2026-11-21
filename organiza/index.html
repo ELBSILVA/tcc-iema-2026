@@ -107,6 +107,48 @@ h2 .ic{width:20px;height:20px;color:var(--b)}
 .cal .d .pt{display:flex;gap:2px;position:absolute;bottom:4px}
 .cal .d .pt i{width:5px;height:5px;border-radius:50%}
 .prog{height:8px;border-radius:4px;background:#e3e9ee;overflow:hidden;margin-top:6px}.prog i{display:block;height:100%;background:var(--ok)}
+
+
+/* ===== TEMA organiza ===== */
+@font-face{font-family:'Nunito';src:url(fonts/nunito-400.woff2) format('woff2');font-weight:400;font-display:swap}@font-face{font-family:'Nunito';src:url(fonts/nunito-600.woff2) format('woff2');font-weight:600;font-display:swap}@font-face{font-family:'Nunito';src:url(fonts/nunito-700.woff2) format('woff2');font-weight:700;font-display:swap}@font-face{font-family:'Nunito';src:url(fonts/nunito-800.woff2) format('woff2');font-weight:800;font-display:swap}@font-face{font-family:'Nunito';src:url(fonts/nunito-900.woff2) format('woff2');font-weight:900;font-display:swap}
+:root{--g:#2b2563;--b:#6c5ce7;--b2:#5a4bd6;--r:#ff5d73;--y:#f5a524;--ok:#16a571;--bg:#f4f2ff;--card:#fff;--tx:#211d45;--mu:#7d78a6;--ln:#e6e1ff;--lb:#ece9ff;--am:#ffc83d}
+body{font-family:Nunito,system-ui,sans-serif;background:var(--bg)}
+h2{font-weight:900;letter-spacing:-.2px}.ttl{font-weight:800}
+.top{background:linear-gradient(120deg,#7b5cff,#3d7bff);border:0;border-radius:0 0 24px 24px;box-shadow:0 8px 20px rgba(91,75,219,.25);color:#fff}
+.top .brand b,.top .brand b span{color:#fff!important;font-weight:900}.top .brand small{color:rgba(255,255,255,.85)}
+.top .sub,.top .sub b{color:rgba(255,255,255,.9)}
+.top .av{background:#ffc83d;color:#2b2563}.top .av.dot:after{border-color:#7b5cff;background:#ff5d73}
+.brand b span{color:#6c5ce7}
+.card{border-radius:20px;box-shadow:0 4px 16px rgba(91,75,219,.08)}
+.btn{border-radius:999px;background:linear-gradient(120deg,#7b5cff,#5a6cff);font-weight:800}
+.btn.out{background:#fff;color:#6c5ce7;border-color:#6c5ce7}.btn.red{background:#ff5d73}.btn.gray{background:#2b2563}.btn.wa{background:#25d366}
+.nav{left:12px;right:12px;bottom:10px;border:0;border-radius:24px;box-shadow:0 10px 28px rgba(43,37,99,.2);height:64px;overflow:hidden}
+.nav button{color:#9b96c4;font-weight:700}
+.nav button.on{color:#2b2563;box-shadow:none}
+.nav button.on .ic{background:#ffc83d;border-radius:12px;padding:4px;width:32px;height:32px}
+.main{padding-bottom:104px}
+.sec{border-left:0;padding-left:0;font-weight:900}
+.sec:before{content:"";width:10px;height:10px;border-radius:50%;background:#ffc83d;margin-right:9px;flex:none;box-shadow:0 0 0 4px #fff1c2}
+.chip{border-radius:999px;border-color:#ddd6ff}.chip.on{background:#2b2563;border-color:#2b2563}
+.seg{background:#e8e4ff;border-radius:999px}.seg button{border-radius:999px}.seg button.on{background:#6c5ce7}
+.qa{border-top:0;border-radius:22px;box-shadow:none}
+.qa:nth-child(4n+1){background:#ece9ff}.qa:nth-child(4n+2){background:#fff3c4}.qa:nth-child(4n+3){background:#e1efff}.qa:nth-child(4n+4){background:#ffe3ea}
+.qa .ic,.qa:nth-child(even) .ic{color:#2b2563}
+.dt{background:#ece9ff;color:#5a4bd6;border-radius:14px}.dt.dark{background:#2b2563;color:#ffc83d}
+.hero{background:linear-gradient(120deg,#2b2563,#6c5ce7);border-radius:22px}
+.car{border-radius:24px}
+.dots i.on{background:#6c5ce7}
+input,select,textarea{border-radius:14px;background:#faf9ff;border-color:#e3ddff}
+input:focus,select:focus,textarea:focus{border-color:#6c5ce7}
+.fab{background:#ffc83d;color:#2b2563;bottom:88px;box-shadow:0 8px 18px rgba(255,176,32,.45)}
+.demo{border-radius:18px}.demo .av{background:#6c5ce7}
+.toast{background:#2b2563;border-radius:16px}
+.cal .d{border-radius:12px;background:#f1eeff}.cal .d.hj{background:#6c5ce7}
+#splash .ap span{color:#6c5ce7}
+.sw.on{background:#6c5ce7}
+.modal .box{border-radius:24px}
+
+/* ===== FIM DO TEMA ===== */
 </style>
 </head>
 <body>
@@ -237,7 +279,7 @@ const NAVS = {
   professor: [['inicio','home','Início'],['minhas','list','Atividades'],['material','book','Material'],['avisos','mega','Avisos'],['ajustes','gear','Ajustes']],
   coord: [['inicio','home','Início'],['avisos','mega','Avisos'],['eventos','star','Eventos'],['usuarios','users','Usuários'],['ajustes','gear','Ajustes']]
 };
-const ICON = `<svg viewBox="0 0 40 40" width="34" height="34"><rect x="3" y="6" width="34" height="31" rx="8" fill="#0d9ad8"/><rect x="3" y="6" width="34" height="9" rx="4" fill="#3a3a3c"/><rect x="11" y="2" width="4" height="9" rx="2" fill="#3a3a3c"/><rect x="25" y="2" width="4" height="9" rx="2" fill="#3a3a3c"/><path d="M12 25 l5 5 l11 -11" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="35" cy="8" r="5" fill="#ee2d3d" stroke="#fff" stroke-width="1.5"/></svg>`;
+const ICON = `<svg viewBox="0 0 40 40" width="34" height="34"><defs><linearGradient id="gO" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8a5cff"/><stop offset="1" stop-color="#3d7bff"/></linearGradient></defs><rect x="1" y="1" width="38" height="38" rx="11" fill="url(#gO)"/><rect x="9" y="9" width="20" height="23" rx="4" fill="#fff"/><circle cx="14" cy="9" r="2.2" fill="#ffc83d"/><circle cx="24" cy="9" r="2.2" fill="#ffc83d"/><rect x="12.5" y="15" width="13" height="2.4" rx="1.2" fill="#d9d3ff"/><rect x="12.5" y="20" width="9" height="2.4" rx="1.2" fill="#d9d3ff"/><circle cx="28" cy="28" r="8" fill="#ffc83d" stroke="#fff" stroke-width="2"/><path d="M24.2 28.2l2.6 2.6 5-5" fill="none" stroke="#2b2563" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
 function render() {
   if (!DB.sessao || !me()) return renderLogin();
@@ -312,9 +354,9 @@ TELAS.aluno.inicio = u => {
   const sem = at.filter(a => diasAte(a.prazo) <= 7).length;
   const nAv = avisosPara(u).filter(v => diasAte(v.data) >= -3).length;
   return `<div class="car">
-     <div class="slide on" style="background:linear-gradient(130deg,#3a3a3c,#5b5d61)">${ic('home',70).replace('class="ic"','class="ic big"')}<b>Olá, ${esc(u.nome.split(' ')[0])}! 👋</b><div>${DIASF[hoje().getDay()]}, ${br(iso(hoje()))} • você tem <b>${sem} prazo${sem===1?'':'s'}</b> nos próximos 7 dias</div></div>
-     <div class="slide" style="background:linear-gradient(130deg,#0b86c0,#0d9ad8)">${ic('bell',70).replace('class="ic"','class="ic big"')}<b>Lembrete 3 dias antes</b><div>Você recebe um aviso no celular 3 dias e 1 dia antes de cada prazo.</div></div>
-     <div class="slide" style="background:linear-gradient(130deg,#c91f2f,#ee2d3d)">${ic('share',70).replace('class="ic"','class="ic big"')}<b>Avisos no WhatsApp</b><div>Compartilhe avisos e trabalhos com o grupo da turma em um toque.</div></div>
+     <div class="slide on" style="background:linear-gradient(130deg,#2b2563,#4a3fb0)">${ic('home',70).replace('class="ic"','class="ic big"')}<b>Olá, ${esc(u.nome.split(' ')[0])}! 👋</b><div>${DIASF[hoje().getDay()]}, ${br(iso(hoje()))} • você tem <b>${sem} prazo${sem===1?'':'s'}</b> nos próximos 7 dias</div></div>
+     <div class="slide" style="background:linear-gradient(130deg,#5a4bd6,#7b5cff)">${ic('bell',70).replace('class="ic"','class="ic big"')}<b>Lembrete 3 dias antes</b><div>Você recebe um aviso no celular 3 dias e 1 dia antes de cada prazo.</div></div>
+     <div class="slide" style="background:linear-gradient(130deg,#e8456a,#ff7a93)">${ic('share',70).replace('class="ic"','class="ic big"')}<b>Avisos no WhatsApp</b><div>Compartilhe avisos e trabalhos com o grupo da turma em um toque.</div></div>
    </div><div class="dots"><i class="on"></i><i></i><i></i></div>
    <div class="sec">Acesso rápido</div>
    <div class="grid">
@@ -430,7 +472,7 @@ function telaAjustes(u) {
    <div class="card" style="margin-top:12px">🛡 <b>IEMA Pleno de Coroatá</b><div class="sub">Aplicativo de organização escolar. Seus dados ficam apenas neste aparelho (protótipo).</div></div>
    <button class="btn gray" onclick="sair()">↪ Sair da conta</button>
    <button class="btn out" style="color:var(--r);border-color:var(--r)" onclick="confirmar('Restaurar dados de exemplo?','Tudo o que foi cadastrado neste aparelho será apagado e o app volta ao início.',()=>{localStorage.removeItem(KEY);load();renderLogin();toast('Dados de exemplo restaurados.')},'Restaurar')">Restaurar dados de exemplo</button>
-   <div class="note">IEMA Organiza • versão 1.1 • protótipo do TCC IEMA 2026 (Grupo 1)</div>`;
+   <div class="note">IEMA Organiza • versão 1.3 • protótipo do TCC IEMA 2026 (Grupo 1)</div>`;
 }
 function confirmar(titulo, texto, sim, rotulo) {
   const m = document.createElement('div'); m.className = 'modal';
@@ -574,7 +616,7 @@ function excluirJa(col, id) {
 
 load(); render();
 (function splash(){ const s = document.createElement('div'); s.id = 'splash';
-  s.innerHTML = '<img src="logo_iema.png" alt="IEMA"><div class="ap">' + ICON.replace('width="34" height="34"','width="44" height="44"') + '<div>IEMA <span>Organiza</span></div></div><div class="ld"><i></i></div><div style="font-size:11px;letter-spacing:2px;color:#8f959c;font-weight:600">ESTUDE. ORGANIZE. CONQUISTE.</div>';
+  s.innerHTML = '<img src="logo_iema.png" alt="IEMA"><div class="ap">' + ICON.replace('width="34" height="34"','width="44" height="44"') + '<div>IEMA <span>Organiza</span></div></div><div class="ld"><i></i></div><div style="font-size:11px;letter-spacing:2px;color:#8a84b5;font-weight:600">ESTUDE. ORGANIZE. CONQUISTE.</div>';
   document.body.appendChild(s); setTimeout(() => { s.style.opacity = 0; setTimeout(() => s.remove(), 450); }, 1500); })();
 setInterval(() => { const sl = document.querySelectorAll('.slide'); if (!sl.length) return; let i = [...sl].findIndex(x => x.classList.contains('on')); const j = (i+1) % sl.length; sl.forEach((x,k) => { if (k !== i) { x.style.transition='none'; x.classList.remove('sai','on'); } }); void sl[j].offsetWidth; sl.forEach(x => x.style.transition=''); sl[i].classList.remove('on'); sl[i].classList.add('sai'); sl[j].classList.add('on'); i = j;
   document.querySelectorAll('.dots i').forEach((d,k) => d.classList.toggle('on', k===i)); }, 3500);

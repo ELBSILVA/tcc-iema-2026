@@ -239,6 +239,56 @@ body.modo{background:#fff}
  .tv img[style*="height:56px"]{height:34px!important}
  .tv .pd[style*="height"]{height:auto!important;min-height:220px}
 }
+
+
+/* ===== TEMA ecofood ===== */
+@font-face{font-family:'DM Sans';src:url(fonts/dm-sans-400.woff2) format('woff2');font-weight:400;font-display:swap}@font-face{font-family:'DM Sans';src:url(fonts/dm-sans-500.woff2) format('woff2');font-weight:500;font-display:swap}@font-face{font-family:'DM Sans';src:url(fonts/dm-sans-600.woff2) format('woff2');font-weight:600;font-display:swap}@font-face{font-family:'DM Sans';src:url(fonts/dm-sans-700.woff2) format('woff2');font-weight:700;font-display:swap}@font-face{font-family:'Fraunces';src:url(fonts/fraunces-600.woff2) format('woff2');font-weight:600;font-display:swap}@font-face{font-family:'Fraunces';src:url(fonts/fraunces-700.woff2) format('woff2');font-weight:700;font-display:swap}@font-face{font-family:'Fraunces';src:url(fonts/fraunces-800.woff2) format('woff2');font-weight:800;font-display:swap}
+:root{--g:#23412f;--b:#2f7a49;--b2:#26653c;--r:#c8643b;--y:#d9962b;--ok:#2f7a49;--bg:#f6f1e6;--card:#fffdf8;--tx:#2a2a22;--mu:#7a6a52;--ln:#e7dcc6;--lb:#e5f0e1}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg)}
+h2,.brand b,#splash .ap,.k b,.kpis .k b,.tc .pn,.hero b{font-family:Fraunces,Georgia,serif}
+h2{font-weight:700;font-size:21px;color:#23412f}
+.top{background:#fffdf8;border-bottom:1px solid var(--ln)}
+.brand b{font-size:21px;font-weight:700}.brand b span:last-child{font-style:italic}.brand small{color:#9a8a70}
+.av{background:#2f7a49;color:#fffdf8}
+.card,.demo{border-radius:18px;border:1px solid #efe5d1;box-shadow:0 2px 0 rgba(120,100,60,.05)}
+.qa{border-radius:18px;border:1px solid #efe5d1;border-top:5px solid #2f7a49;box-shadow:none;background:#fffdf8}.qa:nth-child(even){border-top-color:#c8643b}
+.qa .ic{color:#2f7a49}.qa:nth-child(even) .ic{color:#c8643b}
+.btn{border-radius:14px;font-weight:700}.btn.red{background:#c8643b}.btn.gray{background:#23412f}
+.btn.out{background:#fffdf8;color:#2f7a49;border-color:#2f7a49}
+.nav{background:#fffdf8;border-top:1px solid var(--ln)}
+.nav button{color:#a3937a}
+.nav button.on{color:#2f7a49;box-shadow:none}
+.nav button.on .ic{background:#e5f0e1;border-radius:10px;padding:3px;width:30px;height:30px}
+.nav button em{background:#c8643b}
+.chip{border-radius:999px;border-color:#e2d5bb;background:#fffdf8;color:#5b4d36}.chip.on{background:#2f7a49;border-color:#2f7a49;color:#fff}
+.seg{background:#ede4d1}.seg button.on{background:#2f7a49}
+.sec{border-left:0;padding-left:0;font-family:Fraunces,Georgia,serif;font-size:16.5px}
+.sec:before{content:"";width:13px;height:13px;background:#2f7a49;border-radius:0 11px 0 11px;margin-right:9px;flex:none}
+input,select,textarea{background:#fffdf8;border-color:#e2d5bb;border-radius:12px}
+input:focus,select:focus,textarea:focus{border-color:#2f7a49}
+.hero{background:linear-gradient(120deg,#23412f,#2f7a49)}
+.dt{background:#e5f0e1;color:#26653c}.dt.dark{background:#23412f}
+.toast{background:#23412f;border-radius:14px}
+.prog i{background:#2f7a49}
+.sw.on{background:#2f7a49}
+.u6.novo{outline-color:#2f7a49}.hl.on{background:#e5f0e1}
+.totem{background:radial-gradient(circle at 85% 10%,#3f7a4f,transparent 45%),linear-gradient(160deg,#1b3024,#23412f 55%,#2f5e40)}
+.tc{background:rgba(255,253,248,.08);border:1px solid rgba(255,253,248,.15)}
+.tc.agora{background:#fffdf8;color:#23412f}.tc.agora .tag{color:#c8643b}
+.tw.on{background:#fffdf8;color:#23412f}
+.faixa{background:#f2c14e;color:#3a2a00;font-family:Fraunces,Georgia,serif}
+.tablet{background:#f6f1e6}.tv{background:#fffdf8}
+.nt.on{border-color:#2f7a49}
+#splash{background:#f6f1e6}
+.login>div:nth-child(2) b{font-family:Fraunces,Georgia,serif;font-size:34px!important}.login>div:nth-child(2) b span:last-child{font-style:italic}#splash .ld i{background:#2f7a49}
+@media (min-width:900px){
+ .nav{background:#fffdf8}
+ .nav button{color:#6f6250}
+ .nav button.on{background:#e5f0e1;color:#26653c}
+ .nav button.on .ic{background:none;padding:0;width:22px;height:22px}
+}
+
+/* ===== FIM DO TEMA ===== */
 </style>
 </head>
 <body>
@@ -279,7 +329,7 @@ const IC = {
  swap:'<path d="M7 4L3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/>'
 };
 const ic = (n, sz) => `<svg class="ic" viewBox="0 0 24 24" width="${sz||22}" height="${sz||22}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${IC[n]||''}</svg>`;
-const ICON = `<svg viewBox="0 0 40 40" width="34" height="34"><circle cx="20" cy="21" r="16" fill="#fff" stroke="#3a3a3c" stroke-width="3"/><circle cx="20" cy="21" r="10.5" fill="none" stroke="#d5dde3" stroke-width="1.5"/><path d="M13 27 C13 16 20 11 29 11 C29 21 23 27 13 27 Z" fill="#0d9ad8"/><path d="M14 26 C18 21 22 17 27 13" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="30" cy="27" r="4" fill="#ee2d3d"/></svg>`;
+const ICON = `<svg viewBox="0 0 40 40" width="34" height="34"><circle cx="20" cy="20" r="19" fill="#2f7a49"/><circle cx="19" cy="20" r="12.5" fill="none" stroke="#f6f1e6" stroke-width="2.2"/><path d="M12.5 25.5C12.5 16 18.5 11 27 11c0 9.5-5.5 14.5-14.5 14.5z" fill="#cfe6b4"/><path d="M13.8 24.4c3.6-4.4 7.2-8 11.6-11.6" stroke="#2f7a49" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="30" cy="29" r="5" fill="#c8643b" stroke="#f6f1e6" stroke-width="2"/><path d="M30 24.6c.6-1.4 1.8-2 3-2" stroke="#2f7a49" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>`;
 
 // ====================== dados de exemplo ======================
 const KEY = 'ecofood_v1';
@@ -295,7 +345,7 @@ const PR = {
 const PNOMES = ['Ana','João','Maria','Pedro','Lucas','Júlia','Gabriel','Beatriz','Mateus','Larissa','Rafael','Camila','Diego','Letícia','Felipe','Amanda','Carlos','Bianca','Thiago','Isabela','Vitor','Yasmin','Samuel','Lívia','Caio','Sofia','Davi','Clara','Bruno','Heloísa'];
 const SNOMES = ['Silva','Souza','Oliveira','Santos','Pereira','Lima','Costa','Ribeiro','Almeida','Carvalho','Gomes','Martins','Rocha','Araújo','Mendes','Barros','Freitas','Moura','Teixeira','Cardoso'];
 const TURMAS = ['101','102','201','203','204','301','303'];
-const CORES = ['#0d9ad8','#ee2d3d','#3a3a3c','#7b5ea7','#1b8a4a','#e08a00','#0b7a8a'];
+const CORES = ['#2f7a49','#c8643b','#23412f','#7b5ea7','#1b8a4a','#e08a00','#0b7a8a'];
 function rnd(seed) { let s = seed; return () => (s = (s * 9301 + 49297) % 233280) / 233280; }
 function seed() {
   const R = rnd(42);
@@ -373,7 +423,7 @@ const iniciais = n => n.split(' ').filter(Boolean).slice(0,2).map(x => x[0]).joi
 function foto(a, sz) { sz = sz || 56; return `<div class="foto" style="width:${sz}px;height:${sz}px;background:${a.cor}"><svg viewBox="0 0 40 40" width="${sz}" height="${sz}"><circle cx="20" cy="15" r="7.5" fill="rgba(255,255,255,.85)"/><path d="M6 40a14 14 0 0 1 28 0z" fill="rgba(255,255,255,.85)"/></svg><span>${esc(iniciais(a.nome))}</span></div>`; }
 function abrirJanela(modo) { window.open(location.href.split('#')[0] + '#' + modo, 'ecofood_' + modo); }
 function telaCheia() { const d = document.documentElement; if (!document.fullscreenElement) d.requestFullscreen && d.requestFullscreen(); else document.exitFullscreen(); }
-const NOTAS = {1:['😠','Ruim','#fde2e4'],2:['😐','Razoável','#fff3cd'],3:['🙂','Bom','#ddf0fa'],4:['🤩','Ótimo','#dcf3e4']};
+const NOTAS = {1:['😠','Ruim','#fde2e4'],2:['😐','Razoável','#fff3cd'],3:['🙂','Bom','#e5f0e1'],4:['🤩','Ótimo','#dcf3e4']};
 
 // ====================== navegação ======================
 let pilha = [], tela = 'inicio', param = null;
@@ -525,7 +575,7 @@ TELAS.cardapio = u => { const w = semSel || semanaCiclo(DB.cardapio, iso(hoje())
   return `<div class="row" style="margin-bottom:12px"><h2 style="margin:0">${ic('list')} Cardápio das 4 semanas</h2><span style="margin-left:auto" class="chips">${[1,2,3,4].map(x => `<span class="chip ${x===w?'on':''}" onclick="semSel=${x};render()">Semana ${x}${x===wHoje?' • atual':''}</span>`).join('')}</span></div>
    <div class="card" style="padding:6px 14px"><div class="li" style="font-weight:700;color:var(--mu);font-size:12px"><span style="width:110px">DIA</span>${REF.map(r => `<span style="flex:1">${r.toUpperCase()}</span>`).join('')}<span style="flex:1">OPÇÃO PARA RESTRIÇÃO</span><span style="width:60px"></span></div>
    ${[1,2,3,4,5].map(d => { const c = DB.cardapio[w + '-' + d]; const hj = w === wHoje && d === wdHoje;
-     return `<div class="li" style="${hj?'background:#e6f3fa;border-radius:8px':''}"><b style="width:110px">${DIASF[d]}${hj?' <span class="sel s-b">hoje</span>':''}</b>${REF.map(r => `<span style="flex:1;font-size:13.5px;display:flex;gap:8px;align-items:center">${thumb(c[r],46,34)}${esc(c[r])}</span>`).join('')}<span style="flex:1;font-size:12.5px;color:#8a5a00">${esc(c.restricao||'—')}</span>
+     return `<div class="li" style="${hj?'background:#e5f0e1;border-radius:8px':''}"><b style="width:110px">${DIASF[d]}${hj?' <span class="sel s-b">hoje</span>':''}</b>${REF.map(r => `<span style="flex:1;font-size:13.5px;display:flex;gap:8px;align-items:center">${thumb(c[r],46,34)}${esc(c[r])}</span>`).join('')}<span style="flex:1;font-size:12.5px;color:#8a5a00">${esc(c.restricao||'—')}</span>
       <button class="btn sm out" style="width:60px" onclick="ir('editCard','${w}-${d}')">Editar</button></div>`; }).join('')}</div>
    <div class="note">O cardápio aparece no totem do refeitório e fica registrado junto de cada refeição para os relatórios.</div>`; };
 TELAS.editCard = u => { const c = DB.cardapio[param]; const [w,d] = param.split('-');
@@ -588,7 +638,7 @@ TELAS.relatorios = u => {
     <div class="card k"><div class="sub">Cardápio seguido</div><b>${av.length?pct(av.filter(a=>a.seguido).length,av.length):0}%</b></div><div class="card k"><div class="sub">Repetições</div><b>${reps}</b></div></div>
    <div class="pdv"><div class="card"><div class="ttl" style="margin-bottom:8px">👍 Mais aceitos (% bom/ótimo)</div>${pr.slice(0,5).map(x => barraP(x,'var(--ok)')).join('')}
      <div class="ttl" style="margin:14px 0 8px;color:var(--r)">👎 Menos aceitos</div>${pr.slice(-4).reverse().map(x => barraP(x,'var(--r)')).join('')}</div>
-    <div><div class="card"><div class="ttl">Sobras por dia (kg)</div><svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto"><polyline fill="none" stroke="#0d9ad8" stroke-width="3" points="${pts}"/>${ult.map((v,i) => `<circle cx="${20 + i * (W - 30) / Math.max(1, ult.length - 1)}" cy="${H - 12 - v / mk * (H - 30)}" r="4" fill="${v > mKg * 1.25 ? '#ee2d3d' : '#0d9ad8'}"/>`).join('')}</svg>
+    <div><div class="card"><div class="ttl">Sobras por dia (kg)</div><svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto"><polyline fill="none" stroke="#2f7a49" stroke-width="3" points="${pts}"/>${ult.map((v,i) => `<circle cx="${20 + i * (W - 30) / Math.max(1, ult.length - 1)}" cy="${H - 12 - v / mk * (H - 30)}" r="4" fill="${v > mKg * 1.25 ? '#c8643b' : '#2f7a49'}"/>`).join('')}</svg>
      <div class="sub">Pontos vermelhos: dias com sobra acima da média — confira o prato do dia na tela de pesagem.</div></div>
      <div class="card"><div class="ttl" style="margin-bottom:6px">Turmas que mais ficam sem comer</div>${porT.slice(0,4).map(([t,p]) => `<div class="row" style="margin-bottom:6px"><span style="width:60px;font-weight:700">${t}</span><div style="flex:1;height:12px;background:#e3e9ee;border-radius:6px"><div style="height:12px;border-radius:6px;background:${p>15?'var(--r)':'var(--y)'};width:${Math.min(100,p*3)}%"></div></div><b style="width:44px;text-align:right">${p}%</b></div>`).join('')}</div></div></div>
    <div class="card" style="background:var(--g);color:#fff">💡 <b>Insight:</b> ${pr.length ? `"${esc(pr[pr.length-1].prato)}" teve só ${pr[pr.length-1].p}% de aprovação. Sugestão: trocar ou mudar a receita e acompanhar a pesagem das sobras na semana seguinte.` : 'Ainda não há avaliações suficientes.'}</div>
@@ -637,7 +687,7 @@ function renderTablet() {
      <div class="row" style="justify-content:center;margin-top:10px"><button class="btn ${tab.seg===true?'':'out'}" style="width:150px;margin:0" onclick="tab.seg=true;renderTablet()">✔ Sim</button><button class="btn ${tab.seg===false?'red':'out'}" style="width:150px;margin:0" onclick="tab.seg=false;renderTablet()">✕ Não</button></div>
      <button class="btn" style="max-width:420px;margin:22px auto 0;font-size:19px;padding:15px" onclick="tabEnviar()">➤ Enviar avaliação</button>
      <div><button class="btn sm out" style="margin-top:12px" onclick="tab={etapa:'cart'};renderTablet()">Cancelar</button></div>`; }
-  else { const m = {ok:['💚','Obrigado!','Sua opinião ajuda a melhorar o cardápio.','#dcf3e4'], ja:['🙂','Você já avaliou esta refeição.','Cada aluno avalia 1 vez por refeição, até o fim do dia.','#ddf0fa'], nao:['🍽','Só avalia quem pegou a refeição.','Passe a carteirinha no PDV antes de avaliar.','#fff3cd'], desc:['❓','Carteirinha não encontrada.','Procure a secretaria.','#fde2e4']}[tab.etapa];
+  else { const m = {ok:['💚','Obrigado!','Sua opinião ajuda a melhorar o cardápio.','#dcf3e4'], ja:['🙂','Você já avaliou esta refeição.','Cada aluno avalia 1 vez por refeição, até o fim do dia.','#e5f0e1'], nao:['🍽','Só avalia quem pegou a refeição.','Passe a carteirinha no PDV antes de avaliar.','#fff3cd'], desc:['❓','Carteirinha não encontrada.','Procure a secretaria.','#fde2e4']}[tab.etapa];
     corpo = `<div style="background:${m[3]};border-radius:24px;padding:40px 20px;max-width:640px;margin:30px auto"><div style="font-size:90px">${m[0]}</div><div style="font-size:30px;font-weight:800">${m[1]}</div><div class="sub" style="font-size:18px;margin-top:8px">${m[2]}</div></div>`; setTimeout(() => { tab = {etapa:'cart'}; renderTablet(); }, 3500); }
   $('#app').innerHTML = `<div class="tablet"><div class="row" style="justify-content:space-between"><img src="logo_iema.png" style="height:42px"><div class="row">${ICON}<b style="font-size:22px"><span style="color:var(--b)">Eco</span><span style="color:var(--r)">Food</span></b></div><button class="btn sm out" onclick="telaCheia()">⛶ Tela cheia</button></div>
    <div style="text-align:center;flex:1;display:flex;flex-direction:column;justify-content:center">${corpo}</div></div>`;
@@ -664,12 +714,12 @@ TELAS.ajustes = u => `${voltarBtn(ic('gear') + ' Ajustes')}<div class="card" sty
    <div class="card" style="max-width:640px">🛡 <b>IEMA Pleno de Coroatá</b><div class="sub">EcoFood • relatórios da carteirinha. Os dados ficam salvos neste computador (protótipo).</div></div>
    <div style="max-width:640px"><button class="btn gray" onclick="sair()">${ic('swap',18)} Trocar usuário / sair</button>
    <button class="btn out" style="color:var(--r);border-color:var(--r)" onclick="confirmar('Restaurar dados de exemplo?','Tudo o que foi registrado neste computador será apagado e o programa volta ao início.',()=>{localStorage.removeItem(KEY);load();renderLogin();toast('Dados de exemplo restaurados.')},'Restaurar')">Restaurar dados de exemplo</button></div>
-   <div class="note">EcoFood • versão 1.4 para Windows • protótipo do TCC IEMA 2026 (Grupo 3)</div>`;
+   <div class="note">EcoFood • versão 1.5 para Windows • protótipo do TCC IEMA 2026 (Grupo 3)</div>`;
 
 // ====================== início ======================
 load(); render();
 if (!location.hash) { const s = document.createElement('div'); s.id = 'splash';
-  s.innerHTML = '<img src="logo_iema.png" alt="IEMA"><div class="ap">' + ICON.replace('width="34" height="34"','width="50" height="50"') + '<div><span style="color:var(--b)">Eco</span><span style="color:var(--r)">Food</span></div></div><div class="ld"><i></i></div><div style="font-size:11px;letter-spacing:2px;color:#8f959c;font-weight:600">PROJETO DESPERDÍCIO ZERO</div>';
+  s.innerHTML = '<img src="logo_iema.png" alt="IEMA"><div class="ap">' + ICON.replace('width="34" height="34"','width="50" height="50"') + '<div><span style="color:var(--b)">Eco</span><span style="color:var(--r)">Food</span></div></div><div class="ld"><i></i></div><div style="font-size:11px;letter-spacing:2px;color:#9a8a70;font-weight:600">PROJETO DESPERDÍCIO ZERO</div>';
   document.body.appendChild(s); setTimeout(() => { s.style.opacity = 0; setTimeout(() => s.remove(), 450); }, 1500); }
 window.addEventListener('storage', e => { if (e.key === KEY) { load(); const m = location.hash; if (m === '#totem' || m === '#mural') render(); else if (m === '#tablet') { if (tab.etapa === 'cart') renderTablet(); } else if (!$('input:focus')) render(); } });
 setInterval(() => { const r = $('#relogio'); if (r) r.textContent = hhmm(); if (location.hash === '#totem') { load(); renderTotem(); } }, 20000);

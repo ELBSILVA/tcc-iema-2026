@@ -144,6 +144,56 @@ h2 .ic{width:20px;height:20px;color:var(--b)}
  #toasts .toast:nth-child(n+2){display:none}
  .toast{font-size:12.5px;padding:9px 12px}
 }
+
+
+/* ===== TEMA stocktech ===== */
+@font-face{font-family:'Barlow';src:url(fonts/barlow-400.woff2) format('woff2');font-weight:400;font-display:swap}@font-face{font-family:'Barlow';src:url(fonts/barlow-500.woff2) format('woff2');font-weight:500;font-display:swap}@font-face{font-family:'Barlow';src:url(fonts/barlow-600.woff2) format('woff2');font-weight:600;font-display:swap}@font-face{font-family:'Barlow';src:url(fonts/barlow-700.woff2) format('woff2');font-weight:700;font-display:swap}@font-face{font-family:'Barlow Condensed';src:url(fonts/barlow-condensed-500.woff2) format('woff2');font-weight:500;font-display:swap}@font-face{font-family:'Barlow Condensed';src:url(fonts/barlow-condensed-600.woff2) format('woff2');font-weight:600;font-display:swap}@font-face{font-family:'Barlow Condensed';src:url(fonts/barlow-condensed-700.woff2) format('woff2');font-weight:700;font-display:swap}
+:root{--g:#1f2329;--b:#ff8a00;--b2:#d97500;--r:#e5484d;--y:#f5b301;--ok:#2e9e5b;--bg:#eceef1;--card:#fff;--tx:#1f2329;--mu:#687280;--ln:#d6dae0;--lb:#fff1e0}
+body{font-family:Barlow,system-ui,sans-serif;background:var(--bg)}
+h2,.sec,.btn,.chip,.seg button,.nav button,.tag,.sel,.kpis .k b,.k b,.brand b,#splash .ap{font-family:'Barlow Condensed',Barlow,sans-serif}
+h2{text-transform:uppercase;font-weight:700;font-size:21px;letter-spacing:.5px}
+.ttl{font-weight:600}
+.top{background:#1f2329;border-bottom:3px solid #ff8a00;color:#fff}
+.top .brand b{color:#fff;text-transform:uppercase;font-size:22px;letter-spacing:1px}.top .brand b span{color:#ff8a00}.top .brand small{color:#9aa3ae}
+.top .sub,.top .sub b{color:#c3c9d1}
+.av{background:#ff8a00;color:#1f2329;border-radius:6px}
+.card,.demo{border-radius:4px;box-shadow:none;border:1px solid var(--ln)}
+.qa{border-radius:4px;box-shadow:none;border:1px solid var(--ln);border-top:4px solid #ff8a00}.qa:nth-child(even){border-top-color:#1f2329}
+.qa .ic{color:#ff8a00}.qa:nth-child(even) .ic{color:#1f2329}
+.btn{border-radius:4px;text-transform:uppercase;font-weight:700;letter-spacing:1px;font-size:15.5px}
+.btn.out{border-width:2px}.btn.gray{background:#1f2329}
+.chip{border-radius:3px;text-transform:uppercase;letter-spacing:.5px}.chip.on{background:#1f2329;border-color:#1f2329}
+.seg{border-radius:4px;background:#dfe3e8}.seg button{border-radius:3px;text-transform:uppercase}.seg button.on{background:#1f2329;color:#ff8a00}
+.nav{background:#1f2329;border-top:0}
+.nav button{color:#9aa3ae;text-transform:uppercase;letter-spacing:.4px}
+.nav button.on{color:#ff8a00;box-shadow:inset 0 3px 0 #ff8a00}
+.nav button em{background:#ff8a00;color:#1f2329}
+input,select,textarea{border-radius:4px;background:#fff;border-color:#cfd5dc}
+input:focus,select:focus,textarea:focus{border-color:#ff8a00}
+.sec{border-left:4px solid #ff8a00;text-transform:uppercase;letter-spacing:.5px}
+.hero{background:#1f2329;border-left:6px solid #ff8a00;border-radius:4px}
+.car{border-radius:4px}.dots i{border-radius:1px}.dots i.on{background:#ff8a00}
+.kpis .k b,.k b{font-size:36px;font-weight:700}
+.dt{border-radius:3px;background:#fff1e0;color:#b35f00}.dt.dark{background:#1f2329;color:#ff8a00}
+.bar,.lv,.lv i,.prog,.prog i{border-radius:1px}
+.fab{border-radius:6px;background:#ff8a00;color:#1f2329;box-shadow:0 6px 14px rgba(0,0,0,.25)}
+.toast{border-radius:4px;border-left:4px solid #ff8a00;background:#1f2329}
+.sel{border-radius:2px;text-transform:uppercase;letter-spacing:.4px}
+.stp{border-radius:4px}.stp button{background:#f1f3f5;color:#1f2329}
+.modal .box{border-radius:6px}
+.sw{border-radius:4px}.sw:after{border-radius:3px}.sw.on{background:#ff8a00}
+#splash{background:#1f2329}#splash .ap{color:#fff;text-transform:uppercase;letter-spacing:1px}#splash .ap span{color:#ff8a00}
+#splash img{background:#fff;border-radius:6px;padding:6px}
+.login>div:nth-child(2) b{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;font-size:34px!important;letter-spacing:1px}.login>div:nth-child(2) b span{color:#ff8a00!important}
+#splash .ld{background:#3a414b}#splash .ld i{background:#ff8a00}
+@media (min-width:900px){
+ .nav{background:#1f2329;border-right:0}
+ .nav button{color:#aeb6c0;border-radius:3px;text-transform:none;font-family:Barlow;font-weight:500}
+ .nav button.on{background:#2c323a;color:#fff;box-shadow:inset 4px 0 0 #ff8a00}
+ .nav button.on .ic{color:#ff8a00}
+}
+
+/* ===== FIM DO TEMA ===== */
 </style>
 </head>
 <body>
@@ -184,7 +234,7 @@ const IC = {
  trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>'
 };
 const ic = (n, sz) => `<svg class="ic" viewBox="0 0 24 24" width="${sz||22}" height="${sz||22}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${IC[n]||''}</svg>`;
-const ICON = `<svg viewBox="0 0 40 40" width="34" height="34"><path d="M20 2 L36 11 V29 L20 38 L4 29 V11 Z" fill="#3a3a3c"/><path d="M20 2 L36 11 L20 20 L4 11 Z" fill="#55575a"/><rect x="10" y="22" width="5" height="9" rx="1.5" fill="#0d9ad8"/><rect x="17.5" y="18" width="5" height="13" rx="1.5" fill="#0d9ad8"/><rect x="25" y="14" width="5" height="17" rx="1.5" fill="#ee2d3d"/></svg>`;
+const ICON = `<svg viewBox="0 0 40 40" width="34" height="34"><rect x="1" y="1" width="38" height="38" rx="5" fill="#1f2329"/><path d="M20 6l10.5 5.5L20 17 9.5 11.5z" fill="#ffa53d"/><path d="M9.5 11.5L20 17v11.5L9.5 23z" fill="#c96a00"/><path d="M30.5 11.5L20 17v11.5L30.5 23z" fill="#ff8a00"/><path d="M14.7 8.7l10.5 5.6" stroke="#1f2329" stroke-width="1.3" opacity=".45"/><g fill="#fff"><rect x="10" y="31" width="1.6" height="4.5"/><rect x="12.8" y="31" width="3" height="4.5"/><rect x="17" y="31" width="1.2" height="4.5"/><rect x="19.4" y="31" width="2.4" height="4.5"/><rect x="23" y="31" width="1.2" height="4.5"/><rect x="25.4" y="31" width="3.2" height="4.5"/><rect x="29.6" y="31" width="1" height="4.5"/></g></svg>`;
 
 // ====================== dados de exemplo ======================
 const KEY = 'stocktech_v1';
@@ -336,9 +386,9 @@ TELAS.painel = u => {
   const hojeS = DB.saidas.filter(s => s.data === iso(hoje()) && !s.perda); const refs = [...new Set(hojeS.map(s => s.refeicao))];
   const lista = [...DB.alimentos].sort((a,b) => situacao(a).nivel - situacao(b).nivel);
   return `<div class="car">
-     <div class="slide on" style="background:linear-gradient(130deg,#3a3a3c,#5b5d61)">${ic('box',70).replace('class="ic"','class="ic big"')}<b>Olá, ${esc(u.nome.split(' ')[0])}! 👋</b><div>${DIASF[hoje().getDay()]}, ${br(iso(hoje()))} • ${DB.alimentos.length} alimentos no controle</div></div>
-     <div class="slide" style="background:linear-gradient(130deg,#c91f2f,#ee2d3d)">${ic('bell',70).replace('class="ic"','class="ic big"')}<b>Alerta antes de vencer</b><div>O StockTech avisa ${DB.config.diasAlerta} dias antes da validade e quando o estoque fica abaixo do mínimo.</div></div>
-     <div class="slide" style="background:linear-gradient(130deg,#0b86c0,#0d9ad8)">${ic('cart',70).replace('class="ic"','class="ic big"')}<b>Lista de compras pronta</b><div>Calculada pelo mínimo + a média de consumo da semana.</div></div>
+     <div class="slide on" style="background:linear-gradient(130deg,#1f2329,#3a414b)">${ic('box',70).replace('class="ic"','class="ic big"')}<b>Olá, ${esc(u.nome.split(' ')[0])}! 👋</b><div>${DIASF[hoje().getDay()]}, ${br(iso(hoje()))} • ${DB.alimentos.length} alimentos no controle</div></div>
+     <div class="slide" style="background:linear-gradient(130deg,#b8322f,#e5484d)">${ic('bell',70).replace('class="ic"','class="ic big"')}<b>Alerta antes de vencer</b><div>O StockTech avisa ${DB.config.diasAlerta} dias antes da validade e quando o estoque fica abaixo do mínimo.</div></div>
+     <div class="slide" style="background:linear-gradient(130deg,#d97500,#ff8a00)">${ic('cart',70).replace('class="ic"','class="ic big"')}<b>Lista de compras pronta</b><div>Calculada pelo mínimo + a média de consumo da semana.</div></div>
    </div><div class="dots"><i class="on"></i><i></i><i></i></div>
    <div class="kpis">
     <div class="card k" onclick="ir('alimentos')"><div class="sub">Itens no estoque</div><b>${DB.alimentos.length}</b></div>
@@ -505,7 +555,7 @@ TELAS.ajustes = u => `${voltarBtn(ic('gear')+' Ajustes')}<div class="card"><div 
    <div class="card" style="margin-top:12px">🛡 <b>IEMA Pleno de Coroatá</b><div class="sub">Controle do estoque de alimentos da cozinha. Os dados ficam salvos neste computador (protótipo).</div></div>
    <button class="btn gray" onclick="sair()">↪ Sair da conta</button>
    <button class="btn out" style="color:var(--r);border-color:var(--r)" onclick="confirmar('Restaurar dados de exemplo?','Tudo o que foi registrado neste computador será apagado e o app volta ao início.',()=>{localStorage.removeItem(KEY);load();renderLogin();toast('Dados de exemplo restaurados.')},'Restaurar')">Restaurar dados de exemplo</button>
-   <div class="note">StockTech • versão 1.0 para Windows • protótipo do TCC IEMA 2026 (Grupo 2)</div>`;
+   <div class="note">StockTech • versão 1.1 para Windows • protótipo do TCC IEMA 2026 (Grupo 2)</div>`;
 function salvarMeus() { const u = me(); u.nome = $('#un').value.trim() || u.nome; u.cargo = $('#uc').value.trim(); if ($('#us').value.trim()) u.senha = $('#us').value.trim(); save(); toast('Dados salvos!'); render(); }
 TELAS.usuarios = u => `${voltarBtn(ic('users')+' Usuários')}${DB.users.map(x => `<div class="card row"><div class="av" style="margin:0;background:${x.perfil==='cozinha'?'var(--b)':'var(--r)'}">${esc(iniciais(x.nome))}</div><div style="flex:1"><div class="ttl">${esc(x.nome)}</div><div class="sub">${esc(x.cargo)} • login: ${esc(x.login)}</div></div>${x.id!==u.id?`<button class="del" onclick="confirmar('Excluir usuário?','${esc(x.nome)} não poderá mais entrar.',()=>{DB.users=DB.users.filter(y=>y.id!=='${x.id}');save();render()},'Excluir')">Excluir</button>`:''}</div>`).join('')}
    <div class="card"><div class="ttl">+ Cadastrar usuário</div><label class="lbl">Nome</label><input id="nn"><div class="row"><div style="flex:1"><label class="lbl">Perfil</label><select id="np"><option value="cozinha">Cozinha</option><option value="gestao">Gestão</option></select></div><div style="flex:1"><label class="lbl">Cargo</label><input id="nc" placeholder="ex.: Merendeira"></div></div>
@@ -515,7 +565,7 @@ function novoUser() { const n = $('#nn').value.trim(), l = $('#nl').value.trim()
 
 load(); render();
 (function splash(){ const s = document.createElement('div'); s.id = 'splash';
-  s.innerHTML = '<img src="logo_iema.png" alt="IEMA"><div class="ap">' + ICON.replace('width="34" height="34"','width="46" height="46"') + '<div>Stock<span>Tech</span></div></div><div class="ld"><i></i></div><div style="font-size:11px;letter-spacing:2px;color:#8f959c;font-weight:600">CONTROLE DE ESTOQUE</div>';
+  s.innerHTML = '<img src="logo_iema.png" alt="IEMA"><div class="ap">' + ICON.replace('width="34" height="34"','width="46" height="46"') + '<div>Stock<span>Tech</span></div></div><div class="ld"><i></i></div><div style="font-size:11px;letter-spacing:2px;color:#8a93a0;font-weight:600">CONTROLE DE ESTOQUE</div>';
   document.body.appendChild(s); setTimeout(() => { s.style.opacity = 0; setTimeout(() => s.remove(), 450); }, 1500); })();
 setInterval(() => { const sl = document.querySelectorAll('.slide'); if (!sl.length) return; let i = [...sl].findIndex(x => x.classList.contains('on')); if (i < 0) return;
   const j = (i+1) % sl.length; sl.forEach((x,k) => { if (k !== i) { x.style.transition='none'; x.classList.remove('sai','on'); } }); void sl[j].offsetWidth; sl.forEach(x => x.style.transition=''); sl[i].classList.remove('on'); sl[i].classList.add('sai'); sl[j].classList.add('on');
