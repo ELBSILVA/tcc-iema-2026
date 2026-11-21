@@ -1,0 +1,584 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>IEMA Organiza</title>
+<style>
+:root{--g:#3a3a3c;--b:#0d9ad8;--b2:#0b86c0;--r:#ee2d3d;--y:#e0a100;--ok:#1b8a4a;--bg:#f2f6f9;--card:#fff;--tx:#2a2a2c;--mu:#6b747d;--ln:#dfe7ee;--lb:#e6f3fa}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--tx);font-size:15px}
+#app{display:flex;flex-direction:column;height:100%;max-width:520px;margin:0 auto;background:var(--bg)}
+.top{background:#fff;padding:12px 16px 10px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--ln);flex:none}
+.brand{display:flex;align-items:center;gap:8px}
+.brand b{font-size:18px;letter-spacing:-.3px}.brand b span{color:var(--b)}
+.brand small{display:block;font-size:9px;letter-spacing:2px;color:var(--mu);font-weight:600}
+.av{margin-left:auto;width:36px;height:36px;border-radius:50%;background:var(--g);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;position:relative;font-size:14px}
+.av.dot:after{content:"";position:absolute;top:0;right:0;width:10px;height:10px;border-radius:50%;background:var(--r);border:2px solid #fff}
+.main{flex:1;overflow-y:auto;padding:14px 14px 90px}
+.nav{position:fixed;bottom:0;left:0;right:0;max-width:520px;margin:0 auto;background:#fff;border-top:1px solid var(--ln);display:flex;height:62px;z-index:5}
+.nav button{flex:1;border:0;background:none;font-size:11px;color:#8f959c;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-family:inherit}
+.nav button i{font-style:normal;font-size:20px;line-height:1}
+.nav button.on{color:var(--b);font-weight:700;box-shadow:inset 0 3px 0 var(--b)}
+h2{font-size:18px;margin:2px 0 12px;display:flex;align-items:center;gap:8px}
+.back{border:0;background:#fff;width:34px;height:34px;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,.12);font-size:18px;color:var(--g)}
+.sec{font-weight:700;font-size:15px;border-left:4px solid var(--r);padding-left:8px;margin:16px 0 10px;display:flex;align-items:center}
+.sec a{margin-left:auto;font-size:12px;color:var(--b);font-weight:600;text-decoration:none}
+.card{background:var(--card);border-radius:14px;padding:12px 14px;box-shadow:0 2px 8px rgba(58,58,60,.07);margin-bottom:10px}
+.hero{background:linear-gradient(120deg,var(--g),#55575a);color:#fff;border-radius:16px;padding:16px;margin-bottom:6px}
+.hero b{font-size:18px}.hero div{font-size:13px;opacity:.88;margin-top:4px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.qa{background:#fff;border-radius:14px;padding:14px;box-shadow:0 2px 8px rgba(58,58,60,.07);border-top:4px solid var(--b);font-weight:600;font-size:14px;cursor:pointer;position:relative}
+.qa:nth-child(even){border-top-color:var(--r)}
+.qa i{font-style:normal;font-size:22px;display:block;margin-bottom:6px}
+.qa .n{position:absolute;top:10px;right:10px}
+.row{display:flex;gap:10px;align-items:center}
+.dt{width:50px;flex:none;text-align:center;background:var(--lb);border-radius:10px;padding:5px 0;color:var(--b2)}
+.dt small{display:block;font-size:9px;font-weight:700;letter-spacing:.5px}.dt b{display:block;font-size:20px;line-height:1.1}
+.dt.dark{background:var(--g);color:#fff}
+.ttl{font-weight:700;font-size:14.5px}.sub{color:var(--mu);font-size:12.5px;margin-top:2px}
+.sel{display:inline-block;border-radius:12px;padding:3px 9px;font-size:11px;font-weight:700;white-space:nowrap}
+.s-r{background:#fde2e4;color:#c2182a}.s-y{background:#fff3cd;color:#8a5a00}.s-b{background:#ddf0fa;color:#0b74a6}.s-ok{background:#dcf3e4;color:var(--ok)}.s-g{background:#eceff2;color:var(--g)}.s-p{background:#f3e5fb;color:#7b2ca3}
+.btn{display:block;width:100%;border:0;border-radius:12px;padding:12px;font-size:14.5px;font-weight:700;background:var(--b);color:#fff;font-family:inherit;margin-top:8px}
+.btn.sm{display:inline-block;width:auto;padding:7px 12px;font-size:12.5px;margin-top:0}
+.btn.out{background:#fff;color:var(--b);border:1.5px solid var(--b)}
+.btn.wa{background:#25d366}.btn.red{background:var(--r)}.btn.gray{background:var(--g)}
+.lbl{font-size:12.5px;font-weight:700;color:#4a525a;margin:10px 0 4px;display:block}
+input,select,textarea{width:100%;border:1.5px solid var(--ln);border-radius:10px;padding:10px 12px;font-size:15px;font-family:inherit;background:#f8fafc;color:var(--tx)}
+textarea{min-height:76px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--b);background:#fff}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1.5px solid var(--ln);background:#fff;border-radius:16px;padding:6px 12px;font-size:13px;font-weight:600;color:var(--g)}
+.chip.on{background:var(--b);border-color:var(--b);color:#fff}
+.seg{display:flex;background:#e3e9ee;border-radius:20px;padding:3px;margin-bottom:12px}
+.seg button{flex:1;border:0;background:none;border-radius:17px;padding:8px;font-weight:700;font-size:13px;color:var(--mu);font-family:inherit}
+.seg button.on{background:var(--g);color:#fff}
+.hr{display:flex;gap:10px;align-items:center}
+.hr .h{width:52px;color:var(--b2);font-weight:700;font-size:13px}.hr .h small{display:block;color:#9aa1a8;font-weight:500}
+.hr .d{flex:1;border-left:2px solid var(--ln);padding-left:10px}
+.empty{text-align:center;color:var(--mu);padding:24px 10px;font-size:13.5px}
+#toasts{position:fixed;left:0;right:0;top:12px;display:flex;flex-direction:column;align-items:center;gap:8px;z-index:20;pointer-events:none}
+.toast{background:var(--g);color:#fff;padding:11px 16px;border-radius:12px;font-size:13.5px;max-width:92%;box-shadow:0 6px 18px rgba(0,0,0,.25);transition:opacity .3s}
+.fab{position:fixed;right:18px;bottom:78px;width:56px;height:56px;border-radius:50%;background:var(--r);color:#fff;border:0;font-size:30px;box-shadow:0 6px 16px rgba(238,45,61,.4);z-index:6}
+.login{padding:22px 18px;overflow-y:auto;flex:1}
+.login .logo{display:block;width:150px;margin:6px auto 4px}
+.demo{display:flex;align-items:center;gap:10px;background:#fff;border-radius:12px;padding:10px 12px;margin-bottom:8px;box-shadow:0 1px 5px rgba(0,0,0,.06);cursor:pointer}
+.demo .av{margin:0;width:38px;height:38px}
+.bar{height:12px;border-radius:6px;background:var(--b)}
+.tag{font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.sw{width:46px;height:26px;border-radius:13px;background:#cfd6dc;position:relative;flex:none;border:0}
+.sw:after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.2s}
+.sw.on{background:var(--b)}.sw.on:after{left:23px}
+.del{border:0;background:none;color:var(--r);font-size:12.5px;font-weight:700}
+.note{font-size:12px;color:var(--mu);text-align:center;margin-top:14px;line-height:1.5}
+
+.ic{display:inline-block;vertical-align:middle;flex:none}
+.nav button .ic{width:22px;height:22px}
+.qa .ic{width:26px;height:26px;display:block;margin-bottom:8px;color:var(--b)}
+.qa:nth-child(even) .ic{color:var(--r)}
+h2 .ic{width:20px;height:20px;color:var(--b)}
+.main>*{animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+#splash{position:fixed;inset:0;background:#fff;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;transition:opacity .45s}
+#splash img{width:170px}
+#splash .ap{display:flex;align-items:center;gap:10px;font-size:26px;font-weight:800;color:var(--g);animation:pop .6s ease}
+#splash .ap span{color:var(--b)}
+#splash .ld{width:120px;height:4px;border-radius:2px;background:#e3e9ee;overflow:hidden}
+#splash .ld i{display:block;height:100%;width:40%;background:var(--b);border-radius:2px;animation:ld 1s infinite ease-in-out}
+@keyframes ld{0%{margin-left:-40%}100%{margin-left:100%}}
+@keyframes pop{from{transform:scale(.8);opacity:0}to{transform:none;opacity:1}}
+.car{position:relative;border-radius:18px;overflow:hidden;height:150px;margin-bottom:6px}
+.slide{position:absolute;inset:0;padding:18px;color:#fff;display:flex;flex-direction:column;justify-content:flex-end;transform:translateX(100%);transition:transform .55s ease}
+.slide.on{transform:none}.slide.sai{transform:translateX(-100%)}
+.slide b{font-size:19px;line-height:1.2}.slide div{font-size:13px;opacity:.9;margin-top:4px}
+.slide .big{position:absolute;right:14px;top:12px;width:70px;height:70px;opacity:.25}
+.dots{display:flex;justify-content:center;gap:6px;margin:6px 0 2px}
+.dots i{width:7px;height:7px;border-radius:4px;background:#c8d3dc;transition:.3s}.dots i.on{width:20px;background:var(--g)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:40;display:flex;align-items:center;justify-content:center;padding:24px}
+.modal .box{background:#fff;border-radius:18px;padding:20px;width:100%;max-width:340px;animation:pop .2s ease}
+.modal .box b{font-size:16px}.modal .box p{color:var(--mu);font-size:14px;margin:8px 0 14px;line-height:1.45}
+.modal .row{gap:8px}.modal .btn{margin-top:0}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+.cal .h{font-size:10.5px;font-weight:700;color:var(--mu);padding:4px 0}
+.cal .d{aspect-ratio:1;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:13px;font-weight:600;background:#f5f8fa;position:relative}
+.cal .d.x{background:none}
+.cal .d.hj{background:var(--g);color:#fff}
+.cal .d .pt{display:flex;gap:2px;position:absolute;bottom:4px}
+.cal .d .pt i{width:5px;height:5px;border-radius:50%}
+.prog{height:8px;border-radius:4px;background:#e3e9ee;overflow:hidden;margin-top:6px}.prog i{display:block;height:100%;background:var(--ok)}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+// ====================== utilidades ======================
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => Math.random().toString(36).slice(2, 9);
+const DIAS = ['DOM','SEG','TER','QUA','QUI','SEX','SÁB'];
+const DIASF = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+const MESES = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
+const hoje = () => { const d = new Date(); d.setHours(0,0,0,0); return d; };
+const iso = d => d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+const parse = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); };
+const addD = n => { const d = hoje(); d.setDate(d.getDate()+n); return iso(d); };
+const br = s => { const d = parse(s); return String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear(); };
+const diasAte = s => Math.round((parse(s) - hoje()) / 86400000);
+const ehApp = () => { try { return !!(window.Android && Android.isApp()); } catch(e) { return false; } };
+
+const IC = {
+ home:'<path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/>',
+ cal:'<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+ list:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3h6v3H9zM9 11h6M9 15h6"/>',
+ chart:'<path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/>',
+ gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+ mega:'<path d="M3 11v2a1 1 0 0 0 1 1h3l7 4V6L7 10H4a1 1 0 0 0-1 1z"/><path d="M18 9a4 4 0 0 1 0 6"/>',
+ star:'<path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z"/>',
+ book:'<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5M8 7h7"/>',
+ users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18.5 20a6 6 0 0 0-2.5-5"/>',
+ plus:'<path d="M12 5v14M5 12h14"/>',
+ bell:'<path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/>',
+ user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+ edit:'<path d="M4 20h4L20 8l-4-4L4 16z"/>',
+ file:'<path d="M14 3H6v18h12V7z"/><path d="M14 3v4h4"/>',
+ link:'<path d="M10 14a4 4 0 0 0 6 0l3-3a4 4 0 0 0-6-6l-1 1"/><path d="M14 10a4 4 0 0 0-6 0l-3 3a4 4 0 0 0 6 6l1-1"/>',
+ play:'<circle cx="12" cy="12" r="9"/><path d="M10 8l6 4-6 4z"/>',
+ share:'<circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/>'
+};
+const ic = (n, sz) => `<svg class="ic" viewBox="0 0 24 24" width="${sz||22}" height="${sz||22}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${IC[n]||''}</svg>`;
+
+// ====================== dados de exemplo ======================
+const KEY = 'iemaorganiza_v2';
+function seed() {
+  const users = [
+    {id:'a1', nome:'Lucas Oliveira', login:'lucas', senha:'1234', perfil:'aluno', turma:'301', curso:'Manutenção e Suporte em Informática', email:'lucas.exemplo@email.com'},
+    {id:'a2', nome:'Maria Clara Santos', login:'maria', senha:'1234', perfil:'aluno', turma:'301', curso:'Manutenção e Suporte em Informática', email:'maria.exemplo@email.com'},
+    {id:'a3', nome:'João Pedro Lima', login:'joao', senha:'1234', perfil:'aluno', turma:'302', curso:'Administração', email:'joao.exemplo@email.com'},
+    {id:'a4', nome:'Ana Beatriz Costa', login:'ana', senha:'1234', perfil:'aluno', turma:'303', curso:'Agropecuária', email:'ana.exemplo@email.com'},
+    {id:'p1', nome:'Prof.ª Lívia Rocha', login:'livia', senha:'1234', perfil:'professor', disciplina:'Filosofia', email:'livia.exemplo@email.com'},
+    {id:'p2', nome:'Prof. Marcos Souza', login:'marcos', senha:'1234', perfil:'professor', disciplina:'Matemática', email:'marcos.exemplo@email.com'},
+    {id:'p3', nome:'Prof. Carlos Mendes', login:'carlos', senha:'1234', perfil:'professor', disciplina:'Redes de Computadores', email:'carlos.exemplo@email.com'},
+    {id:'c1', nome:'Coordenação Pedagógica', login:'coord', senha:'1234', perfil:'coord', email:'coordenacao.exemplo@email.com'}
+  ];
+  const atividades = [
+    {id:'t1', titulo:'Trabalho de Matemática — Funções', disciplina:'Matemática', tipo:'Trabalho', turmas:['301','302'], prazo:addD(1), descricao:'Lista de 10 exercícios sobre funções do 1º grau.', profId:'p2'},
+    {id:'t2', titulo:'Trabalho de Filosofia — Ética', disciplina:'Filosofia', tipo:'Trabalho', turmas:['301','303'], prazo:addD(3), descricao:'Texto de 2 páginas sobre ética no dia a dia.', profId:'p1'},
+    {id:'t3', titulo:'Relatório de Redes de Computadores', disciplina:'Redes de Computadores', tipo:'Relatório', turmas:['301'], prazo:addD(4), descricao:'Relatório da prática de crimpagem de cabos.', profId:'p3'},
+    {id:'t4', titulo:'Seminário de Sociologia', disciplina:'Sociologia', tipo:'Seminário', turmas:['301','302','303'], prazo:addD(8), descricao:'Apresentação em grupo de até 10 minutos.', profId:'p1'},
+    {id:'t5', titulo:'Prova de Física', disciplina:'Física', tipo:'Prova', turmas:['301','302','303'], prazo:addD(12), descricao:'Conteúdo: cinemática.', profId:'p2'},
+    {id:'t6', titulo:'Lista de exercícios — Porcentagem', disciplina:'Matemática', tipo:'Lista', turmas:['301'], prazo:addD(-2), descricao:'Entregue na aula passada.', profId:'p2'}
+  ];
+  const avisos = [
+    {id:'v1', tipo:'Prova', titulo:'AV3 do 4º bimestre', texto:'As avaliações da AV3 acontecem de 01 a 04/12. Confira o cronograma no horário de aulas.', data:addD(-1), autor:'Coordenação Pedagógica', turmas:'todas'},
+    {id:'v2', tipo:'Urgente', titulo:'Sábado letivo 28/11', texto:'Atividades assíncronas pelo Google Classroom. A participação conta como frequência.', data:addD(-2), autor:'Coordenação Pedagógica', turmas:'todas'},
+    {id:'v3', tipo:'Evento', titulo:'Apresentação dos TCCs', texto:'Sexta, 04/12: pitch das equipes do TCC baseado em ODS, inovação e empreendedorismo.', data:addD(-3), autor:'Gestão escolar', turmas:'todas'}
+  ];
+  const eventos = [
+    {id:'e1', titulo:'Sábado letivo', texto:'Atividades assíncronas pelo Google Classroom.', data:'2026-11-28', hora:'—', local:'On-line', tag:'Letivo'},
+    {id:'e2', titulo:'AV3 — 4º bimestre', texto:'Avaliações de 01 a 04/12.', data:'2026-12-01', hora:'07:00', local:'Salas de aula', tag:'Prova'},
+    {id:'e3', titulo:'Apresentação dos TCCs', texto:'Pitch dos projetos de ODS e inovação.', data:'2026-12-04', hora:'07:30', local:'Auditório', tag:'Evento'},
+    {id:'e4', titulo:'Recuperação final', texto:'Dias 09 e 10/12.', data:'2026-12-09', hora:'07:00', local:'Salas de aula', tag:'Prova'},
+    {id:'e5', titulo:'Resultados finais', texto:'Divulgação dos resultados do ano letivo.', data:'2026-12-12', hora:'—', local:'Secretaria', tag:'Evento'}
+  ];
+  const materiais = [
+    {id:'m1', titulo:'Apostila de Redes de Computadores', disciplina:'Redes de Computadores', tipo:'PDF', link:'https://www.google.com/search?q=apostila+redes+de+computadores', turmas:['301']},
+    {id:'m2', titulo:'Lista de exercícios — Funções', disciplina:'Matemática', tipo:'PDF', link:'https://www.google.com/search?q=lista+exercicios+funcoes', turmas:['301','302']},
+    {id:'m3', titulo:'Resumo de Filosofia — Ética', disciplina:'Filosofia', tipo:'Resumo', link:'https://www.google.com/search?q=resumo+etica+filosofia', turmas:['301','303']},
+    {id:'m4', titulo:'Simulados do ENEM', disciplina:'Geral', tipo:'Link', link:'https://www.gov.br/inep/pt-br/areas-de-atuacao/avaliacao-e-exames-educacionais/enem/provas-e-gabaritos', turmas:['301','302','303']}
+  ];
+  const P = {Port:['Português','Prof.ª Ana Cláudia','Sala 301'], Mat:['Matemática','Prof. Marcos Souza','Sala 301'], Fil:['Filosofia','Prof.ª Lívia Rocha','Sala 301'],
+    Red:['Redes de Computadores','Prof. Carlos Mendes','Lab. Redes'], EF:['Educação Física','Prof. Bruno Alves','Quadra'], Fis:['Física','Prof. Marcos Souza','Sala 301'],
+    Soc:['Sociologia','Prof.ª Lívia Rocha','Sala 301'], Qui:['Química','Prof.ª Helena Dias','Laboratório'], Man:['Manutenção de Computadores','Prof. Carlos Mendes','Lab. Informática'], Ing:['Inglês','Prof.ª Ana Cláudia','Sala 301']};
+  const H = ['07:00','07:50','08:40','09:50','10:40','11:30'];
+  const grade = {1:['Port','Mat','Fil','Red','EF'], 2:['Mat','Fis','Ing','Man','Man'], 3:['Qui','Port','Soc','Red','Red'], 4:['Fil','Mat','Port','Man','Fis'], 5:['Ing','Qui','Mat','Soc','EF']};
+  const horario = {}; for (const d in grade) horario[d] = grade[d].map((k,i) => [H[i], i===2 ? '09:30' : H[i+1], ...P[k]]);
+  const disc = ['Português','Matemática','Filosofia','Redes de Computadores','Educação Física','Física','Sociologia','Química'];
+  return {users, atividades, avisos, eventos, materiais, horario, disc,
+          concluidas:{a1:['t6'], a2:['t1','t6','t3'], a3:['t1']}, notas:{a1:[{d:'Matemática',v:8.5},{d:'Português',v:9},{d:'Física',v:7},{d:'Filosofia',v:8},{d:'Redes de Computadores',v:9.5}]},
+          config:{}, notificados:{}, sessao:null};
+}
+let DB;
+function load() { try { DB = JSON.parse(localStorage.getItem(KEY)); } catch(e) { DB = null; } if (!DB || !DB.users) { DB = seed(); save(); } }
+function save() { try { localStorage.setItem(KEY, JSON.stringify(DB)); } catch(e) {} }
+const me = () => DB.users.find(u => u.id === DB.sessao);
+const cfg = id => DB.config[id] || (DB.config[id] = {lembretes:true});
+
+// ====================== componentes ======================
+function toast(msg) { let c = document.getElementById('toasts'); if (!c) { c = document.createElement('div'); c.id = 'toasts'; document.body.appendChild(c); } const t = document.createElement('div'); t.className = 'toast'; t.innerHTML = msg; c.appendChild(t); setTimeout(() => { t.style.opacity = 0; setTimeout(() => t.remove(), 300); }, 3200); }
+function selo(prazo, feita) {
+  if (feita) return '<span class="sel s-ok">✔ concluída</span>';
+  const n = diasAte(prazo);
+  if (n < 0) return '<span class="sel s-r">⚠ atrasada</span>';
+  if (n === 0) return '<span class="sel s-r">⚠ vence hoje</span>';
+  if (n === 1) return '<span class="sel s-r">⚠ vence amanhã</span>';
+  if (n <= 3) return `<span class="sel s-y">⏰ faltam ${n} dias</span>`;
+  return `<span class="sel s-b">faltam ${n} dias</span>`;
+}
+const corSelo = (prazo, feita) => feita ? 'var(--ok)' : (diasAte(prazo) <= 1 ? 'var(--r)' : diasAte(prazo) <= 3 ? 'var(--y)' : 'var(--b)');
+function dataBox(s, dark) { const d = parse(s); return `<div class="dt ${dark?'dark':''}"><small>${DIAS[d.getDay()]}</small><b>${String(d.getDate()).padStart(2,'0')}</b><small>${MESES[d.getMonth()]}</small></div>`; }
+const iniciais = n => n.replace(/^Prof\.?ª?\s*/,'').split(' ').filter(Boolean).slice(0,2).map(x => x[0]).join('').toUpperCase();
+const tagCls = t => ({Prova:'s-b', Urgente:'s-r', Evento:'s-p', Aviso:'s-g', Letivo:'s-y'}[t] || 's-g');
+function compartilhar(texto) {
+  if (ehApp()) Android.share(texto);
+  else window.open('https://wa.me/?text=' + encodeURIComponent(texto), '_blank');
+}
+function abrirLink(url) { if (ehApp()) Android.openUrl(url); else window.open(url, '_blank'); }
+function notificar(titulo, texto) { if (ehApp()) Android.notify(titulo, texto); toast('🔔 <b>' + esc(titulo) + '</b><br>' + esc(texto)); }
+
+// ====================== navegação ======================
+let pilha = [];
+let tela = 'inicio', param = null;
+function ir(t, p, semPilha) { if (!semPilha) pilha.push([tela, param]); tela = t; param = p ?? null; render(); $('.main') && ($('.main').scrollTop = 0); }
+window.voltar = function () { if (!DB.sessao) return false; if (pilha.length) { const [t,p] = pilha.pop(); tela = t; param = p; render(); return true; } if (tela !== 'inicio') { tela = 'inicio'; render(); return true; } return false; };
+
+const NAVS = {
+  aluno: [['inicio','home','Início'],['horario','cal','Horário'],['trabalhos','list','Trabalhos'],['desempenho','chart','Progresso'],['ajustes','gear','Ajustes']],
+  professor: [['inicio','home','Início'],['minhas','list','Atividades'],['material','book','Material'],['avisos','mega','Avisos'],['ajustes','gear','Ajustes']],
+  coord: [['inicio','home','Início'],['avisos','mega','Avisos'],['eventos','star','Eventos'],['usuarios','users','Usuários'],['ajustes','gear','Ajustes']]
+};
+const ICON = `<svg viewBox="0 0 40 40" width="34" height="34"><rect x="3" y="6" width="34" height="31" rx="8" fill="#0d9ad8"/><rect x="3" y="6" width="34" height="9" rx="4" fill="#3a3a3c"/><rect x="11" y="2" width="4" height="9" rx="2" fill="#3a3a3c"/><rect x="25" y="2" width="4" height="9" rx="2" fill="#3a3a3c"/><path d="M12 25 l5 5 l11 -11" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="35" cy="8" r="5" fill="#ee2d3d" stroke="#fff" stroke-width="1.5"/></svg>`;
+
+function render() {
+  if (!DB.sessao || !me()) return renderLogin();
+  const u = me(), nav = NAVS[u.perfil];
+  const pend = u.perfil === 'aluno' ? minhasAtiv(u).filter(a => !feita(u,a) && diasAte(a.prazo) <= 3 && diasAte(a.prazo) >= 0).length : 0;
+  $('#app').innerHTML = `
+   <div class="top"><div class="brand">${ICON}<div><b>IEMA <span>Organiza</span></b><small>ESTUDE. ORGANIZE. CONQUISTE.</small></div></div>
+   <div class="av ${pend ? 'dot' : ''}" onclick="ir('ajustes')">${esc(iniciais(u.nome))}</div></div>
+   <div class="main">${(TELAS[u.perfil][tela] || TELAS[u.perfil].inicio)(u)}</div>
+   <div class="nav">${nav.map(([k,i,l]) => `<button class="${(tela===k)?'on':''}" onclick="pilha=[];ir('${k}',null,true)">${ic(i)}${l}</button>`).join('')}</div>`;
+}
+
+// ====================== login ======================
+function renderLogin() {
+  const grupos = [['aluno','Alunos'],['professor','Professores'],['coord','Coordenação']];
+  $('#app').innerHTML = `<div class="login">
+   <img class="logo" src="logo_iema.png" alt="IEMA">
+   <div style="display:flex;justify-content:center;align-items:center;gap:8px;margin:10px 0 2px">${ICON}<b style="font-size:24px">IEMA <span style="color:var(--b)">Organiza</span></b></div>
+   <div class="note" style="margin:0 0 16px">Sua rotina escolar mais organizada.</div>
+   <div class="card"><label class="lbl" style="margin-top:0">Usuário</label><input id="lu" autocomplete="off" placeholder="ex.: lucas">
+   <label class="lbl">Senha</label><input id="ls" type="password" placeholder="1234">
+   <button class="btn" onclick="entrar($('#lu').value,$('#ls').value)">Entrar</button></div>
+   <div class="sec">Entrar com um usuário de exemplo</div>
+   ${grupos.map(([p,t]) => `<div style="font-size:12px;font-weight:700;color:var(--mu);margin:10px 0 6px">${t.toUpperCase()}</div>` +
+     DB.users.filter(u => u.perfil === p).map(u => `<div class="demo" onclick="entrar('${u.login}','${u.senha}')"><div class="av" style="background:${p==='aluno'?'var(--b)':p==='professor'?'var(--g)':'var(--r)'}">${esc(iniciais(u.nome))}</div>
+       <div><div class="ttl">${esc(u.nome)}</div><div class="sub">${p==='aluno' ? 'Turma ' + esc(u.turma) : p==='professor' ? esc(u.disciplina) : 'Avisos, eventos e usuários'} • usuário: <b>${esc(u.login)}</b></div></div></div>`).join('')).join('')}
+   <div class="note">Senha de todos os usuários de exemplo: <b>1234</b><br>Protótipo (MVP) — TCC IEMA 2026 • Grupo 1 • IEMA Pleno Coroatá</div></div>`;
+}
+function entrar(l, s) {
+  const u = DB.users.find(x => x.login.toLowerCase() === String(l).trim().toLowerCase() && x.senha === String(s).trim());
+  if (!u) return toast('Usuário ou senha incorretos.');
+  DB.sessao = u.id; save(); pilha = []; tela = 'inicio'; param = null; render();
+  if (u.perfil === 'aluno') setTimeout(() => verificarLembretes(u, false), 600);
+}
+function sair() { DB.sessao = null; save(); renderLogin(); }
+
+// ====================== regras do aluno ======================
+const minhasAtiv = u => DB.atividades.filter(a => a.turmas.includes(u.turma)).sort((a,b) => a.prazo.localeCompare(b.prazo));
+const feita = (u, a) => (DB.concluidas[u.id] || []).includes(a.id);
+function toggleFeita(id) { const u = me(); const l = DB.concluidas[u.id] || (DB.concluidas[u.id] = []); const i = l.indexOf(id); if (i >= 0) l.splice(i,1); else { l.push(id); toast('✔ Atividade marcada como concluída!'); } save(); render(); }
+function verificarLembretes(u, forcar) {
+  if (!cfg(u.id).lembretes && !forcar) return;
+  let n = 0;
+  minhasAtiv(u).filter(a => !feita(u,a)).forEach(a => {
+    const d = diasAte(a.prazo); if (![0,1,3].includes(d)) return;
+    const k = u.id + '|' + a.id + '|' + iso(hoje());
+    if (DB.notificados[k] && !forcar) return;
+    DB.notificados[k] = 1; n++;
+    const t = d === 3 ? '⏰ Faltam 3 dias: ' + a.titulo : d === 1 ? '⚠ Vence amanhã: ' + a.titulo : '⚠ Vence hoje: ' + a.titulo;
+    setTimeout(() => notificar(t, 'Prazo: ' + DIASF[parse(a.prazo).getDay()].toLowerCase() + ', ' + br(a.prazo) + ' • ' + a.disciplina), n * 900);
+  });
+  save();
+  if (forcar && !n) toast('Nenhuma atividade com prazo em 3 dias, amanhã ou hoje.');
+}
+function itemAtiv(u, a, compacto) {
+  const f = feita(u, a); const p = DB.users.find(x => x.id === a.profId);
+  if (compacto) return `<div class="card row" onclick="ir('ativ','${a.id}')">${dataBox(a.prazo)}<div style="flex:1;min-width:0"><div class="ttl">${esc(a.titulo)}</div><div class="sub">Prazo: ${br(a.prazo)}</div></div>${selo(a.prazo,f)}</div>`;
+  return `<div class="card" style="border-left:4px solid ${corSelo(a.prazo,f)}">
+    <div class="row" style="justify-content:space-between"><span class="tag" style="color:${corSelo(a.prazo,f)}">${DIASF[parse(a.prazo).getDay()]} • ${br(a.prazo).slice(0,5)}</span>${selo(a.prazo,f)}</div>
+    <div class="ttl" style="margin-top:4px" onclick="ir('ativ','${a.id}')">${esc(a.titulo)}</div>
+    <div class="sub">👤 ${esc(p ? p.nome : a.disciplina)} • ${esc(a.tipo)} • ⏱ Prazo: ${br(a.prazo)}</div>
+    <button class="btn ${f?'out':''}" onclick="toggleFeita('${a.id}')">${f ? 'Desmarcar conclusão' : 'Marcar como concluída'}</button></div>`;
+}
+
+// ====================== telas ======================
+const TELAS = {aluno:{}, professor:{}, coord:{}};
+const voltarBtn = t => `<h2><button class="back" onclick="voltar()">‹</button>${t}</h2>`;
+
+// ---------- ALUNO ----------
+TELAS.aluno.inicio = u => {
+  const at = minhasAtiv(u).filter(a => !feita(u,a) && diasAte(a.prazo) >= 0);
+  const sem = at.filter(a => diasAte(a.prazo) <= 7).length;
+  const nAv = avisosPara(u).filter(v => diasAte(v.data) >= -3).length;
+  return `<div class="car">
+     <div class="slide on" style="background:linear-gradient(130deg,#3a3a3c,#5b5d61)">${ic('home',70).replace('class="ic"','class="ic big"')}<b>Olá, ${esc(u.nome.split(' ')[0])}! 👋</b><div>${DIASF[hoje().getDay()]}, ${br(iso(hoje()))} • você tem <b>${sem} prazo${sem===1?'':'s'}</b> nos próximos 7 dias</div></div>
+     <div class="slide" style="background:linear-gradient(130deg,#0b86c0,#0d9ad8)">${ic('bell',70).replace('class="ic"','class="ic big"')}<b>Lembrete 3 dias antes</b><div>Você recebe um aviso no celular 3 dias e 1 dia antes de cada prazo.</div></div>
+     <div class="slide" style="background:linear-gradient(130deg,#c91f2f,#ee2d3d)">${ic('share',70).replace('class="ic"','class="ic big"')}<b>Avisos no WhatsApp</b><div>Compartilhe avisos e trabalhos com o grupo da turma em um toque.</div></div>
+   </div><div class="dots"><i class="on"></i><i></i><i></i></div>
+   <div class="sec">Acesso rápido</div>
+   <div class="grid">
+    <div class="qa" onclick="ir('horario')">${ic('cal')}Horário de aulas</div>
+    <div class="qa" onclick="ir('trabalhos')">${ic('list')}Trabalhos${at.length?`<span class="sel s-r n">${at.length}</span>`:''}</div>
+    <div class="qa" onclick="ir('avisos')">${ic('mega')}Avisos${nAv?`<span class="sel s-b n">${nAv}</span>`:''}</div>
+    <div class="qa" onclick="ir('eventos')">${ic('star')}Calendário e eventos</div>
+    <div class="qa" onclick="ir('material')">${ic('book')}Material de apoio</div>
+    <div class="qa" onclick="ir('desempenho')">${ic('chart')}Meu desempenho</div></div>
+   <div class="sec">Minhas atividades <a href="#" onclick="ir('trabalhos');return false">Ver todas ›</a></div>
+   ${at.slice(0,4).map(a => itemAtiv(u,a,true)).join('') || '<div class="empty">Nenhuma atividade pendente. 🎉</div>'}
+   <div class="card" style="background:var(--g);color:#fff">💡 <b>IEMA</b> — construindo um futuro maior, juntos.</div>`;
+};
+TELAS.aluno.horario = u => {
+  const modo = (param && param.m) || 'semana'; let d0 = hoje().getDay(); if (d0 < 1 || d0 > 5) d0 = 1; const dia = (param && param.d) || d0;
+  const aula = h => `<div class="card hr"><div class="h">${h[0]}<small>${h[1]}</small></div><div class="d"><div class="ttl">${esc(h[2])}</div><div class="sub">${esc(h[3])} • ${esc(h[4])}</div></div></div>`;
+  const intv = `<div style="text-align:center;font-size:12.5px;color:#8a5a00;background:#fff3cd;border-radius:10px;padding:6px;margin-bottom:10px">☕ Intervalo 09:30 – 09:50</div>`;
+  const doDia = d => { const hs = (DB.horario[d] || []); return hs.slice(0,3).map(aula).join('') + intv + hs.slice(3).map(aula).join(''); };
+  const dias = ['Seg','Ter','Qua','Qui','Sex'];
+  return `${voltarBtn(ic('cal')+' Horário de aulas')}<div class="seg"><button class="${modo==='semana'?'on':''}" onclick="param={m:'semana',d:${dia}};render()">Semana</button><button class="${modo==='lista'?'on':''}" onclick="param={m:'lista'};render()">Lista</button></div>
+   ${modo==='semana' ? `<div class="chips" style="margin-bottom:12px">${dias.map((d,i) => `<span class="chip ${dia===i+1?'on':''}" onclick="param={m:'semana',d:${i+1}};render()">${d}</span>`).join('')}</div>${doDia(dia)}` :
+     dias.map((d,i) => `<div class="sec">${DIASF[i+1]}</div>${doDia(i+1)}`).join('')}
+   <div class="note">Turma ${esc(u.turma)} • 4º período (horário de exemplo)</div>`;
+};
+TELAS.aluno.trabalhos = u => {
+  const aba = param || 'pend'; const at = minhasAtiv(u);
+  const pend = at.filter(a => !feita(u,a)), conc = at.filter(a => feita(u,a));
+  const lista = aba === 'pend' ? pend : conc;
+  return `${voltarBtn(ic('list')+' Trabalhos e atividades')}<div class="seg"><button class="${aba==='pend'?'on':''}" onclick="param='pend';render()">Pendentes (${pend.length})</button><button class="${aba==='conc'?'on':''}" onclick="param='conc';render()">Concluídos (${conc.length})</button></div>
+   ${lista.map(a => itemAtiv(u,a)).join('') || '<div class="empty">Nada por aqui.</div>'}
+   <div class="note">🔴 vence amanhã/hoje/atrasada • 🟡 faltam 2–3 dias • 🔵 no prazo • 🟢 concluída</div>`;
+};
+TELAS.aluno.ativ = u => telaAtividade(u);
+function telaAtividade(u) {
+  const a = DB.atividades.find(x => x.id === param); if (!a) return voltarBtn('Atividade') + '<div class="empty">Atividade não encontrada.</div>';
+  const p = DB.users.find(x => x.id === a.profId); const f = u.perfil === 'aluno' && feita(u,a);
+  const txt = `📚 ${a.titulo}\n${a.disciplina} • ${a.tipo}\nPrazo: ${br(a.prazo)}\nTurmas: ${a.turmas.join(', ')}\n${a.descricao||''}\n\nVeja no IEMA Organiza.`;
+  return `${voltarBtn('Atividade')}<div class="card"><div class="row" style="justify-content:space-between"><span class="sel ${tagCls('Prova')}">${esc(a.tipo)}</span>${selo(a.prazo,f)}</div>
+   <div class="ttl" style="font-size:17px;margin-top:8px">${esc(a.titulo)}</div><div class="sub">${esc(a.disciplina)} • ${esc(p?p.nome:'')}</div>
+   <div style="margin:12px 0;font-size:14px;line-height:1.5">${esc(a.descricao || 'Sem descrição.')}</div>
+   <div class="sub">📅 Prazo: <b>${DIASF[parse(a.prazo).getDay()]}, ${br(a.prazo)}</b><br>👥 Turmas: ${a.turmas.map(esc).join(', ')}</div>
+   ${u.perfil!=='aluno' ? (() => { const al = DB.users.filter(x => x.perfil==='aluno' && a.turmas.includes(x.turma)); const c = al.filter(x => (DB.concluidas[x.id]||[]).includes(a.id)).length;
+      return `<div class="card" style="background:#f5f8fa;margin:12px 0 0;box-shadow:none"><div class="row" style="justify-content:space-between"><b style="font-size:13.5px">Alunos que concluíram</b><b>${c} de ${al.length}</b></div><div class="prog"><i style="width:${al.length?Math.round(c/al.length*100):0}%"></i></div></div>`; })() : ''}
+   ${u.perfil==='aluno' ? `<button class="btn ${f?'out':''}" onclick="toggleFeita('${a.id}')">${f?'Desmarcar conclusão':'Marcar como concluída'}</button>` : ''}
+   <button class="btn wa" onclick='compartilhar(${JSON.stringify(txt)})'>↗ Compartilhar no WhatsApp</button>
+   ${u.perfil!=='aluno' && (u.id===a.profId || u.perfil==='coord') ? `<button class="btn out" onclick="ir('novaAtiv','${a.id}')">✎ Editar</button><button class="btn red" onclick="excluir('atividades','${a.id}')">Excluir</button>` : ''}</div>`;
+}
+const avisosPara = u => DB.avisos.filter(v => v.turmas === 'todas' || !u.turma || (Array.isArray(v.turmas) && v.turmas.includes(u.turma))).sort((a,b) => b.data.localeCompare(a.data));
+function cardAviso(v, podeExcluir) {
+  const txt = `📣 ${v.tipo.toUpperCase()}: ${v.titulo}\n${v.texto}\n— ${v.autor}\n\nVeja no IEMA Organiza.`;
+  return `<div class="card" style="border-left:4px solid var(--r)"><div class="row" style="justify-content:space-between"><span class="sel ${tagCls(v.tipo)}">${esc(v.tipo.toUpperCase())}</span><span class="sub">${br(v.data)}</span></div>
+   <div class="ttl" style="margin:6px 0 3px">${esc(v.titulo)}</div><div style="font-size:13.5px;color:#4a525a;line-height:1.45">${esc(v.texto)}</div>
+   <div class="row" style="justify-content:space-between;margin-top:8px"><span class="sub">${esc(v.autor)}${Array.isArray(v.turmas)?' • turmas '+v.turmas.join(', '):''}</span>
+   <span>${podeExcluir?`<button class="del" onclick="excluir('avisos','${v.id}')">Excluir</button> `:''}<button class="btn sm wa" onclick='compartilhar(${JSON.stringify(txt)})'>↗ WhatsApp</button></span></div></div>`;
+}
+TELAS.aluno.avisos = u => voltarBtn(ic('mega')+' Avisos') + (avisosPara(u).map(v => cardAviso(v)).join('') || '<div class="empty">Sem avisos.</div>');
+let mesCal = null;
+function calendario(u) {
+  const base = mesCal || hoje(); const y = base.getFullYear(), m = base.getMonth();
+  const prim = new Date(y, m, 1).getDay(), nd = new Date(y, m+1, 0).getDate();
+  const ym = iso(new Date(y,m,1)).slice(0,7); const marc = {}; const add = (d, c) => { if (d.slice(0,7) === ym) (marc[+d.slice(8)] = marc[+d.slice(8)] || []).push(c); };
+  DB.eventos.forEach(e => add(e.data, 'var(--r)'));
+  if (u.perfil === 'aluno') minhasAtiv(u).filter(a => !feita(u,a)).forEach(a => add(a.prazo, 'var(--b)'));
+  const nomes = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  let cel = ''; for (let i = 0; i < prim; i++) cel += '<div class="d x"></div>';
+  for (let d = 1; d <= nd; d++) { const hj = iso(new Date(y,m,d)) === iso(hoje()); cel += `<div class="d ${hj?'hj':''}">${d}${marc[d] ? `<span class="pt">${[...new Set(marc[d])].map(c => `<i style="background:${c}"></i>`).join('')}</span>` : ''}</div>`; }
+  return `<div class="card"><div class="row" style="justify-content:space-between;margin-bottom:8px"><button class="back" onclick="mesCal=new Date(${y},${m-1},1);render()">‹</button><b>${nomes[m]} ${y}</b><button class="back" onclick="mesCal=new Date(${y},${m+1},1);render()">›</button></div>
+   <div class="cal">${['D','S','T','Q','Q','S','S'].map(x => `<div class="h">${x}</div>`).join('')}${cel}</div>
+   <div class="sub" style="margin-top:8px"><span style="color:var(--r)">●</span> eventos da escola ${u.perfil==='aluno'?'&nbsp; <span style="color:var(--b)">●</span> prazos das atividades':''}</div></div>`;
+}
+function cardEvento(e, podeExcluir) {
+  const passou = diasAte(e.data) < 0;
+  return `<div class="card row" style="${passou?'opacity:.55':''}">${dataBox(e.data, true)}<div style="flex:1"><div class="ttl">${esc(e.titulo)}</div><div class="sub">${esc(e.texto)}</div>
+   <div style="font-size:12.5px;margin-top:4px"><b style="color:var(--b2)">${esc(e.hora)}</b> 📍 ${esc(e.local)} <span class="sel ${tagCls(e.tag)}">${esc(e.tag)}</span>${passou?' <span class="sel s-g">realizado</span>':''}</div>
+   ${podeExcluir?`<button class="del" style="margin-top:6px" onclick="excluir('eventos','${e.id}')">Excluir</button>`:''}</div></div>`;
+}
+TELAS.aluno.eventos = u => voltarBtn(ic('star')+' Calendário e eventos') + calendario(u) + '<div class="sec">Próximos eventos</div>' + ([...DB.eventos].sort((a,b) => a.data.localeCompare(b.data)).map(e => cardEvento(e)).join('') || '<div class="empty">Sem eventos.</div>');
+function cardMaterial(m, podeExcluir) {
+  const icm = ic({PDF:'file', Link:'link', Vídeo:'play', Resumo:'edit'}[m.tipo] || 'file');
+  return `<div class="card row" onclick="abrirLink('${esc(m.link)}')"><div style="width:42px;height:42px;border-radius:10px;background:var(--lb);display:flex;align-items:center;justify-content:center;color:var(--b);flex:none">${icm}</div>
+   <div style="flex:1;min-width:0"><div class="ttl">${esc(m.titulo)}</div><div class="sub">${esc(m.disciplina)} • ${esc(m.tipo)}</div></div>
+   ${podeExcluir?`<button class="del" onclick="event.stopPropagation();excluir('materiais','${m.id}')">Excluir</button>`:'<span style="color:var(--b)">↗</span>'}</div>`;
+}
+TELAS.aluno.material = u => voltarBtn(ic('book')+' Material de apoio') + (DB.materiais.filter(m => m.turmas.includes(u.turma)).map(m => cardMaterial(m)).join('') || '<div class="empty">Sem materiais.</div>');
+TELAS.aluno.desempenho = u => {
+  const notas = DB.notas[u.id] || []; const media = notas.length ? (notas.reduce((s,n) => s + Number(n.v), 0) / notas.length) : 0;
+  const at = minhasAtiv(u); const nc = at.filter(a => feita(u,a)).length;
+  return `${voltarBtn(ic('chart')+' Meu desempenho')}<div class="card" style="background:var(--g);color:#fff"><div class="tag" style="opacity:.7">Média geral</div>
+   <div style="display:flex;align-items:flex-end;justify-content:space-between"><b style="font-size:38px">${notas.length ? media.toFixed(1).replace('.',',') : '—'}</b><span style="font-size:12.5px;opacity:.8">${notas.length} nota(s) lançada(s)</span></div>
+   <div style="font-size:12.5px;opacity:.8;margin-top:6px">Atividades concluídas: ${nc}/${at.length}</div>
+   <div style="height:8px;background:rgba(255,255,255,.2);border-radius:4px;margin-top:6px"><div style="height:8px;border-radius:4px;background:var(--b);width:${at.length?Math.round(nc/at.length*100):0}%"></div></div></div>
+   <div class="sec">Minhas notas</div>
+   ${notas.map((n,i) => `<div class="card"><div class="row" style="justify-content:space-between"><span class="ttl">${esc(n.d)}</span><span><b style="color:${n.v>=6?'var(--ok)':'var(--r)'}">${String(n.v).replace('.',',')}</b> <button class="del" onclick="delNota(${i})">✕</button></span></div>
+     <div style="height:10px;background:#e3e9ee;border-radius:5px;margin-top:6px"><div class="bar" style="width:${Math.min(100,n.v*10)}%;background:${n.v>=6?'var(--b)':'var(--r)'}"></div></div></div>`).join('') || '<div class="empty">Nenhuma nota lançada.</div>'}
+   <div class="card"><div class="ttl">+ Lançar nota</div><label class="lbl">Disciplina</label><select id="nd">${DB.disc.map(d => `<option>${esc(d)}</option>`).join('')}</select>
+   <label class="lbl">Nota (0 a 10)</label><input id="nv" type="number" min="0" max="10" step="0.1" placeholder="ex.: 8,5"><button class="btn" onclick="addNota()">Salvar nota</button></div>
+   <div class="note">Média mínima da escola: 6,0. As notas são lançadas pelo próprio aluno, para acompanhar o desempenho.</div>`;
+};
+function addNota() { const v = parseFloat(String($('#nv').value).replace(',','.')); if (isNaN(v) || v < 0 || v > 10) return toast('Digite uma nota de 0 a 10.'); const u = me(); (DB.notas[u.id] || (DB.notas[u.id] = [])).push({d:$('#nd').value, v}); save(); toast('Nota salva!'); render(); }
+function delNota(i) { const u = me(); DB.notas[u.id].splice(i,1); save(); render(); }
+
+function telaAjustes(u) {
+  const c = cfg(u.id);
+  return `${voltarBtn(ic('gear')+' Configurações')}<div class="card"><div class="ttl">Meus dados</div>
+   <label class="lbl">Nome completo</label><input id="an" value="${esc(u.nome)}">
+   <label class="lbl">E-mail</label><input id="ae" value="${esc(u.email||'')}">
+   ${u.perfil==='aluno' ? `<div class="row"><div style="flex:1"><label class="lbl">Turma</label><input id="at" value="${esc(u.turma)}"></div><div style="flex:1"><label class="lbl">Período</label><select><option>4º período</option></select></div></div>
+   <label class="lbl">Curso</label><input id="ac" value="${esc(u.curso||'')}">` : u.perfil==='professor' ? `<label class="lbl">Disciplina</label><input id="ad" value="${esc(u.disciplina||'')}">` : ''}
+   <label class="lbl">Nova senha (opcional)</label><input id="as" type="password" placeholder="deixe em branco para manter">
+   <button class="btn" onclick="salvarDados()">Salvar alterações</button></div>
+   ${u.perfil==='aluno' ? `<div class="card row"><div style="flex:1"><div class="ttl">Lembretes de atividades</div><div class="sub">Aviso <b>3 dias antes</b>, <b>1 dia antes</b> e no dia do prazo</div></div><button class="sw ${c.lembretes?'on':''}" onclick="cfg(me().id).lembretes=!cfg(me().id).lembretes;save();render()"></button></div>
+   <button class="btn out" onclick="verificarLembretes(me(),true)">🔔 Testar lembretes agora</button>` : ''}
+   <div class="card" style="margin-top:12px">🛡 <b>IEMA Pleno de Coroatá</b><div class="sub">Aplicativo de organização escolar. Seus dados ficam apenas neste aparelho (protótipo).</div></div>
+   <button class="btn gray" onclick="sair()">↪ Sair da conta</button>
+   <button class="btn out" style="color:var(--r);border-color:var(--r)" onclick="confirmar('Restaurar dados de exemplo?','Tudo o que foi cadastrado neste aparelho será apagado e o app volta ao início.',()=>{localStorage.removeItem(KEY);load();renderLogin();toast('Dados de exemplo restaurados.')},'Restaurar')">Restaurar dados de exemplo</button>
+   <div class="note">IEMA Organiza • versão 1.1 • protótipo do TCC IEMA 2026 (Grupo 1)</div>`;
+}
+function confirmar(titulo, texto, sim, rotulo) {
+  const m = document.createElement('div'); m.className = 'modal';
+  m.innerHTML = `<div class="box"><b>${titulo}</b><p>${texto}</p><div class="row"><button class="btn out" style="flex:1">Cancelar</button><button class="btn red" style="flex:1">${rotulo||'Confirmar'}</button></div></div>`;
+  document.body.appendChild(m); const [nao, ok] = m.querySelectorAll('button');
+  nao.onclick = () => m.remove(); m.onclick = e => { if (e.target === m) m.remove(); }; ok.onclick = () => { m.remove(); sim(); };
+}
+function salvarDados() {
+  const u = me(); u.nome = $('#an').value.trim() || u.nome; u.email = $('#ae').value.trim();
+  if ($('#at')) u.turma = $('#at').value.trim() || u.turma; if ($('#ac')) u.curso = $('#ac').value.trim(); if ($('#ad')) u.disciplina = $('#ad').value.trim();
+  if ($('#as').value.trim()) u.senha = $('#as').value.trim();
+  save(); toast('Dados salvos!'); render();
+}
+TELAS.aluno.ajustes = telaAjustes; TELAS.professor.ajustes = telaAjustes; TELAS.coord.ajustes = telaAjustes;
+
+// ---------- PROFESSOR ----------
+TELAS.professor.inicio = u => {
+  const minhas = DB.atividades.filter(a => a.profId === u.id).sort((a,b) => a.prazo.localeCompare(b.prazo));
+  const prox = minhas.filter(a => diasAte(a.prazo) >= 0);
+  return `<div class="hero"><b>Olá, ${esc(u.nome)}! 👋</b><div>${esc(u.disciplina)} • ${prox.length} atividade(s) com prazo aberto</div></div>
+   <div class="sec">O que você quer fazer?</div>
+   <div class="grid"><div class="qa" onclick="ir('novaAtiv')">${ic('plus')}Nova atividade</div><div class="qa" onclick="ir('novoMat')">${ic('book')}Novo material</div>
+   <div class="qa" onclick="ir('minhas')">${ic('list')}Minhas atividades</div><div class="qa" onclick="ir('avisos')">${ic('mega')}Avisos da escola</div></div>
+   <div class="sec">Próximos prazos</div>${prox.slice(0,4).map(a => `<div class="card row" onclick="ir('ativ','${a.id}')">${dataBox(a.prazo)}<div style="flex:1"><div class="ttl">${esc(a.titulo)}</div><div class="sub">Turmas ${a.turmas.join(', ')}</div></div>${selo(a.prazo)}</div>`).join('') || '<div class="empty">Nenhuma atividade com prazo aberto.</div>'}`;
+};
+TELAS.professor.minhas = u => voltarBtn(ic('list')+' Minhas atividades') + (DB.atividades.filter(a => a.profId === u.id).sort((a,b) => a.prazo.localeCompare(b.prazo)).map(a =>
+   `<div class="card row" onclick="ir('ativ','${a.id}')">${dataBox(a.prazo)}<div style="flex:1;min-width:0"><div class="ttl">${esc(a.titulo)}</div><div class="sub">${esc(a.tipo)} • turmas ${a.turmas.join(', ')}</div></div>${selo(a.prazo)}</div>`).join('') || '<div class="empty">Você ainda não cadastrou atividades.</div>') + `<button class="fab" onclick="ir('novaAtiv')">+</button>`;
+TELAS.professor.ativ = u => telaAtividade(u);
+let selTurmas = [];
+TELAS.professor.novaAtiv = u => {
+  const a = param ? DB.atividades.find(x => x.id === param) : null;
+  selTurmas = a ? [...a.turmas] : ['301'];
+  const tipos = ['Trabalho','Prova','Seminário','Lista','Relatório'];
+  return `${voltarBtn(a ? ic('edit')+' Editar atividade' : ic('plus')+' Nova atividade')}<div class="card">
+   <label class="lbl" style="margin-top:0">Turmas</label><div class="chips" id="tch">${turmasExist().map(t => `<span class="chip ${selTurmas.includes(t)?'on':''}" onclick="togTurma(this,'${t}')">${t}</span>`).join('')}</div>
+   <label class="lbl">Disciplina</label><input id="fd" value="${esc(a ? a.disciplina : u.disciplina || '')}">
+   <label class="lbl">Título</label><input id="ft" value="${esc(a ? a.titulo : '')}" placeholder="ex.: Trabalho de ${esc(u.disciplina||'')} — tema">
+   <label class="lbl">Tipo</label><select id="fy">${tipos.map(t => `<option ${a&&a.tipo===t?'selected':''}>${t}</option>`).join('')}</select>
+   <label class="lbl">Prazo de entrega</label><input id="fp" type="date" value="${a ? a.prazo : addD(7)}">
+   <label class="lbl">Descrição (opcional)</label><textarea id="fx" placeholder="O que o aluno deve fazer">${esc(a ? a.descricao : '')}</textarea>
+   <div class="sub" style="margin-top:8px;color:var(--ok)">✔ Os alunos recebem o lembrete automático <b>3 dias antes</b> e <b>1 dia antes</b> do prazo.</div>
+   <button class="btn" onclick="salvarAtiv('${a?a.id:''}',false)">${a ? 'Salvar alterações' : 'Publicar para as turmas'}</button>
+   <button class="btn wa" onclick="salvarAtiv('${a?a.id:''}',true)">↗ Publicar e enviar no WhatsApp</button></div>`;
+};
+const turmasExist = () => [...new Set(['101','102','103','104','201','202','203','204','301','302','303', ...DB.users.filter(u => u.turma).map(u => u.turma)])].sort();
+function togTurma(el, t) { const i = selTurmas.indexOf(t); if (i >= 0) selTurmas.splice(i,1); else selTurmas.push(t); el.classList.toggle('on'); }
+function salvarAtiv(id, wa) {
+  const t = $('#ft').value.trim(), p = $('#fp').value;
+  if (!t) return toast('Escreva o título da atividade.'); if (!p) return toast('Escolha o prazo.'); if (!selTurmas.length) return toast('Escolha pelo menos uma turma.');
+  let a = id ? DB.atividades.find(x => x.id === id) : null;
+  if (!a) { a = {id: uid(), profId: me().id}; DB.atividades.push(a); }
+  Object.assign(a, {titulo:t, disciplina:$('#fd').value.trim() || 'Geral', tipo:$('#fy').value, turmas:[...selTurmas].sort(), prazo:p, descricao:$('#fx').value.trim()});
+  save(); toast('✔ Atividade publicada para as turmas ' + a.turmas.join(', ') + '!');
+  if (wa) compartilhar(`📚 ${a.titulo}\n${a.disciplina} • ${a.tipo}\nPrazo: ${br(a.prazo)}\nTurmas: ${a.turmas.join(', ')}\n${a.descricao}\n\nVeja no IEMA Organiza.`);
+  pilha = []; ir('minhas', null, true);
+}
+TELAS.professor.material = u => voltarBtn(ic('book')+' Material de apoio') + `<button class="btn" style="margin:0 0 12px" onclick="ir('novoMat')">+ Adicionar material</button>` + (DB.materiais.map(m => cardMaterial(m, true)).join('') || '<div class="empty">Sem materiais.</div>');
+TELAS.professor.novoMat = u => { selTurmas = ['301']; return `${voltarBtn(ic('book')+' Novo material')}<div class="card">
+   <label class="lbl" style="margin-top:0">Turmas</label><div class="chips">${turmasExist().map(t => `<span class="chip ${selTurmas.includes(t)?'on':''}" onclick="togTurma(this,'${t}')">${t}</span>`).join('')}</div>
+   <label class="lbl">Título</label><input id="mt" placeholder="ex.: Resumo da aula 5">
+   <label class="lbl">Disciplina</label><input id="md" value="${esc(u.disciplina||'')}">
+   <label class="lbl">Tipo</label><select id="my"><option>PDF</option><option>Link</option><option>Vídeo</option><option>Resumo</option></select>
+   <label class="lbl">Link (Drive, YouTube, site)</label><input id="ml" placeholder="https://">
+   <button class="btn" onclick="salvarMat()">Salvar material</button></div>`; };
+function salvarMat() { const t = $('#mt').value.trim(), l = $('#ml').value.trim(); if (!t || !l) return toast('Preencha o título e o link.'); if (!selTurmas.length) return toast('Escolha uma turma.');
+  DB.materiais.unshift({id:uid(), titulo:t, disciplina:$('#md').value.trim() || 'Geral', tipo:$('#my').value, link:/^https?:\/\//.test(l) ? l : 'https://' + l, turmas:[...selTurmas]}); save(); toast('Material salvo!'); pilha = []; ir('material', null, true); }
+TELAS.professor.avisos = u => voltarBtn(ic('mega')+' Avisos da escola') + (avisosPara({}).map(v => cardAviso(v)).join('') || '<div class="empty">Sem avisos.</div>');
+TELAS.professor.eventos = TELAS.aluno.eventos;
+
+// ---------- COORDENAÇÃO ----------
+TELAS.coord.inicio = u => {
+  const al = DB.users.filter(x => x.perfil === 'aluno').length, pr = DB.users.filter(x => x.perfil === 'professor').length;
+  const abertas = DB.atividades.filter(a => diasAte(a.prazo) >= 0).length;
+  return `<div class="hero"><b>Olá, ${esc(u.nome)}! 👋</b><div>Avisos, eventos e usuários do IEMA Organiza</div></div>
+   <div class="grid" style="margin-top:12px">
+    <div class="card" style="margin:0"><div class="sub">Alunos</div><b style="font-size:26px">${al}</b></div><div class="card" style="margin:0"><div class="sub">Professores</div><b style="font-size:26px">${pr}</b></div>
+    <div class="card" style="margin:0"><div class="sub">Atividades abertas</div><b style="font-size:26px">${abertas}</b></div><div class="card" style="margin:0"><div class="sub">Avisos publicados</div><b style="font-size:26px">${DB.avisos.length}</b></div></div>
+   <div class="sec">O que você quer fazer?</div>
+   <div class="grid"><div class="qa" onclick="ir('novoAviso')">${ic('mega')}Novo aviso</div><div class="qa" onclick="ir('novoEvento')">${ic('star')}Novo evento</div>
+   <div class="qa" onclick="ir('novoUser')">${ic('user')}Cadastrar usuário</div><div class="qa" onclick="ir('todas')">${ic('list')}Todas as atividades</div></div>`;
+};
+TELAS.coord.avisos = u => voltarBtn(ic('mega')+' Avisos') + `<button class="btn" style="margin:0 0 12px" onclick="ir('novoAviso')">+ Novo aviso</button>` + (avisosPara({}).map(v => cardAviso(v, true)).join('') || '<div class="empty">Sem avisos.</div>');
+TELAS.coord.novoAviso = u => { selTurmas = []; return `${voltarBtn(ic('mega')+' Novo aviso')}<div class="card">
+   <label class="lbl" style="margin-top:0">Tipo</label><select id="vy"><option>Aviso</option><option>Prova</option><option>Urgente</option><option>Evento</option></select>
+   <label class="lbl">Título</label><input id="vt" placeholder="ex.: Reunião de pais">
+   <label class="lbl">Texto</label><textarea id="vx" placeholder="Escreva o aviso"></textarea>
+   <label class="lbl">Para quem (deixe sem marcar = todas as turmas)</label><div class="chips">${turmasExist().map(t => `<span class="chip" onclick="togTurma(this,'${t}')">${t}</span>`).join('')}</div>
+   <label class="lbl">Também colocar no calendário de eventos?</label><select id="ve"><option value="">Não</option><option value="1">Sim</option></select>
+   <label class="lbl">Data do evento (se for para o calendário)</label><input id="vd" type="date">
+   <button class="btn" onclick="salvarAviso(false)">Publicar aviso</button><button class="btn wa" onclick="salvarAviso(true)">↗ Publicar e enviar nos grupos das turmas</button></div>`; };
+function salvarAviso(wa) {
+  const t = $('#vt').value.trim(), x = $('#vx').value.trim(); if (!t || !x) return toast('Preencha o título e o texto.');
+  const v = {id:uid(), tipo:$('#vy').value, titulo:t, texto:x, data:iso(hoje()), autor:me().nome, turmas: selTurmas.length ? [...selTurmas].sort() : 'todas'};
+  DB.avisos.unshift(v);
+  if ($('#ve').value && $('#vd').value) DB.eventos.push({id:uid(), titulo:t, texto:x.slice(0,80), data:$('#vd').value, hora:'—', local:'IEMA', tag:v.tipo === 'Prova' ? 'Prova' : 'Evento'});
+  save(); toast('✔ Aviso publicado!');
+  if (wa) compartilhar(`📣 ${v.tipo.toUpperCase()}: ${v.titulo}\n${v.texto}\n— ${v.autor}\n\nVeja no IEMA Organiza.`);
+  pilha = []; ir('avisos', null, true);
+}
+TELAS.coord.eventos = u => voltarBtn(ic('star')+' Calendário e eventos') + calendario(u) + `<button class="btn" style="margin:0 0 12px" onclick="ir('novoEvento')">+ Novo evento</button>` + ([...DB.eventos].sort((a,b) => a.data.localeCompare(b.data)).map(e => cardEvento(e, true)).join('') || '<div class="empty">Sem eventos.</div>');
+TELAS.coord.novoEvento = u => `${voltarBtn(ic('star')+' Novo evento')}<div class="card">
+   <label class="lbl" style="margin-top:0">Título</label><input id="et" placeholder="ex.: Feira de Ciências">
+   <label class="lbl">Descrição</label><input id="ex" placeholder="ex.: Apresentação dos projetos">
+   <div class="row"><div style="flex:1"><label class="lbl">Data</label><input id="ed" type="date" value="${addD(7)}"></div><div style="flex:1"><label class="lbl">Hora</label><input id="eh" type="time" value="08:00"></div></div>
+   <label class="lbl">Local</label><input id="el" placeholder="ex.: Pátio central">
+   <label class="lbl">Tipo</label><select id="eg"><option>Evento</option><option>Prova</option><option>Reunião</option><option>Letivo</option><option>Feira</option></select>
+   <button class="btn" onclick="salvarEvento()">Salvar evento</button></div>`;
+function salvarEvento() { const t = $('#et').value.trim(), d = $('#ed').value; if (!t || !d) return toast('Preencha o título e a data.');
+  DB.eventos.push({id:uid(), titulo:t, texto:$('#ex').value.trim(), data:d, hora:$('#eh').value || '—', local:$('#el').value.trim() || 'IEMA', tag:$('#eg').value}); save(); toast('✔ Evento salvo!'); pilha = []; ir('eventos', null, true); }
+TELAS.coord.usuarios = u => { const f = param || 'aluno'; return `${voltarBtn(ic('users')+' Usuários')}<div class="seg">${[['aluno','Alunos'],['professor','Professores'],['coord','Coordenação']].map(([k,l]) => `<button class="${f===k?'on':''}" onclick="param='${k}';render()">${l}</button>`).join('')}</div>
+   <button class="btn" style="margin:0 0 12px" onclick="ir('novoUser','${f}')">+ Cadastrar ${f==='aluno'?'aluno':f==='professor'?'professor':'coordenador'}</button>
+   ${DB.users.filter(x => x.perfil === f).map(x => `<div class="card row"><div class="av" style="margin:0;background:${f==='aluno'?'var(--b)':f==='professor'?'var(--g)':'var(--r)'}">${esc(iniciais(x.nome))}</div>
+     <div style="flex:1;min-width:0"><div class="ttl">${esc(x.nome)}</div><div class="sub">${f==='aluno'?'Turma '+esc(x.turma):f==='professor'?esc(x.disciplina):'Coordenação'} • login: ${esc(x.login)}</div></div>
+     ${x.id !== me().id ? `<button class="del" onclick="excluir('users','${x.id}')">Excluir</button>` : ''}</div>`).join('')}`; };
+TELAS.coord.novoUser = u => { const f = param || 'aluno'; return `${voltarBtn(ic('user')+' Cadastrar usuário')}<div class="card">
+   <label class="lbl" style="margin-top:0">Perfil</label><select id="up" onchange="param=this.value;render()"><option value="aluno" ${f==='aluno'?'selected':''}>Aluno</option><option value="professor" ${f==='professor'?'selected':''}>Professor</option><option value="coord" ${f==='coord'?'selected':''}>Coordenação</option></select>
+   <label class="lbl">Nome completo</label><input id="un">
+   ${f==='aluno' ? `<label class="lbl">Turma</label><input id="ut" placeholder="ex.: 301"><label class="lbl">Curso</label><input id="uc" placeholder="ex.: Manutenção e Suporte em Informática">` : f==='professor' ? `<label class="lbl">Disciplina</label><input id="ud">` : ''}
+   <label class="lbl">Usuário (login)</label><input id="ul" autocomplete="off" placeholder="ex.: maria.silva">
+   <label class="lbl">Senha</label><input id="us" value="1234">
+   <button class="btn" onclick="salvarUser('${f}')">Cadastrar</button></div>`; };
+function salvarUser(f) {
+  const n = $('#un').value.trim(), l = $('#ul').value.trim().toLowerCase(), s = $('#us').value.trim();
+  if (!n || !l || !s) return toast('Preencha nome, usuário e senha.'); if (DB.users.some(x => x.login === l)) return toast('Esse usuário já existe.');
+  const x = {id:uid(), nome:n, login:l, senha:s, perfil:f, email:''};
+  if (f === 'aluno') { x.turma = $('#ut').value.trim() || '301'; x.curso = $('#uc').value.trim(); } if (f === 'professor') x.disciplina = $('#ud').value.trim() || 'Geral';
+  DB.users.push(x); save(); toast('✔ Usuário cadastrado! Login: ' + l); pilha = []; tela = 'usuarios'; param = f; render();
+}
+TELAS.coord.todas = u => voltarBtn(ic('list')+' Todas as atividades') + ([...DB.atividades].sort((a,b) => a.prazo.localeCompare(b.prazo)).map(a => { const p = DB.users.find(x => x.id === a.profId);
+  return `<div class="card row" onclick="ir('ativ','${a.id}')">${dataBox(a.prazo)}<div style="flex:1;min-width:0"><div class="ttl">${esc(a.titulo)}</div><div class="sub">${esc(p?p.nome:'')} • turmas ${a.turmas.join(', ')}</div></div>${selo(a.prazo)}</div>`; }).join('') || '<div class="empty">Sem atividades.</div>');
+TELAS.coord.ativ = u => telaAtividade(u);
+TELAS.coord.novaAtiv = TELAS.professor.novaAtiv;
+TELAS.coord.minhas = TELAS.coord.todas;
+
+function excluir(col, id) { confirmar('Excluir este item?', 'Essa ação não pode ser desfeita.', () => excluirJa(col, id), 'Excluir'); }
+function excluirJa(col, id) {
+  DB[col] = DB[col].filter(x => x.id !== id); save(); toast('Item excluído.');
+  if (col === 'atividades') { pilha = []; tela = me().perfil === 'coord' ? 'todas' : 'minhas'; param = null; }
+  render();
+}
+
+load(); render();
+(function splash(){ const s = document.createElement('div'); s.id = 'splash';
+  s.innerHTML = '<img src="logo_iema.png" alt="IEMA"><div class="ap">' + ICON.replace('width="34" height="34"','width="44" height="44"') + '<div>IEMA <span>Organiza</span></div></div><div class="ld"><i></i></div><div style="font-size:11px;letter-spacing:2px;color:#8f959c;font-weight:600">ESTUDE. ORGANIZE. CONQUISTE.</div>';
+  document.body.appendChild(s); setTimeout(() => { s.style.opacity = 0; setTimeout(() => s.remove(), 450); }, 1500); })();
+setInterval(() => { const sl = document.querySelectorAll('.slide'); if (!sl.length) return; let i = [...sl].findIndex(x => x.classList.contains('on')); const j = (i+1) % sl.length; sl.forEach((x,k) => { if (k !== i) { x.style.transition='none'; x.classList.remove('sai','on'); } }); void sl[j].offsetWidth; sl.forEach(x => x.style.transition=''); sl[i].classList.remove('on'); sl[i].classList.add('sai'); sl[j].classList.add('on'); i = j;
+  document.querySelectorAll('.dots i').forEach((d,k) => d.classList.toggle('on', k===i)); }, 3500);
+if (me() && me().perfil === 'aluno') setTimeout(() => verificarLembretes(me(), false), 800);
+</script>
+</body>
+</html>

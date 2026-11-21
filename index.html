@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TCC IEMA 2026 – Protótipos</title>
+<link rel="icon" href="logo_iema.png">
+<style>
+:root{--cinza:#3a3a3c;--azul:#0d9ad8;--verm:#ee2d3d;--fundo:#f4f6f8;--card:#fff;--txt:#2a2a2c;--sub:#5f6368}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",Roboto,Arial,sans-serif;background:var(--fundo);color:var(--txt)}
+header{background:var(--cinza);color:#fff;padding:18px 16px;text-align:center;border-bottom:5px solid var(--azul)}
+header img{height:46px;background:#fff;border-radius:8px;padding:4px 8px}
+header h1{margin:10px 0 4px;font-size:1.35rem}
+header p{margin:0;opacity:.85;font-size:.95rem}
+main{max-width:1050px;margin:0 auto;padding:20px 16px 40px}
+.aviso{background:#e3f4fc;border-left:5px solid var(--azul);padding:12px 14px;border-radius:8px;margin-bottom:18px;font-size:.95rem;line-height:1.45}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:16px}
+.card{background:var(--card);border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.08);padding:18px;display:flex;flex-direction:column}
+.card .logo{height:64px;object-fit:contain;align-self:flex-start;margin-bottom:8px}
+.card h2{margin:4px 0 2px;font-size:1.15rem}
+.card .g{color:var(--sub);font-size:.88rem;margin-bottom:8px}
+.card p{font-size:.93rem;line-height:1.45;margin:6px 0}
+.users{background:#f7f7f8;border-radius:8px;padding:8px 10px;font-size:.88rem;line-height:1.5;margin:8px 0 12px}
+.users code{background:#fff;border:1px solid #ddd;border-radius:4px;padding:0 4px}
+.btn{margin-top:auto;display:block;text-align:center;background:var(--azul);color:#fff;text-decoration:none;font-weight:600;padding:12px;border-radius:10px}
+.btn:hover{background:#0b84b9}
+footer{text-align:center;color:var(--sub);font-size:.85rem;padding:10px 16px 24px}
+</style>
+</head>
+<body>
+<header>
+  <img src="logo_iema.png" alt="IEMA">
+  <h1>TCC IEMA 2026 – Protótipos dos grupos</h1>
+  <p>Design Thinking · ODS · Inovação e Empreendedorismo · IEMA Pleno Coroatá</p>
+</header>
+<main>
+  <div class="aviso"><b>Versão de teste no navegador:</b> não precisa instalar nada. Toque em <b>Abrir</b> e entre com um dos usuários abaixo (senha <b>1234</b>). Os dados de exemplo já estão carregados, e o que você cadastrar fica salvo só neste aparelho/navegador.</div>
+  <div class="grid">
+    <div class="card">
+      <img class="logo" src="Logo_IEMA_Organiza.png" alt="IEMA Organiza">
+      <h2>IEMA Organiza</h2>
+      <div class="g">Grupo 1 · Organização da Rotina Escolar · ODS 4 e 9</div>
+      <p>Horários, avisos, eventos e trabalhos num só lugar, com lembrete antes do prazo. Melhor no <b>celular</b>.</p>
+      <div class="users">Aluno: <code>lucas</code> <code>maria</code> <code>joao</code> <code>ana</code><br>Professor: <code>livia</code> <code>marcos</code> <code>carlos</code><br>Coordenação: <code>coord</code></div>
+      <a class="btn" href="organiza/">Abrir IEMA Organiza</a>
+    </div>
+    <div class="card">
+      <img class="logo" src="Logo_StockTech.png" alt="StockTech">
+      <h2>StockTech</h2>
+      <div class="g">Grupo 2 · Controle do Estoque de Alimentos · ODS 12 e 9</div>
+      <p>Entrada e saída de alimentos, alertas de estoque baixo e de validade, lista de compras e relatório. Melhor no <b>computador</b>.</p>
+      <div class="users">Cozinha: <code>lenilda</code> <code>rosa</code><br>Gestão: <code>gestao</code></div>
+      <a class="btn" href="stocktech/">Abrir StockTech</a>
+    </div>
+    <div class="card">
+      <img class="logo" src="Logo_EcoFood.png" alt="EcoFood">
+      <h2>EcoFood</h2>
+      <div class="g">Grupo 3 · Desperdício Zero · ODS 12 e 3</div>
+      <p>PDV da carteirinha, totem do cardápio, tablet de avaliação, painel da cozinha e relatórios. Melhor no <b>computador</b>.</p>
+      <div class="users">PDV: <code>pdv</code> · Cozinha: <code>cozinha</code> · Gestão: <code>gestao</code></div>
+      <a class="btn" href="ecofood/">Abrir EcoFood</a>
+    </div>
+  </div>
+</main>
+<footer>Protótipos (MVP) para teste com usuários – TCC IEMA 2026</footer>
+</body>
+</html>
