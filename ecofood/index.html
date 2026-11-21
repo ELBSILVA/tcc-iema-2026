@@ -170,6 +170,75 @@ body.modo{background:#fff}
 .tfoto{margin-top:auto;flex:1;min-height:140px;background-size:contain;background-repeat:no-repeat;background-position:center bottom;filter:drop-shadow(0 10px 14px rgba(0,0,0,.35))}
 .chip{cursor:pointer}.qa{cursor:pointer}
 @media (min-width:900px){.main>*{max-width:1250px}}
+
+/* ===== versão para celular (teste online) ===== */
+@media (max-width:700px){
+ body{font-size:14px}
+ .top{padding:10px 12px}
+ .top .row>.sub{display:none}
+ .nav{overflow-x:auto;justify-content:flex-start;scrollbar-width:none}
+ .nav::-webkit-scrollbar{display:none}
+ .nav button{flex:0 0 78px;font-size:10px;line-height:1.15;text-align:center;padding:0 3px}
+ .main{padding:12px 12px 84px}
+ .main .row[style*="margin-bottom:12px"]{flex-wrap:wrap;row-gap:8px}
+ .main .row[style*="margin-bottom:12px"]>[style*="margin-left:auto"]{margin-left:0!important}
+ h2{font-size:17px}
+ .pdv,.grid2,.grid3,.sit4,.ult6{grid-template-columns:1fr}
+ .kpis5{grid-template-columns:1fr 1fr}
+ .kpis .k b,.kpis5 .k b,.k b{font-size:22px}
+ .fotos{grid-template-columns:1fr 1fr;gap:8px}
+ .pdv .card[style*="display:flex"]{flex-wrap:wrap}
+ .pdv .card[style*="display:flex"] input{min-width:0;flex:1 1 100%!important;font-size:15px!important}
+ .ultima{gap:12px}
+ .ultima>.foto{width:80px!important;height:80px!important}
+ .ultima [style*="font-size:22px"]{font-size:18px!important}
+ .podio{gap:6px}
+ .pd{flex:1 1 0;min-width:0;padding:6px}
+ .pd img{width:100%!important;height:auto!important;max-height:70px}
+ .pd b{font-size:12px!important}
+ .pd div[style*="font-size:28px"],.pd div[style*="font-size:40px"]{font-size:20px!important}
+ /* cardápio e pesagem: um dia por cartão, refeições uma embaixo da outra */
+ .card[style*="padding:6px 14px"] .li:first-child{display:none}
+ .card[style*="padding:6px 14px"] .li{flex-wrap:wrap;gap:6px 8px;padding:12px 4px}
+ .card[style*="padding:6px 14px"] .li>*{width:auto!important;flex:1 1 100%!important;text-align:left!important}
+ .card[style*="padding:6px 14px"] .li>button{flex:0 0 auto!important}
+ .li:has(>button)>span:nth-of-type(1)::before{content:"1º lanche";}
+ .li:has(>button)>span:nth-of-type(2)::before{content:"Almoço";}
+ .li:has(>button)>span:nth-of-type(3)::before{content:"2º lanche";}
+ .li:has(>button)>span:nth-of-type(4)::before{content:"Restrição: ";font-weight:700}
+ .li:has(>button)>span:nth-of-type(-n+3)::before{display:block;min-width:64px;font-size:11px;font-weight:700;color:var(--mu)}
+ .card[style*="padding:6px 14px"] .li:not(:has(>button))>span:nth-of-type(2)::before{content:"1º lanche"}
+ .card[style*="padding:6px 14px"] .li:not(:has(>button))>span:nth-of-type(3)::before{content:"Almoço"}
+ .card[style*="padding:6px 14px"] .li:not(:has(>button))>span:nth-of-type(4)::before{content:"2º lanche"}
+ .card[style*="padding:6px 14px"] .li:not(:has(>button))>span:nth-of-type(n+2)::before{display:block;font-size:11px;font-weight:700;color:var(--mu)}
+ .card[style*="padding:6px 14px"] .li:not(:has(>button))>b:last-child::before{content:"Total: ";color:var(--mu)}
+ /* telas do totem, tablet e mural no celular (formato vertical) */
+ .totem,.tablet,.tv{padding:14px;overflow-y:auto}
+ .totem [style*="font-size:34px"]{font-size:22px!important}
+ .totem [style*="font-size:18px"]{font-size:14px!important}
+ .totem #relogio{font-size:26px!important}
+ .totem img[style*="height:46px"]{height:32px!important}
+ .tt3{grid-template-columns:1fr;max-height:none;flex:none;gap:12px;margin-top:14px}
+ .tc{padding:16px}
+ .tc .pn{font-size:22px}
+ .tfoto{min-height:150px}
+ .tw{max-width:100%;font-size:12.5px}
+ .faixa{font-size:20px;padding:12px}
+ .tablet [style*="font-size:30px"]{font-size:22px!important}
+ .tablet [style*="font-size:22px"]{font-size:17px!important}
+ .tablet [style*="font-size:90px"]{font-size:60px!important}
+ .tablet img[style*="width:260px"]{width:200px!important;height:130px!important}
+ .tablet img[style*="height:42px"]{height:30px!important}
+ .notas4{flex-wrap:wrap;gap:10px;margin:14px 0 8px}
+ .nt{width:44%;padding:10px}
+ .nt div[style*="font-size:64px"]{font-size:44px!important}
+ .nt b{font-size:16px!important}
+ .tablet>div:last-child{justify-content:flex-start!important;padding-top:16px}
+ .tv [style*="font-size:34px"]{font-size:22px!important}
+ .tv [style*="font-size:30px"]{font-size:22px!important}
+ .tv img[style*="height:56px"]{height:34px!important}
+ .tv .pd[style*="height"]{height:auto!important;min-height:220px}
+}
 </style>
 </head>
 <body>

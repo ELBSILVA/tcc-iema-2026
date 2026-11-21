@@ -135,6 +135,15 @@ h2 .ic{width:20px;height:20px;color:var(--b)}
  .fab{bottom:24px}
  #toasts{left:auto;right:20px;top:76px;align-items:flex-end}
 }
+
+/* ===== versão para celular (teste online) ===== */
+@media (max-width:700px){
+ .nav{overflow-x:auto;justify-content:flex-start;scrollbar-width:none}
+ .nav::-webkit-scrollbar{display:none}
+ .nav button{flex:0 0 74px;font-size:10px;line-height:1.15;text-align:center;padding:0 3px}
+ #toasts .toast:nth-child(n+2){display:none}
+ .toast{font-size:12.5px;padding:9px 12px}
+}
 </style>
 </head>
 <body>
