@@ -290,6 +290,62 @@ input:focus,select:focus,textarea:focus{border-color:#2f7a49}
  .nav button .ic{flex:none}
 }
 
+/* ===== menu e PDV (v1.8) ===== */
+.navsec,.navuser{display:none}
+.nav button span{overflow:hidden;text-overflow:ellipsis}
+@media (min-width:900px){
+ .nav{padding:12px 12px 0;gap:2px;overflow-y:auto}
+ .navsec{display:block;font-size:10.5px;letter-spacing:1.6px;font-weight:700;color:#a3937a;text-transform:uppercase;padding:14px 12px 6px}
+ .navsec:first-child{padding-top:4px}
+ .nav button{height:44px;padding:0 10px;gap:12px;font-size:14px;font-weight:500;color:#4f4330;border-radius:12px;flex:none}
+ .nav button .ic,.nav button.on .ic{width:32px;height:32px;padding:6px;border-radius:9px;background:#f1eadb;color:#2f7a49;flex:none}
+ .nav button:hover{background:#f4eddf}
+ .nav button.on{background:#2f7a49;color:#fff;font-weight:700}
+ .nav button.on .ic{background:rgba(255,255,255,.18);color:#fff}
+ .nav .ext{margin-left:auto;color:#b5a586;font-size:13px}
+ .navuser{display:flex;align-items:center;gap:10px;margin:auto -12px 0;padding:12px 14px;border-top:1px solid var(--ln);background:#fbf6ec;position:sticky;bottom:0}
+ .navuser b{display:block;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.navuser small{color:var(--mu);font-size:12px}
+ .sairb{border:1px solid var(--ln);background:#fffdf8;border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;color:#c8643b;cursor:pointer;flex:none}
+ .sairb:hover{background:#fdeee6}
+}
+.pdvtopo{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.pdvmsg{min-height:84px;border-radius:18px;background:#fffdf8;border:1px solid #efe5d1;display:flex;align-items:center;gap:18px;padding:14px 22px;margin-bottom:10px;color:#fff}
+.pmsit{font-weight:800;font-size:20px;background:rgba(255,255,255,.2);border-radius:12px;padding:8px 14px;white-space:nowrap}
+.pmnome{flex:1;text-align:center;font-family:Fraunces,Georgia,serif;font-weight:800;font-size:34px;line-height:1.1}
+.pmhora{font-size:17px;font-weight:700;white-space:nowrap;opacity:.95}
+.pf4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.pf{position:relative;background:#fffdf8;border:3px solid #efe5d1;border-radius:20px;padding:10px 10px 12px;text-align:center}
+.pf.novo{border-color:#2f7a49;box-shadow:0 8px 22px rgba(47,122,73,.18)}
+.pfimg{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;object-position:center 20%;border-radius:14px;background:#eee}
+.pfsem{position:relative;overflow:hidden}.pfsem svg{position:absolute;inset:0;width:100%;height:100%}.pfsem span{position:absolute;right:8px;bottom:8px;background:rgba(0,0,0,.35);color:#fff;font-weight:700;border-radius:8px;padding:2px 8px}
+.pfn{font-weight:700;font-size:16px;margin-top:10px;line-height:1.25}
+.pfag{position:absolute;top:18px;left:18px;z-index:2;background:#2f7a49;color:#fff;font-weight:800;font-size:12px;letter-spacing:1px;border-radius:999px;padding:4px 10px}
+.treg{width:100%;border-collapse:collapse;font-size:14px}
+.treg th{background:#f4eddf;text-align:left;font-size:12px;letter-spacing:.5px;text-transform:uppercase;color:#7a6a52;padding:10px 12px}
+.treg td{padding:8px 12px;border-top:1px solid #f0e7d5;vertical-align:middle}
+.treg th.agora{background:#e5f0e1;color:#26653c}.treg td.agora{background:#f3f8f0;font-weight:700}
+.treg tr.ult td{background:#fbf3dc}.treg tr.ult td.agora{background:#eef5e4}
+.treg .nada{color:#c5b79c}
+.pdvbar{display:flex;align-items:center;gap:16px;background:#fffdf8;border:1px solid #e7dcc6;border-radius:18px;padding:12px 16px;box-shadow:0 -6px 24px rgba(60,45,20,.10);margin-bottom:14px}
+.pbin{flex:1;display:flex;align-items:center;gap:10px;color:#2f7a49;min-width:0}.pbin input{font-size:17px;padding:12px 14px}
+.pbtot{display:flex;align-items:center;gap:8px;white-space:nowrap}.pbtot b{font-family:Fraunces,Georgia,serif;font-size:36px;color:#23412f}.pbtot span{font-size:12px;color:var(--mu);line-height:1.3}
+.pbbt{display:flex;gap:8px;flex-wrap:wrap}.pbbt .btn{margin:0}
+@media (min-width:900px){
+ .main:has(.pdvbar){padding-bottom:120px}
+ .pdvbar{position:fixed;left:270px;right:20px;bottom:16px;margin:0;z-index:4}
+ #toasts{top:auto!important;bottom:110px}
+}
+@media (max-width:899px){
+ .main:has(.pdvbar){display:flex;flex-direction:column}
+ .main:has(.pdvbar)>*{flex-shrink:0}
+ .pbin{flex:1 1 100%}.pbtot b{font-size:30px}
+ .pdvbar{order:-1;flex-wrap:wrap}
+ .pdvtopo{order:-2}
+ .pf4{grid-template-columns:1fr 1fr;gap:10px}
+ .pdvmsg{flex-wrap:wrap;justify-content:center;gap:8px;padding:12px}.pmnome{font-size:22px;flex-basis:100%}
+ .treg{font-size:12.5px}.treg th,.treg td{padding:6px}.treg th:first-child,.treg td:first-child{display:none}
+}
+
 /* ===== FIM DO TEMA ===== */
 </style>
 </head>
@@ -441,10 +497,26 @@ const NOTAS = {1:['😠','Ruim','#fde2e4'],2:['😐','Razoável','#fff3cd'],3:['
 let pilha = [], tela = 'inicio', param = null;
 function ir(t, p, semPilha) { if (!semPilha) pilha.push([tela, param]); tela = t; param = p ?? null; render(); const mm = $('.main'); if (mm) mm.scrollTop = 0; }
 const NAVS = {
-  pdv: [['pdv','card','PDV — registro'],['situacoes','list','Situações da leitura'],['provisoria','card','Carteirinha provisória'],['janelas','tv','Totem e tablet'],['ajustes','gear','Ajustes']],
-  cozinha: [['cozinha','chef','Painel da cozinha'],['cardapio','list','Cardápio'],['fotos','star','Fotos dos pratos'],['pesagem','scale','Pesagem das sobras'],['janelas','tv','Totem e tablet'],['ajustes','gear','Ajustes']],
-  gestao: [['relatorios','chart','Relatórios'],['mural','trophy','Mural (ranking)'],['cardapio','list','Cardápio'],['fotos','star','Fotos dos pratos'],['alunos','users','Alunos e restrições'],['cozinha','chef','Painel da cozinha'],['pdv','card','PDV'],['janelas','tv','Totem e tablet'],['ajustes','gear','Ajustes']]
+  pdv: [['#','Refeitório'],['pdv','card','PDV — registro'],['situacoes','list','Situações da leitura'],['provisoria','card','Carteirinha provisória'],
+        ['#','Telas dos alunos'],['win:totem','tv','Totem do cardápio'],['win:tablet','tablet','Tablet de avaliação'],
+        ['#','Sistema'],['ajustes','gear','Ajustes']],
+  cozinha: [['#','Cozinha'],['cozinha','chef','Painel da cozinha'],['cardapio','list','Cardápio'],['fotos','star','Fotos dos pratos'],['pesagem','scale','Pesagem das sobras'],
+        ['#','Telas dos alunos'],['win:totem','tv','Totem do cardápio'],['win:tablet','tablet','Tablet de avaliação'],
+        ['#','Sistema'],['ajustes','gear','Ajustes']],
+  gestao: [['#','Gestão'],['relatorios','chart','Relatórios'],['mural','trophy','Mural (ranking)'],['alunos','users','Alunos e restrições'],
+        ['#','Refeitório'],['pdv','card','PDV — registro'],['situacoes','list','Situações da leitura'],['provisoria','card','Carteirinha provisória'],
+        ['#','Cozinha'],['cozinha','chef','Painel da cozinha'],['cardapio','list','Cardápio'],['fotos','star','Fotos dos pratos'],['pesagem','scale','Pesagem das sobras'],
+        ['#','Telas dos alunos'],['win:totem','tv','Totem do cardápio'],['win:tablet','tablet','Tablet de avaliação'],['win:mural','trophy','Mural em tela cheia'],
+        ['#','Sistema'],['ajustes','gear','Ajustes']]
 };
+const PERFIL = {pdv:'PDV do refeitório', cozinha:'Cozinha', gestao:'Gestão'};
+const telaInicial = p => NAVS[p].find(n => n[0] !== '#' && !n[0].startsWith('win:'))[0];
+function navHTML(u, nav) {
+  return nav.map(n => n[0] === '#' ? `<div class="navsec">${n[1]}</div>`
+    : n[0].startsWith('win:') ? `<button onclick="abrirJanela('${n[0].slice(4)}')" title="Abre em uma janela própria">${ic(n[1])}<span>${n[2]}</span><small class="ext">↗</small></button>`
+    : `<button class="${tela===n[0]?'on':''}" onclick="pilha=[];ir('${n[0]}',null,true)">${ic(n[1])}<span>${n[2]}</span></button>`).join('')
+   + `<div class="navuser"><div class="av" style="margin:0">${esc(iniciais(u.nome))}</div><div style="flex:1;min-width:0"><b>${esc(u.nome)}</b><small>${PERFIL[u.perfil]}</small></div><button class="sairb" onclick="menuUser()" title="Trocar usuário / sair">${ic('out',18)}</button></div>`;
+}
 const voltarBtn = t => `<h2>${t}</h2>`;
 function render() {
   const modo = location.hash.replace('#','');
@@ -453,12 +525,12 @@ function render() {
   if (modo === 'mural') return renderMuralCheio();
   if (!DB.sessao || !me()) return renderLogin();
   const u = me(); const nav = NAVS[u.perfil];
-  if (!TELAS[tela] || !nav.some(n => n[0] === tela) && !['aluno','novoAluno','editCard','situacoes','provisoria'].includes(tela)) tela = nav[0][0];
+  if (!TELAS[tela] || !nav.some(n => n[0] === tela) && !['aluno','novoAluno','editCard'].includes(tela)) tela = telaInicial(u.perfil);
   $('#app').innerHTML = `<div class="top"><div class="brand">${ICON}<div><b><span style="color:var(--b)">Eco</span><span style="color:var(--r)">Food</span></b><small>PROJETO DESPERDÍCIO ZERO • IEMA</small></div></div>
    <div class="row" style="margin-left:auto;gap:10px"><span class="sub" style="text-align:right">${esc(u.nome)}<br><b>${DIASF[hoje().getDay()]}, ${br(iso(hoje()))}</b></span>
    <div class="av" title="Trocar usuário" onclick="menuUser()">${esc(iniciais(u.nome))}</div></div></div>
    <div class="main">${TELAS[tela](u)}</div>
-   <div class="nav">${nav.map(([k,i,l]) => `<button class="${tela===k?'on':''}" onclick="pilha=[];ir('${k}',null,true)">${ic(i)}${l}</button>`).join('')}</div>`;
+   <div class="nav">${navHTML(u, nav)}</div>`;
   const cod = $('#codPdv'); if (cod) cod.focus();
 }
 function menuUser() { confirmar('Trocar de usuário?', 'Você vai voltar para a tela de entrada para escolher outro usuário.', sair, 'Trocar usuário'); }
@@ -478,46 +550,50 @@ function renderLogin() {
    <div class="note">Senha de todos os usuários de exemplo: <b>1234</b><br>Protótipo (MVP) — TCC IEMA 2026 • Grupo 3 • IEMA Pleno Coroatá</div></div>`;
 }
 function entrar(l, s) { const u = DB.users.find(x => x.login.toLowerCase() === String(l).trim().toLowerCase() && x.senha === String(s).trim()); if (!u) return toast('Usuário ou senha incorretos.');
-  DB.sessao = u.id; save(); pilha = []; tela = NAVS[u.perfil][0][0]; param = null; render(); }
+  DB.sessao = u.id; save(); pilha = []; tela = telaInicial(u.perfil); param = null; render(); }
 function sair() { DB.sessao = null; save(); renderLogin(); }
 
 // ====================== PDV ======================
 let pdvRef = null, ultima = null;
 const regHoje = (aId, r) => DB.registros.filter(x => x.alunoId === aId && x.data === iso(hoje()) && (!r || x.refeicao === r));
 const TELAS = {};
+const fotoRet = a => a.img ? `<img class="pfimg" src="${a.img}" alt="">` : `<div class="pfimg pfsem" style="background:${a.cor}"><svg viewBox="0 0 40 40"><circle cx="20" cy="15" r="7.5" fill="rgba(255,255,255,.85)"/><path d="M6 40a14 14 0 0 1 28 0z" fill="rgba(255,255,255,.85)"/></svg><span>${esc(iniciais(a.nome))}</span></div>`;
 TELAS.pdv = u => {
-  const r = pdvRef || refAgora(); const hojeR = DB.registros.filter(x => x.data === iso(hoje()));
-  const ult = [...new Map([...hojeR].reverse().map(x => [x.alunoId, x])).values()].slice(0, 6);
+  const r = pdvRef || refAgora(); const d = iso(hoje()); const hojeR = DB.registros.filter(x => x.data === d);
+  const SIT = {ok:['var(--ok)','✔ LIBERADO'], ja:['var(--r)','⚠ JÁ PEGOU'], rep:['#d9962b','🔄 REPETIÇÃO'], prov:['#2b6cb0','🪪 PROVISÓRIA'], nao:['#7a1020','❌ NÃO CADASTRADA']};
+  const sit = ultima ? SIT[ultima.tipo] : null; const la = ultima && aluno(ultima.alunoId);
+  const ult = [...new Map([...hojeR].reverse().map(x => [x.alunoId, x])).values()].slice(0, 4);
   const nR = hojeR.filter(x => x.refeicao === r && !x.repeticao).length; const rep = repLiberada(r);
-  const la = ultima && aluno(ultima.alunoId);
-  const sit = ultima ? {ok:['var(--ok)','✔ LIBERADO'], ja:['var(--r)','⚠ JÁ PEGOU'], rep:['#e0a100','🔄 REPETIÇÃO'], prov:['#2b6cb0','🪪 PROVISÓRIA'], nao:['#7a1020','❌ NÃO CADASTRADA']}[ultima.tipo] : null;
-  return `<div class="row" style="margin-bottom:12px;flex-wrap:wrap"><h2 style="margin:0">${ic('card')} PDV — ${esc(r)}</h2><span class="sel s-b">${HORA[r]}</span><span class="sel ${rep?'s-y':'s-r'}">Repetição ${rep?'LIBERADA':'bloqueada'}</span>
-    <span style="margin-left:auto" class="chips">${REF.map(x => `<span class="chip ${x===r?'on':''}" onclick="pdvRef='${x}';render()">${x}</span>`).join('')}</span></div>
-   <div class="pdv">
-    <div>
-     <div class="card" style="display:flex;gap:10px;align-items:center"><span style="color:var(--b)">${ic('card',28)}</span><input id="codPdv" placeholder="Aproxime / bipe a carteirinha (ou digite o número e tecle Enter)" onkeydown="if(event.key==='Enter'){lerCarteirinha(this.value);this.value=''}" style="flex:1;font-size:16px">
-      <button class="btn sm" onclick="simular()">Simular leitura</button></div>
-     ${ultima ? `<div class="card ultima" style="border:3px solid ${sit[0]}">${la ? foto(la, 110) : `<div class="foto" style="width:110px;height:110px;background:#999"><span>?</span></div>`}
-      <div style="flex:1;min-width:0"><div class="sub">Última leitura • ${ultima.hora}</div><div style="font-size:22px;font-weight:800">${la ? esc(la.nome) : 'Carteirinha ' + esc(ultima.cod)}</div>
-      ${la ? `<div class="sub" style="font-size:14px">Turma ${esc(la.turma)} • Matrícula ••••${esc(la.matricula.slice(-4))}</div>` : ''}
-      <div style="background:${sit[0]};color:#fff;border-radius:10px;padding:10px;font-size:22px;font-weight:800;text-align:center;margin-top:8px">${sit[1]}</div>
-      <div class="sub" style="margin-top:6px;font-size:13.5px">${esc(ultima.msg)}</div>
-      ${la && (la.restricao || la.sabatista) ? `<div style="margin-top:6px">${la.restricao?`<span class="sel s-y">Restrição: ${esc(la.restricao)}</span> `:''}${la.sabatista?'<span class="sel s-p">Sabatista</span>':''}</div>` : ''}</div></div>` :
-      `<div class="card ultima" style="justify-content:center;color:var(--mu);min-height:150px">Aguardando a primeira carteirinha…</div>`}
-     <div class="sec">Últimos 6 registros de hoje</div>
-     <div class="ult6">${ult.map((x,i) => { const a = aluno(x.alunoId); if (!a) return ''; const hs = REF.map(rr => { const l = regHoje(a.id, rr).filter(y => !y.repeticao); const rp = regHoje(a.id, rr).some(y => y.repeticao); return [rr, l.length ? l[0].hora : '—', rp]; });
-       return `<div class="card u6 ${i===0?'novo':''}">${foto(a, 70)}<div style="flex:1;min-width:0"><div class="ttl" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(a.nome)}</div><div class="sub">Turma ${esc(a.turma)}${i===0?' • <b style="color:var(--b)">agora</b>':''}</div>
-        ${hs.map(([rr,h,rp]) => `<div class="hl ${rr===r&&h!=='—'?'on':''}"><span>${rr}</span><b style="color:${h==='—'?'#a5adb4':'var(--tx)'}">${h}${rp?' 🔄':''}</b></div>`).join('')}</div></div>`; }).join('') || '<div class="empty">Nenhum registro hoje.</div>'}</div>
-    </div>
-    <div>
-     <div class="card k"><div class="sub">${esc(r)} • pegaram</div><b>${nR} <small class="sub">de ${DB.alunos.length}</small></b><div class="prog"><i style="width:${pct(nR,DB.alunos.length)}%;background:var(--b)"></i></div></div>
-     <div class="card k"><div class="sub">Repetições hoje</div><b>${hojeR.filter(x => x.repeticao).length}</b></div>
-     <div class="card k"><div class="sub">Cardápio de agora</div><div class="ttl" style="margin-top:4px">${esc(cardHoje()[r] || '—')}</div>${cardHoje().restricao?`<div class="sub" style="color:#8a5a00;margin-top:4px">${esc(cardHoje().restricao)}</div>`:''}</div>
-     <button class="btn out" onclick="ir('provisoria')">🪪 Carteirinha provisória (F2)</button>
-     <button class="btn out" onclick="ir('situacoes')">Ver as 4 situações da leitura</button>
-     <div class="note" style="text-align:left">O leitor da carteirinha funciona como teclado: é só passar a carteirinha com o cursor no campo de leitura.</div>
-     <div class="note" style="text-align:left">${DEMO() ? '<b style="color:var(--b)">Modo apresentação ligado</b> (Ajustes): a carteirinha pode passar quantas vezes quiser. ' : ''}Para testar: digite <b>001</b>, <b>002</b>, <b>003</b> ou <b>004</b> (alunos do Grupo 3) e tecle Enter.</div>
-    </div></div>`;
+  const ordem = [...new Map([...hojeR].reverse().map(x => [x.alunoId, x])).keys()];
+  const cel = (a, rr) => { const l = regHoje(a.id, rr); const p = l.find(y => !y.repeticao); const rp = l.find(y => y.repeticao);
+    return p ? `${p.hora}${p.provisoria ? ' 🪪' : ''}${rp ? `<small class="sel s-y" style="margin-left:6px">🔄 ${rp.hora}</small>` : ''}` : '<span class="nada">—</span>'; };
+  const etq = x => x.repeticao ? '🔄 Repetição' : x.provisoria ? '🪪 Provisória' : '✔ Registrado';
+  return `<div class="pdvtopo"><h2 style="margin:0">${ic('card')} PDV — ${esc(r)}</h2>
+     <span class="sel s-b">${HORA[r]}</span><span class="sel ${rep?'s-y':'s-r'}">Repetição ${rep?'LIBERADA':'bloqueada'}</span>
+     <span class="sel s-g">🍽 ${esc(cardHoje()[r] || '—')}</span>
+     <span class="chips" style="margin-left:auto">${REF.map(x => `<span class="chip ${x===r?'on':''}" onclick="pdvRef='${x}';render()">${x}</span>`).join('')}</span></div>
+
+   <div class="pdvmsg" style="${sit ? `background:${sit[0]}` : ''}">${ultima
+     ? `<span class="pmsit">${sit[1]}</span><span class="pmnome">${la ? esc(la.nome) : 'Carteirinha ' + esc(ultima.cod)}</span><span class="pmhora">${la ? 'Turma ' + esc(la.turma) + ' • ' : ''}${ultima.hora}</span>`
+     : '<span class="pmnome" style="color:var(--mu)">Aguardando a carteirinha…</span>'}</div>
+   ${ultima ? `<div class="sub" style="text-align:center;margin:-4px 0 12px;font-size:13.5px">${esc(ultima.msg)}${la && (la.restricao || la.sabatista) ? ` • ${la.restricao ? 'Restrição: ' + esc(la.restricao) : ''}${la.sabatista ? ' Sabatista' : ''}` : ''}</div>` : ''}
+
+   <div class="pf4">${[0,1,2,3].map(i => { const x = ult[i]; const a = x && aluno(x.alunoId);
+     if (!a) return `<div class="pf vazio"><div class="pfimg pfsem" style="background:#efe7d6"><svg viewBox="0 0 40 40"><circle cx="20" cy="15" r="7.5" fill="#fffdf8"/><path d="M6 40a14 14 0 0 1 28 0z" fill="#fffdf8"/></svg></div><div class="pfn" style="color:#b5a586">Aguardando</div><div class="sub">&nbsp;</div></div>`;
+     const cor = i === 0 && sit && ultima.alunoId === a.id ? sit[0] : null;
+     return `<div class="pf ${i===0?'novo':''}" style="${cor ? `border-color:${cor}` : ''}">${i===0 ? `<span class="pfag" style="${cor ? `background:${cor}` : ''}">AGORA</span>` : ''}${fotoRet(a)}
+       <div class="pfn">${esc(a.nome)}</div><div class="sub">Turma ${esc(a.turma)} • ${esc(x.refeicao)} • <b style="color:var(--tx)">${x.hora}</b></div><div class="sub" style="margin-top:4px">${etq(x)}</div></div>`; }).join('')}</div>
+
+   <div class="sec" style="margin-top:18px">Registros de hoje <span class="sub" style="margin-left:10px;font-family:'DM Sans',sans-serif">${ordem.length} aluno(s)</span></div>
+   <div class="card" style="padding:0;overflow:hidden"><table class="treg"><thead><tr><th style="width:56px"></th><th>Nome</th><th style="width:90px">Turma</th>${REF.map(x => `<th class="${x===r?'agora':''}" style="width:150px">${x}</th>`).join('')}</tr></thead>
+     <tbody>${ordem.map(id => { const a = aluno(id); if (!a) return ''; return `<tr class="${id===(ultima&&ultima.alunoId)?'ult':''}"><td>${foto(a, 38)}</td><td><b>${esc(a.nome)}</b></td><td>${esc(a.turma)}</td>${REF.map(x => `<td class="${x===r?'agora':''}">${cel(a, x)}</td>`).join('')}</tr>`; }).join('')
+       || `<tr><td colspan="6" class="empty">Nenhum registro hoje. Passe a carteirinha no campo abaixo.</td></tr>`}</tbody></table></div>
+
+   <div class="pdvbar">
+     <div class="pbin">${ic('card',24)}<input id="codPdv" placeholder="Passe a carteirinha (ou digite 001 e Enter)" onkeydown="if(event.key==='Enter'){lerCarteirinha(this.value);this.value=''}"></div>
+     <div class="pbtot"><b>${nR}</b><span>${esc(r)}<br>de ${DB.alunos.length} alunos</span></div>
+     <div class="pbbt"><button class="btn sm" onclick="simular()">Simular leitura</button><button class="btn sm out" onclick="ir('provisoria')">🪪 Provisória (F2)</button><button class="btn sm out" onclick="ir('situacoes')">Situações</button></div>
+   </div>`;
 };
 function achaCart(cod) { cod = String(cod).trim(); const n = /^\d{1,3}$/.test(cod) ? cod.padStart(3, '0') : cod; return DB.alunos.find(x => x.carteirinha === cod || x.carteirinha === n || x.matricula === cod); }
 function lerCarteirinha(cod) {
@@ -581,7 +657,7 @@ TELAS.cozinha = u => {
    <div class="card" style="text-align:center;padding:22px">${lib ? `<div style="font-size:18px;font-weight:800;color:#8a5a00;margin-bottom:10px">🔄 Repetição LIBERADA desde ${DB.repeticao[repKey(dt,r)].hora}</div><button class="btn red" style="max-width:420px;margin:auto" onclick="liberar('${r}',false)">Encerrar repetição</button>` :
      `<button class="btn" style="max-width:460px;margin:auto;font-size:19px;padding:16px" onclick="liberar('${r}',true)">${ic('repeat',22)} LIBERAR REPETIÇÃO</button><div class="sub" style="margin-top:8px">Aperte quando as filas acabarem: o totem avisa e as carteirinhas podem passar de novo.</div>`}</div>
    <div class="pdv"><div class="card"><div class="ttl">${ic('scale',18)} Pesagem das sobras — ${esc(r)}</div>
-     <div class="row" style="margin-top:8px"><input id="kg" type="number" step="0.1" placeholder="kg de sobras" value="${pes?pes.kg:''}" style="flex:1"><button class="btn sm" style="padding:11px 18px" onclick="salvarPeso('${r}')">Salvar</button></div>
+     <div class="row" style="margin-top:8px"><input id="kg" type="text" inputmode="decimal" placeholder="kg de sobras" value="${pes?pes.kg:''}" style="flex:1"><button class="btn sm" style="padding:11px 18px" onclick="salvarPeso('${r}')">Salvar</button></div>
      <div class="sub" style="margin-top:6px">${pes ? '✔ Pesagem salva: ' + fmt(pes.kg) + ' kg' : 'Ainda não pesado.'}</div></div>
     <div class="card"><div class="ttl">Cardápio de hoje</div>${REF.map(x => `<div class="li"><span class="sel ${x===r?'s-b':'s-g'}">${x}</span><div style="flex:1">${esc(cardHoje()[x] || '—')}</div></div>`).join('')}
      <div class="sub" style="margin-top:6px">Os alunos dizem no tablet se o cardápio foi seguido: ${av.length ? pct(av.filter(a => a.seguido).length, av.length) + '% disseram sim' : 'sem respostas ainda'}.</div></div></div>`;
@@ -745,7 +821,7 @@ TELAS.ajustes = u => `${voltarBtn(ic('gear') + ' Ajustes')}<div class="card" sty
    <div style="max-width:640px"><button class="btn gray" onclick="sair()">${ic('swap',18)} Trocar usuário / sair</button>
    <button class="btn out" style="color:var(--r);border-color:var(--r)" onclick="confirmar('Restaurar dados de exemplo?','Tudo o que foi registrado neste computador será apagado e o programa volta ao início.',()=>{localStorage.removeItem(KEY);load();renderLogin();toast('Dados de exemplo restaurados.')},'Restaurar')">Restaurar dados de exemplo</button></div>
    <div class="card" style="max-width:640px"><label class="row" style="cursor:pointer;gap:10px"><input type="checkbox" style="width:22px;height:22px;flex:none" ${DEMO()?'checked':''} onchange="DB.config.demo=this.checked;save();toast(this.checked?'Modo apresentação ligado':'Modo apresentação desligado');render()"><div><div class="ttl">Modo apresentação</div><div class="sub">Ligado: a mesma carteirinha pode passar várias vezes no PDV e avaliar no tablet sem ter pegado a refeição, para mostrar todas as telas. Desligado: regras reais (não libera duas vezes e só avalia quem pegou).</div></div></label></div>
-   <div class="note">EcoFood • versão 1.7 para Windows • protótipo do TCC IEMA 2026 (Grupo 3)</div>`;
+   <div class="note">EcoFood • versão 1.8 para Windows • protótipo do TCC IEMA 2026 (Grupo 3)</div>`;
 
 // ====================== início ======================
 load(); render();
