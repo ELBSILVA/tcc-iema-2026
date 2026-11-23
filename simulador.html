@@ -114,10 +114,11 @@ body.proj #cortina.vis{display:flex}
     <div class="cx"><h3>O que mostrar / falar</h3><div class="fala" id="aFala"></div></div>
     <div class="cx"><h3>Tempo de apresentação</h3><div class="crono" id="crono">00:00</div>
       <button onclick="cronoIni()">▶ Iniciar</button><button onclick="cronoPausa()">⏸ Pausar</button><button onclick="cronoZera()">↺ Zerar</button></div>
+    <div class="cx" id="comoProj" style="border-left:6px solid var(--azul)"><h3>Como projetar</h3><div style="font-size:14.5px;line-height:1.55">1. Arraste a <b>janela da plateia</b> para o projetor (2ª tela).<br>2. Clique nela e aperte <b>F11</b> (ou dê <b>dois cliques no fundo preto</b>) para ficar em tela cheia.<br>3. Controle tudo por aqui, pela lateral.</div>
+      <button style="margin-top:8px" onclick="this.parentNode.style.display='none'">✓ Entendi</button></div>
     <div class="aviso">Troque programa, perfil e tela pela lateral. Para digitar ou clicar dentro do app, use o mouse na 2ª tela. <b>⏹ Encerrar projeção</b> volta para uma tela só.</div>
   </div>
 </section>
-<div id="cortina" class="vis" onclick="entrarTelaCheia()"><div>📽 <b>Janela da plateia</b><br>Arraste esta janela para o projetor (2ª tela) e <b>clique aqui</b> para ficar em tela cheia.<br><small style="color:#9aa1ab">O controle fica na outra janela, com o apresentador.</small></div></div>
 <div id="aviso"></div>
 <script>
 const BUILD = '__BUILD__', DATA = '__DATA__';
@@ -175,11 +176,12 @@ function moldura(k, miolo) {
   const d = DISP[k];
   return `<div class="moldura"><div class="tela" style="width:${d.w}px;height:${d.h}px">${d.tipo==='cel'?'<div class="sb"><span class="hr"></span><div class="ilha"></div><span class="ic">▂▄▆ <span class="bat"><i></i></span></span></div>':''}${miolo}</div></div>${d.tipo==='mon'?'<div class="pe"></div><div class="base"></div>':''}`;
 }
+const fonte = k => { const [u, h] = DISP[k].src.split('#'); return location.protocol.startsWith('http') ? u + '?v=' + Math.floor(Date.now() / 60000) + (h ? '#' + h : '') : DISP[k].src; };
 const altApp = k => DISP[k].tipo === 'cel' ? DISP[k].h - 40 : DISP[k].h;
 function criar(k) {
   const d = DISP[k], el = document.createElement('div');
   el.className = 'disp ' + d.tipo;
-  el.innerHTML = `<div class="rot">${d.rot}</div>` + moldura(k, `<iframe src="${d.src}" width="${d.w}" height="${altApp(k)}" allow="fullscreen"></iframe>`);
+  el.innerHTML = `<div class="rot">${d.rot}</div>` + moldura(k, `<iframe src="${fonte(k)}" width="${d.w}" height="${altApp(k)}" allow="fullscreen"></iframe>`);
   document.getElementById('palco').appendChild(el); criados[k] = el; relogio();
   if (PROJ) el.querySelector('iframe').addEventListener('load', e => { try { e.target.contentWindow.postMessage({ sim: 'espelho', on: true }, '*'); } catch (x) {} });
   return el;
@@ -219,7 +221,8 @@ function executar(c) {                       // comandos vindos do painel (mesma
       w && w.postMessage(c.cmd === 'perfil' ? { sim: 'perfil', perfil: c.perfil } : c.cmd === 'sair' ? { sim: 'sair' } : { sim: 'ir', tela: c.tela }, '*');
     }
   }
-  if (c.cmd === 'recarregar') { const el = criados[chave()]; if (el) el.querySelector('iframe').src = DISP[chave()].src; }
+  if (c.cmd === 'espelho') { const w = frameDe(chave()); w && w.postMessage({ sim: 'espelho', on: true }, '*'); return; }
+  if (c.cmd === 'recarregar') { const el = criados[chave()]; if (el) el.querySelector('iframe').src = fonte(chave()); }
   if (!document.body.classList.contains('apresentando')) mostrarPalco();
   try { localStorage.setItem('simulador_app', app); } catch (e) {}
   avisaControle();
@@ -268,17 +271,19 @@ document.querySelectorAll('.apps button').forEach(b => b.onclick = () => cmd({ c
 let pvK = null, pvAtivo = 0;
 function previaMontar(k) {
   const P = document.getElementById('previa'); pvK = k;
-  P.innerHTML = `<div class="disp ${DISP[k].tipo}" id="pvDisp">` + moldura(k, `<iframe sandbox="allow-same-origin" width="${DISP[k].w}" height="${altApp(k)}"></iframe><iframe sandbox="allow-same-origin" width="${DISP[k].w}" height="${altApp(k)}" style="visibility:hidden"></iframe>`) + '</div>';
+  P.innerHTML = `<div class="disp ${DISP[k].tipo}" id="pvDisp">` + moldura(k, `<iframe width="${DISP[k].w}" height="${altApp(k)}" tabindex="-1"></iframe><iframe width="${DISP[k].w}" height="${altApp(k)}" tabindex="-1" style="visibility:hidden"></iframe>`) + '</div>';
   relogio(); previaAjustar();
 }
 function previaAjustar() {
   const P = document.getElementById('previa'), el = document.getElementById('pvDisp'); if (!el) return;
   const r = P.getBoundingClientRect(); el.style.transform = 'translate(-50%,-50%) scale(1)';
+  if (r.width < 50 || !el.offsetWidth) { requestAnimationFrame(previaAjustar); return; }
   const s = Math.min((r.width - 24) / el.offsetWidth, (r.height - 24) / el.offsetHeight);
   el.style.transform = `translate(-50%,-50%) scale(${s})`;
 }
 function previa(d) {
   if (!document.body.classList.contains('apresentando')) return;
+  pvUlt = Date.now();
   if (d.k !== pvK) previaMontar(d.k);
   const fs = document.querySelectorAll('#pvDisp iframe'); if (fs.length < 2) return;
   const novo = fs[1 - pvAtivo], velho = fs[pvAtivo], t = d.simTela;
@@ -290,6 +295,13 @@ function previa(d) {
   novo.srcdoc = html;
 }
 window.addEventListener('resize', previaAjustar);
+if (window.ResizeObserver) new ResizeObserver(previaAjustar).observe(document.getElementById('previa'));
+let pvUlt = 0;
+setInterval(() => {                     // se a imagem não chegar, pede de novo e avisa
+  if (!document.body.classList.contains('apresentando') || !projecao || projecao.closed) return;
+  if (Date.now() - pvUlt > 2500) { projecao.postMessage({ simCmd: { cmd: 'espelho' } }, '*');
+    if (!pvK) document.getElementById('previa').innerHTML = '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#9aa1ab;text-align:center;padding:20px">Aguardando a imagem da tela da plateia…<br>Se demorar, clique em ⟳ Recarregar na lateral.</div>'; }
+}, 1500);
 
 /* ================= PROJEÇÃO NA 2ª TELA ================= */
 let projecao = null;
@@ -314,7 +326,7 @@ function fimProjecao() {
   const b = document.getElementById('bProj'); b.textContent = '📽 Projetar na 2ª tela'; b.classList.remove('ativo');
   app = EST.app; modo = EST.modo; mostrarPalco(); avisaControle();
 }
-function entrarTelaCheia() { document.getElementById('cortina').classList.remove('vis'); if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => {}); }
+function entrarTelaCheia() { if (!document.fullscreenElement && document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => {}); }
 function cheia() { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
 
 /* cronômetro do apresentador */
@@ -336,7 +348,7 @@ if (!PROJ && navigator.onLine && !BUILD.startsWith('__')) {
 }
 
 /* início */
-if (PROJ) { mostrarPalco(); try { window.opener && window.opener.postMessage({ simPronta: true }, '*'); } catch (e) {} }
+if (PROJ) { document.getElementById('palco').addEventListener('dblclick', e => { if (e.target.id === 'palco') entrarTelaCheia(); }); mostrarPalco(); try { window.opener && window.opener.postMessage({ simPronta: true }, '*'); } catch (e) {} }
 else { try { const s = localStorage.getItem('simulador_app'); if (DISP[s]) app = s; } catch (e) {} EST.app = app; mostrarPalco(); desenharLado(); }
 </script>
 </body>

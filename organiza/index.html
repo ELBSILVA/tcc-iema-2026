@@ -659,7 +659,8 @@ if (me() && me().perfil === 'aluno') setTimeout(() => verificarLembretes(me(), f
     const base = location.href.split('#')[0].replace(/[^\/]*$/, '');
     window.parent.postMessage({ simTela: { html, base, sy: (document.scrollingElement || document.documentElement).scrollTop } }, '*');
   } catch (e) {} if (obs) obs.takeRecords(); };
-  const agenda = () => { if (liga && !t) t = setTimeout(foto, 300); };
+  const agenda = () => { if (liga && !t) t = setTimeout(foto, 150); };
+  setInterval(() => { if (liga && !t) foto(); }, 2000);
   obs = new MutationObserver(agenda);
   obs.observe(document.documentElement, { subtree: true, childList: true, attributes: true, characterData: true });
   document.addEventListener('input', agenda, true); document.addEventListener('scroll', agenda, true);
