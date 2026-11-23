@@ -35,7 +35,12 @@ nav button:hover{opacity:1}
 /* celular (retrato) */
 .cel .moldura{padding:16px;background:#0b0c0e;border-radius:56px;box-shadow:0 0 0 2px #3a3d44,0 30px 80px rgba(0,0,0,.6)}
 .cel .tela{border-radius:40px}
-.cel .notch{position:absolute;top:16px;left:50%;transform:translateX(-50%);width:120px;height:26px;background:#0b0c0e;border-radius:0 0 16px 16px;z-index:2}
+.cel .sb{height:40px;display:flex;align-items:center;justify-content:space-between;padding:4px 26px 0 34px;background:#7b5cff;color:#fff;font:600 14px "Segoe UI",sans-serif;position:relative}
+.cel .ilha{position:absolute;left:50%;top:9px;transform:translateX(-50%);width:104px;height:26px;background:#0b0c0e;border-radius:14px}
+.cel .ilha:after{content:"";position:absolute;right:12px;top:8px;width:10px;height:10px;border-radius:50%;background:#1f2a44;box-shadow:inset 0 0 0 2px #2c3650}
+.cel .sb .ic{display:flex;gap:6px;align-items:center}
+.cel .sb .bat{width:24px;height:12px;border:2px solid #fff;border-radius:4px;position:relative;padding:1px}.cel .sb .bat i{display:block;height:100%;width:80%;background:#fff;border-radius:1px}
+.cel .sb .bat:after{content:"";position:absolute;right:-5px;top:2px;width:2px;height:4px;background:#fff;border-radius:1px}
 /* monitor / TV / tablet (paisagem) */
 .mon .moldura{padding:18px 18px 26px;background:#0b0c0e;border-radius:18px;box-shadow:0 0 0 2px #3a3d44,0 30px 80px rgba(0,0,0,.6)}
 .mon .pe{width:220px;height:60px;margin:0 auto;background:linear-gradient(#2a2d33,#1a1c20);clip-path:polygon(30% 0,70% 0,85% 100%,15% 100%)}
@@ -85,14 +90,16 @@ const DISP = {
   mural:     {tipo:'mon', w:1366, h:768, src:'ecofood/index.html#mural', rot:'EcoFood – mural do ranking'},
 };
 const criados = {};
+function relogio() { const t = new Date().toTimeString().slice(0,5); document.querySelectorAll('.sb .hr').forEach(e => e.textContent = t); }
+setInterval(relogio, 15000);
 let app = 'organiza', modo = 'sistema';
 function chave() { return app === 'ecofood' && modo !== 'sistema' ? modo : app; }
 function criar(k) {
   const d = DISP[k], el = document.createElement('div');
   el.className = 'disp ' + d.tipo;
-  el.innerHTML = `<div class="rot">${d.rot}</div><div class="moldura">${d.tipo==='cel'?'<div class="notch"></div>':''}<div class="tela" style="width:${d.w}px;height:${d.h}px"><iframe src="${d.src}" width="${d.w}" height="${d.h}" allow="fullscreen"></iframe></div></div>${d.tipo==='mon'?'<div class="pe"></div><div class="base"></div>':''}`;
+  el.innerHTML = `<div class="rot">${d.rot}</div><div class="moldura"><div class="tela" style="width:${d.w}px;height:${d.h}px">${d.tipo==='cel'?'<div class="sb"><span class="hr"></span><div class="ilha"></div><span class="ic">▂▄▆ <span class="bat"><i></i></span></span></div>':''}<iframe src="${d.src}" width="${d.w}" height="${d.tipo==='cel'?d.h-40:d.h}" allow="fullscreen"></iframe></div></div>${d.tipo==='mon'?'<div class="pe"></div><div class="base"></div>':''}`;
   document.getElementById('palco').appendChild(el);
-  criados[k] = el; return el;
+  criados[k] = el; relogio(); return el;
 }
 const retrato = k => DISP[k].tipo === 'cel';
 let ultimo = null;
