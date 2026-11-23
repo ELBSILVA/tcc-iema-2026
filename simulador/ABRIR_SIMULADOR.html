@@ -28,7 +28,7 @@ nav button:hover{opacity:1}
 #sub button.on{background:#2f7a49;border-color:#2f7a49}
 #palco{position:absolute;left:0;right:0;bottom:30px;top:74px;display:flex;align-items:center;justify-content:center}
 #sub.vis ~ #palco{top:118px}
-.disp{position:absolute;left:50%;top:50%;transform-origin:center center;display:none}
+.disp{position:absolute;left:50%;top:50%;transform-origin:center center;display:none;transition:transform .6s cubic-bezier(.2,.8,.2,1),opacity .4s}
 .disp.vis{display:block}
 .tela{position:relative;overflow:hidden;background:#fff}
 .tela iframe{border:0;display:block;background:#fff}
@@ -94,13 +94,31 @@ function criar(k) {
   document.getElementById('palco').appendChild(el);
   criados[k] = el; return el;
 }
-function ajustar() {
-  const k = chave(), el = criados[k]; if (!el) return;
+const retrato = k => DISP[k].tipo === 'cel';
+let ultimo = null;
+function escala(el) {
   const p = document.getElementById('palco').getBoundingClientRect();
-  el.style.transform = 'translate(-50%,-50%) scale(1)';
   const w = el.offsetWidth, h = el.offsetHeight + 50;
-  const s = Math.min((p.width - 30) / w, (p.height - 20) / h, 1.4);
-  el.style.transform = `translate(-50%,-50%) translateY(${20*s}px) scale(${s})`;
+  return Math.min((p.width - 30) / w, (p.height - 20) / h, 1.4);
+}
+function pos(el, s, giro) { return `translate(-50%,-50%) translateY(${20*s}px) rotate(${giro}deg) scale(${s})`; }
+function ajustar(animar) {
+  const k = chave(), el = criados[k]; if (!el) return;
+  el.style.transition = 'none';
+  const s = escala(el);
+  // a tela "vira": de deitada (computador) para em pé (celular) e volta
+  if (animar && ultimo && retrato(ultimo) !== retrato(k)) {
+    el.style.opacity = '0';
+    el.style.transform = pos(el, s * 0.8, retrato(k) ? -90 : 90);
+    el.offsetWidth;
+    el.style.transition = '';
+    el.style.opacity = '1';
+  } else { el.offsetWidth; el.style.transition = ''; el.style.opacity = '1'; }
+  el.style.transform = pos(el, s, 0);
+  ultimo = k;
+  // no celular/tablet em tela cheia, gira a própria tela do aparelho
+  if (document.fullscreenElement && screen.orientation && screen.orientation.lock)
+    screen.orientation.lock(retrato(k) ? 'portrait' : 'landscape').catch(() => {});
 }
 function mostrar() {
   const k = chave();
@@ -109,13 +127,14 @@ function mostrar() {
   document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.app === app));
   document.querySelectorAll('#sub button').forEach(b => b.classList.toggle('on', b.dataset.modo === modo));
   document.getElementById('sub').classList.toggle('vis', app === 'ecofood');
-  requestAnimationFrame(ajustar);
+  requestAnimationFrame(() => ajustar(true));
   try { localStorage.setItem('simulador_app', app); } catch (e) {}
 }
 document.querySelectorAll('nav button').forEach(b => b.onclick = () => { app = b.dataset.app; if (app !== 'ecofood') modo = 'sistema'; mostrar(); });
 document.querySelectorAll('#sub button').forEach(b => b.onclick = () => { modo = b.dataset.modo; mostrar(); });
 window.addEventListener('message', e => { if (e.data && e.data.ecofood === 'abrir' && DISP[e.data.modo]) { app = 'ecofood'; modo = e.data.modo; mostrar(); } });
-window.addEventListener('resize', ajustar);
+window.addEventListener('resize', () => ajustar(false));
+document.addEventListener('fullscreenchange', () => ajustar(false));
 function recarregar() { const el = criados[chave()]; if (el) { const f = el.querySelector('iframe'); f.src = DISP[chave()].src; } }
 function cheia() { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
 // versão e aviso de atualização (só quando houver internet)
