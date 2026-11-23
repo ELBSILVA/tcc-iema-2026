@@ -145,7 +145,7 @@ document.addEventListener('fullscreenchange', () => ajustar(false));
 function recarregar() { const el = criados[chave()]; if (el) { const f = el.querySelector('iframe'); f.src = DISP[chave()].src; } }
 function cheia() { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
 // versão e aviso de atualização (só quando houver internet)
-document.getElementById('ver').textContent = BUILD.startsWith('__') ? 'versão de teste' : `versão ${BUILD} • ${DATA}`;
+document.getElementById('ver').textContent = BUILD.startsWith('__') ? (location.protocol.startsWith('http') ? 'versão online (sempre atualizada)' : 'versão de teste') : `versão ${BUILD} • ${DATA}`;
 const ZIP = 'https://github.com/ELBSILVA/tcc-iema-2026/releases/latest/download/Simulador_TCC_IEMA_2026.zip';
 if (navigator.onLine && !BUILD.startsWith('__')) {
   fetch('https://api.github.com/repos/ELBSILVA/tcc-iema-2026/releases/latest').then(r => r.json()).then(j => {

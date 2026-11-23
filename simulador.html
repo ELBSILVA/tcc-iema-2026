@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulador – TCC IEMA 2026</title>
+<link rel="icon" href="logo_iema.png">
+<style>
+:root{--fundo:#16181c;--barra:#22252b;--linha:#33373f;--tx:#eef0f3;--mu:#9aa1ab;--azul:#0d9ad8;--verm:#ee2d3d}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--fundo);color:var(--tx);font-family:"Segoe UI",Roboto,Arial,sans-serif;overflow:hidden}
+header{height:74px;display:flex;align-items:center;gap:14px;padding:0 16px;background:var(--barra);border-bottom:3px solid var(--azul)}
+header .iema{height:44px;background:#fff;border-radius:8px;padding:3px 8px}
+header h1{font-size:17px;margin:0;line-height:1.2}
+header h1 small{display:block;font-weight:400;color:var(--mu);font-size:12px}
+nav{display:flex;gap:8px;margin-left:auto}
+nav button{display:flex;align-items:center;gap:8px;background:#fff;border:3px solid transparent;border-radius:12px;padding:6px 12px;cursor:pointer;opacity:.55;transition:.15s}
+nav button img{height:34px;display:block}
+nav button span{font:600 11px "Segoe UI",sans-serif;color:#555;white-space:nowrap}
+nav button.on{opacity:1;border-color:var(--azul);box-shadow:0 0 0 3px rgba(13,154,216,.25)}
+nav button:hover{opacity:1}
+.ferr{display:flex;gap:6px;margin-left:10px}
+.ferr button{white-space:nowrap;background:transparent;color:var(--tx);border:1px solid var(--linha);border-radius:10px;padding:8px 11px;cursor:pointer;font-size:13px}
+.ferr button:hover{background:#2d3138}
+#sub{height:44px;display:none;align-items:center;justify-content:center;gap:8px;background:#1c1f24;border-bottom:1px solid var(--linha)}
+#sub.vis{display:flex}
+#sub button{background:#2a2e35;color:var(--tx);border:1px solid var(--linha);border-radius:999px;padding:6px 14px;cursor:pointer;font-size:13px}
+#sub button.on{background:#2f7a49;border-color:#2f7a49}
+#palco{position:absolute;left:0;right:0;bottom:30px;top:74px;display:flex;align-items:center;justify-content:center}
+#sub.vis ~ #palco{top:118px}
+.disp{position:absolute;left:50%;top:50%;transform-origin:center center;display:none;transition:transform .6s cubic-bezier(.2,.8,.2,1),opacity .4s}
+.disp.vis{display:block}
+.tela{position:relative;overflow:hidden;background:#fff}
+.tela iframe{border:0;display:block;background:#fff}
+/* celular (retrato) */
+.cel .moldura{padding:16px;background:#0b0c0e;border-radius:56px;box-shadow:0 0 0 2px #3a3d44,0 30px 80px rgba(0,0,0,.6)}
+.cel .tela{border-radius:40px}
+.cel .sb{height:40px;display:flex;align-items:center;justify-content:space-between;padding:4px 26px 0 34px;background:#7b5cff;color:#fff;font:600 14px "Segoe UI",sans-serif;position:relative}
+.cel .ilha{position:absolute;left:50%;top:9px;transform:translateX(-50%);width:104px;height:26px;background:#0b0c0e;border-radius:14px}
+.cel .ilha:after{content:"";position:absolute;right:12px;top:8px;width:10px;height:10px;border-radius:50%;background:#1f2a44;box-shadow:inset 0 0 0 2px #2c3650}
+.cel .sb .ic{display:flex;gap:6px;align-items:center}
+.cel .sb .bat{width:24px;height:12px;border:2px solid #fff;border-radius:4px;position:relative;padding:1px}.cel .sb .bat i{display:block;height:100%;width:80%;background:#fff;border-radius:1px}
+.cel .sb .bat:after{content:"";position:absolute;right:-5px;top:2px;width:2px;height:4px;background:#fff;border-radius:1px}
+/* monitor / TV / tablet (paisagem) */
+.mon .moldura{padding:18px 18px 26px;background:#0b0c0e;border-radius:18px;box-shadow:0 0 0 2px #3a3d44,0 30px 80px rgba(0,0,0,.6)}
+.mon .pe{width:220px;height:60px;margin:0 auto;background:linear-gradient(#2a2d33,#1a1c20);clip-path:polygon(30% 0,70% 0,85% 100%,15% 100%)}
+.mon .base{width:340px;height:12px;margin:0 auto;background:#2a2d33;border-radius:8px}
+.tab .moldura{padding:26px;background:#0b0c0e;border-radius:36px;box-shadow:0 0 0 2px #3a3d44,0 30px 80px rgba(0,0,0,.6)}
+.tab .tela{border-radius:10px}
+.rot{position:absolute;left:0;right:0;text-align:center;color:var(--mu);font-size:22px;top:-40px;white-space:nowrap}
+footer{position:absolute;left:0;right:0;bottom:0;height:30px;display:flex;align-items:center;justify-content:center;gap:18px;font-size:12px;color:var(--mu);background:var(--barra);border-top:1px solid var(--linha)}
+footer b{color:var(--tx)}
+#aviso{display:none;position:absolute;top:84px;left:50%;transform:translateX(-50%);z-index:9;background:#fff3c4;color:#3a2a00;border-radius:12px;padding:10px 16px;font-size:14px;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+#aviso a{color:#0b6fa0;font-weight:700}
+#aviso button{margin-left:10px;border:0;background:transparent;cursor:pointer;font-size:16px}
+@media (max-width:900px){nav button span{display:none}header h1 small{display:none}.ferr button span{display:none}}
+</style>
+</head>
+<body>
+<header>
+  <img class="iema" src="logo_iema.png" alt="IEMA">
+  <h1>Simulador – TCC IEMA 2026<small>Protótipos dos 3 grupos • funciona sem internet</small></h1>
+  <nav>
+    <button data-app="organiza"><img src="Logo_IEMA_Organiza.png" alt=""><span>G1 • celular</span></button>
+    <button data-app="stocktech"><img src="Logo_StockTech.png" alt=""><span>G2 • computador</span></button>
+    <button data-app="ecofood"><img src="Logo_EcoFood.png" alt=""><span>G3 • computador</span></button>
+  </nav>
+  <div class="ferr">
+    <button onclick="recarregar()" title="Recarregar a tela atual">⟳ <span>Recarregar</span></button>
+    <button onclick="cheia()" title="Tela cheia (F11)">⛶ <span>Tela cheia</span></button>
+  </div>
+</header>
+<div id="sub">
+  <button data-modo="sistema">🖥 Sistema (PDV, cozinha, gestão)</button>
+  <button data-modo="totem">📺 Totem do refeitório</button>
+  <button data-modo="tablet">📱 Tablet de avaliação</button>
+  <button data-modo="mural">🏆 Mural</button>
+</div>
+<div id="palco"></div>
+<div id="aviso"></div>
+<footer><span><b>F8</b> encerra o simulador (clique na tela antes)</span><span>Senha dos usuários de exemplo: <b>1234</b></span><span id="ver"></span></footer>
+<script>
+const BUILD = '__BUILD__', DATA = '__DATA__';
+const DISP = {
+  organiza:  {tipo:'cel', w:390,  h:844, src:'organiza/index.html', rot:'IEMA Organiza – aplicativo para celular (retrato)'},
+  stocktech: {tipo:'mon', w:1366, h:768, src:'stocktech/index.html', rot:'StockTech – programa para computador'},
+  ecofood:   {tipo:'mon', w:1366, h:768, src:'ecofood/index.html', rot:'EcoFood – sistema (PDV, cozinha e gestão)'},
+  totem:     {tipo:'mon', w:1366, h:768, src:'ecofood/index.html#totem', rot:'EcoFood – TV do totem no refeitório'},
+  tablet:    {tipo:'tab', w:1280, h:800, src:'ecofood/index.html#tablet', rot:'EcoFood – tablet de avaliação'},
+  mural:     {tipo:'mon', w:1366, h:768, src:'ecofood/index.html#mural', rot:'EcoFood – mural do ranking'},
+};
+const criados = {};
+function relogio() { const t = new Date().toTimeString().slice(0,5); document.querySelectorAll('.sb .hr').forEach(e => e.textContent = t); }
+setInterval(relogio, 15000);
+let app = 'organiza', modo = 'sistema';
+function chave() { return app === 'ecofood' && modo !== 'sistema' ? modo : app; }
+function criar(k) {
+  const d = DISP[k], el = document.createElement('div');
+  el.className = 'disp ' + d.tipo;
+  el.innerHTML = `<div class="rot">${d.rot}</div><div class="moldura"><div class="tela" style="width:${d.w}px;height:${d.h}px">${d.tipo==='cel'?'<div class="sb"><span class="hr"></span><div class="ilha"></div><span class="ic">▂▄▆ <span class="bat"><i></i></span></span></div>':''}<iframe src="${d.src}" width="${d.w}" height="${d.tipo==='cel'?d.h-40:d.h}" allow="fullscreen"></iframe></div></div>${d.tipo==='mon'?'<div class="pe"></div><div class="base"></div>':''}`;
+  document.getElementById('palco').appendChild(el);
+  criados[k] = el; relogio(); return el;
+}
+const retrato = k => DISP[k].tipo === 'cel';
+let ultimo = null;
+function escala(el) {
+  const p = document.getElementById('palco').getBoundingClientRect();
+  const w = el.offsetWidth, h = el.offsetHeight + 50;
+  return Math.min((p.width - 30) / w, (p.height - 20) / h, 1.4);
+}
+function pos(el, s, giro) { return `translate(-50%,-50%) translateY(${20*s}px) rotate(${giro}deg) scale(${s})`; }
+function ajustar(animar) {
+  const k = chave(), el = criados[k]; if (!el) return;
+  el.style.transition = 'none';
+  const s = escala(el);
+  // a tela "vira": de deitada (computador) para em pé (celular) e volta
+  if (animar && ultimo && retrato(ultimo) !== retrato(k)) {
+    el.style.opacity = '0';
+    el.style.transform = pos(el, s * 0.8, retrato(k) ? -90 : 90);
+    el.offsetWidth;
+    el.style.transition = '';
+    el.style.opacity = '1';
+  } else { el.offsetWidth; el.style.transition = ''; el.style.opacity = '1'; }
+  el.style.transform = pos(el, s, 0);
+  ultimo = k;
+  // no celular/tablet em tela cheia, gira a própria tela do aparelho
+  if (document.fullscreenElement && screen.orientation && screen.orientation.lock)
+    screen.orientation.lock(retrato(k) ? 'portrait' : 'landscape').catch(() => {});
+}
+function mostrar() {
+  const k = chave();
+  Object.values(criados).forEach(e => e.classList.remove('vis'));
+  (criados[k] || criar(k)).classList.add('vis');
+  document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.app === app));
+  document.querySelectorAll('#sub button').forEach(b => b.classList.toggle('on', b.dataset.modo === modo));
+  document.getElementById('sub').classList.toggle('vis', app === 'ecofood');
+  requestAnimationFrame(() => ajustar(true));
+  try { localStorage.setItem('simulador_app', app); } catch (e) {}
+}
+document.querySelectorAll('nav button').forEach(b => b.onclick = () => { app = b.dataset.app; if (app !== 'ecofood') modo = 'sistema'; mostrar(); });
+document.querySelectorAll('#sub button').forEach(b => b.onclick = () => { modo = b.dataset.modo; mostrar(); });
+window.addEventListener('message', e => { if (e.data && e.data.ecofood === 'abrir' && DISP[e.data.modo]) { app = 'ecofood'; modo = e.data.modo; mostrar(); } });
+window.addEventListener('resize', () => ajustar(false));
+document.addEventListener('fullscreenchange', () => ajustar(false));
+function recarregar() { const el = criados[chave()]; if (el) { const f = el.querySelector('iframe'); f.src = DISP[chave()].src; } }
+function cheia() { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
+// versão e aviso de atualização (só quando houver internet)
+document.getElementById('ver').textContent = BUILD.startsWith('__') ? (location.protocol.startsWith('http') ? 'versão online (sempre atualizada)' : 'versão de teste') : `versão ${BUILD} • ${DATA}`;
+const ZIP = 'https://github.com/ELBSILVA/tcc-iema-2026/releases/latest/download/Simulador_TCC_IEMA_2026.zip';
+if (navigator.onLine && !BUILD.startsWith('__')) {
+  fetch('https://api.github.com/repos/ELBSILVA/tcc-iema-2026/releases/latest').then(r => r.json()).then(j => {
+    const n = parseInt(String(j.tag_name || '').replace(/\D/g, ''), 10);
+    if (n > parseInt(BUILD, 10)) {
+      const a = document.getElementById('aviso');
+      a.innerHTML = `Há uma versão nova do simulador (versão ${n}). <a href="${ZIP}">Baixar o zip atualizado</a><button onclick="this.parentNode.style.display='none'">✕</button>`;
+      a.style.display = 'block';
+    }
+  }).catch(() => {});
+}
+try { const s = localStorage.getItem('simulador_app'); if (DISP[s]) app = s; } catch (e) {}
+mostrar();
+</script>
+</body>
+</html>
