@@ -344,6 +344,13 @@ const PR = {
 };
 const PNOMES = ['Ana','João','Maria','Pedro','Lucas','Júlia','Gabriel','Beatriz','Mateus','Larissa','Rafael','Camila','Diego','Letícia','Felipe','Amanda','Carlos','Bianca','Thiago','Isabela','Vitor','Yasmin','Samuel','Lívia','Caio','Sofia','Davi','Clara','Bruno','Heloísa'];
 const SNOMES = ['Silva','Souza','Oliveira','Santos','Pereira','Lima','Costa','Ribeiro','Almeida','Carvalho','Gomes','Martins','Rocha','Araújo','Mendes','Barros','Freitas','Moura','Teixeira','Cardoso'];
+// Grupo 3 do TCC (alunos reais, carteirinhas fictícias para a demonstração)
+const GRUPO3 = [
+  {id:'g1', nome:'Lara Anny Pontes Miranda', carteirinha:'001', img:'alunos/lara-anny.jpg'},
+  {id:'g2', nome:'Gabriela Moraes Ribeiro', carteirinha:'002', img:'alunos/gabriela.jpg'},
+  {id:'g3', nome:'João Victor Ferreira Castro Costa', carteirinha:'003', img:'alunos/joao-victor.jpg'},
+  {id:'g4', nome:'Francisca Loany Azevedo Sousa', carteirinha:'004', img:'alunos/francisca-loany.jpg'}
+].map((a, i) => ({...a, turma:'301', matricula:'2026000' + (i + 1), cor:'#2f7a49', restricao:'', sabatista:false}));
 const TURMAS = ['101','102','201','203','204','301','303'];
 const CORES = ['#2f7a49','#c8643b','#23412f','#7b5ea7','#1b8a4a','#e08a00','#0b7a8a'];
 function rnd(seed) { let s = seed; return () => (s = (s * 9301 + 49297) % 233280) / 233280; }
@@ -354,7 +361,7 @@ function seed() {
     {id:'u2', nome:'Lenilda Ferreira', login:'cozinha', senha:'1234', perfil:'cozinha', cargo:'Cozinha'},
     {id:'u3', nome:'Gestão Escolar', login:'gestao', senha:'1234', perfil:'gestao', cargo:'Gestão'}
   ];
-  const alunos = []; let n = 0;
+  const alunos = GRUPO3.map(a => ({...a})); let n = 0;
   TURMAS.forEach((t, ti) => { for (let i = 0; i < 9; i++) { const pn = PNOMES[(n * 7 + ti) % PNOMES.length], sn = SNOMES[(n * 3 + i) % SNOMES.length], sn2 = SNOMES[(n * 11 + 5) % SNOMES.length];
     alunos.push({id:'a' + n, nome:`${pn} ${sn}${sn2!==sn?' '+sn2:''}`, turma:t, matricula:'2026' + String(1000 + n), carteirinha:String(78900100 + n * 13), cor:CORES[n % CORES.length],
       restricao: n % 23 === 4 ? 'Sem lactose' : n % 29 === 9 ? 'Sem glúten' : '', sabatista: n % 19 === 7}); n++; } });
@@ -373,7 +380,8 @@ function seed() {
       const prato = c[r]; const ac = aceit[prato] ?? .7;
       const baseAd = r === 'Almoço' ? .9 : r === '1º lanche' ? .25 : .42;
       let pegaram = 0, notas = [];
-      alunos.forEach(a => { const st = semTurma[a.turma] || .06; if (R() < st && r === 'Almoço') return;
+      alunos.forEach(a => { if (d === 0 && a.id[0] === 'g') return; // Grupo 3 chega "limpo" hoje para a demonstração
+        const st = semTurma[a.turma] || .06; if (R() < st && r === 'Almoço') return;
         const prob = Math.min(.98, baseAd * (0.55 + ac * 0.6)); if (R() > prob) return;
         const [h0, m0] = HORA[r].split(':').map(Number); const mm = m0 + Math.floor(R() * (r === 'Almoço' ? 70 : 25));
         registros.push({id:uid(), alunoId:a.id, data:dt, refeicao:r, hora:String(h0 + Math.floor(mm / 60)).padStart(2,'0') + ':' + String(mm % 60).padStart(2,'0')}); pegaram++;
@@ -388,7 +396,10 @@ function seed() {
 function semanaCiclo(card, dt, inicio) { const dias = Math.floor((parse(dt) - parse(inicio)) / 86400000); const w = ((Math.floor(dias / 7) % 4) + 4) % 4 + 1; return w; }
 function cardDia(card, dt, inicio) { const wd = parse(dt).getDay(); const ini = inicio || (DB && DB.config.inicioCiclo) || addD(-14); const w = semanaCiclo(card, dt, ini); return card[w + '-' + (wd >= 1 && wd <= 5 ? wd : 1)] || {}; }
 let DB = null;
-function load() { try { DB = JSON.parse(localStorage.getItem(KEY)); } catch(e) { DB = null; } if (!DB || !DB.users) { DB = seed(); save(); } if (!DB.fotos) DB.fotos = {}; }
+function load() { try { DB = JSON.parse(localStorage.getItem(KEY)); } catch(e) { DB = null; } if (!DB || !DB.users) { DB = seed(); save(); } if (!DB.fotos) DB.fotos = {};
+  // inclui o Grupo 3 em quem já tinha dados salvos (sem apagar nada)
+  const faltam = GRUPO3.filter(g => !DB.alunos.some(a => a.id === g.id)); if (faltam.length) { DB.alunos.unshift(...faltam.map(a => ({...a}))); save(); }
+  GRUPO3.forEach(g => { const a = DB.alunos.find(x => x.id === g.id); if (a) a.img = g.img; }); }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(DB)); } catch(e) {} }
 const me = () => DB.users.find(u => u.id === DB.sessao);
 const aluno = id => DB.alunos.find(a => a.id === id);
@@ -420,7 +431,7 @@ function confirmar(titulo, texto, sim, rotulo) {
   nao.onclick = () => m.remove(); m.onclick = e => { if (e.target === m) m.remove(); }; ok.onclick = () => { m.remove(); sim(); };
 }
 const iniciais = n => n.split(' ').filter(Boolean).slice(0,2).map(x => x[0]).join('').toUpperCase();
-function foto(a, sz) { sz = sz || 56; return `<div class="foto" style="width:${sz}px;height:${sz}px;background:${a.cor}"><svg viewBox="0 0 40 40" width="${sz}" height="${sz}"><circle cx="20" cy="15" r="7.5" fill="rgba(255,255,255,.85)"/><path d="M6 40a14 14 0 0 1 28 0z" fill="rgba(255,255,255,.85)"/></svg><span>${esc(iniciais(a.nome))}</span></div>`; }
+function foto(a, sz) { sz = sz || 56; if (a.img) return `<div class="foto" style="width:${sz}px;height:${sz}px;background:#e9ecef"><img src="${a.img}" alt="" style="width:100%;height:100%;object-fit:cover;object-position:center 22%"></div>`; return `<div class="foto" style="width:${sz}px;height:${sz}px;background:${a.cor}"><svg viewBox="0 0 40 40" width="${sz}" height="${sz}"><circle cx="20" cy="15" r="7.5" fill="rgba(255,255,255,.85)"/><path d="M6 40a14 14 0 0 1 28 0z" fill="rgba(255,255,255,.85)"/></svg><span>${esc(iniciais(a.nome))}</span></div>`; }
 function abrirJanela(modo) { window.open(location.href.split('#')[0] + '#' + modo, 'ecofood_' + modo); }
 function telaCheia() { const d = document.documentElement; if (!document.fullscreenElement) d.requestFullscreen && d.requestFullscreen(); else document.exitFullscreen(); }
 const NOTAS = {1:['😠','Ruim','#fde2e4'],2:['😐','Razoável','#fff3cd'],3:['🙂','Bom','#e5f0e1'],4:['🤩','Ótimo','#dcf3e4']};
@@ -504,12 +515,14 @@ TELAS.pdv = u => {
      <button class="btn out" onclick="ir('provisoria')">🪪 Carteirinha provisória (F2)</button>
      <button class="btn out" onclick="ir('situacoes')">Ver as 4 situações da leitura</button>
      <div class="note" style="text-align:left">O leitor da carteirinha funciona como teclado: é só passar a carteirinha com o cursor no campo de leitura.</div>
+     <div class="note" style="text-align:left">Para testar: digite <b>001</b>, <b>002</b>, <b>003</b> ou <b>004</b> (alunos do Grupo 3) e tecle Enter.</div>
     </div></div>`;
 };
+function achaCart(cod) { cod = String(cod).trim(); const n = /^\d{1,3}$/.test(cod) ? cod.padStart(3, '0') : cod; return DB.alunos.find(x => x.carteirinha === cod || x.carteirinha === n || x.matricula === cod); }
 function lerCarteirinha(cod) {
   cod = String(cod).trim(); if (!cod) return; const r = pdvRef || refAgora(); const h = hhmm();
   const prov = DB.provisorias.find(p => p.codigo.toUpperCase() === cod.toUpperCase() && p.data === iso(hoje()));
-  const a = prov ? aluno(prov.alunoId) : DB.alunos.find(x => x.carteirinha === cod || x.matricula === cod);
+  const a = prov ? aluno(prov.alunoId) : achaCart(cod);
   if (!a) { ultima = {tipo:'nao', cod, hora:h, msg:'Carteirinha não encontrada. Encaminhe à secretaria para a carteirinha provisória — ninguém fica sem comer.'}; return render(); }
   const ja = regHoje(a.id, r).filter(x => !x.repeticao);
   if (ja.length) {
@@ -694,7 +707,7 @@ function renderTablet() {
   const i = $('#codTab'); if (i) i.focus();
 }
 function tabLer(cod) { cod = String(cod).trim(); const prov = DB.provisorias.find(p => p.codigo.toUpperCase() === cod.toUpperCase() && p.data === iso(hoje()));
-  const a = prov ? aluno(prov.alunoId) : DB.alunos.find(x => x.carteirinha === cod || x.matricula === cod); if (!a) { tab = {etapa:'desc'}; return renderTablet(); }
+  const a = prov ? aluno(prov.alunoId) : achaCart(cod); if (!a) { tab = {etapa:'desc'}; return renderTablet(); }
   const regs = DB.registros.filter(x => x.alunoId === a.id && x.data === iso(hoje()) && !x.repeticao).sort((p,q) => q.hora.localeCompare(p.hora)); if (!regs.length) { tab = {etapa:'nao'}; return renderTablet(); }
   const pend = regs.find(x => !DB.avaliacoes.some(v => v.alunoId === a.id && v.data === x.data && v.refeicao === x.refeicao)); if (!pend) { tab = {etapa:'ja'}; return renderTablet(); }
   tab = {etapa:'avaliar', alunoId:a.id, ref:pend.refeicao, hora:pend.hora}; renderTablet(); }
