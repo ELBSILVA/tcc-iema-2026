@@ -71,12 +71,13 @@ body.apresentando #apres{display:flex}body.apresentando #palco{display:none}
 #apres .cx{background:#22262c;border:1px solid var(--linha);border-radius:14px;padding:14px 16px}
 #apres .cx h3{margin:0 0 8px;font-size:12px;color:var(--mu);text-transform:uppercase;letter-spacing:.8px}
 #apres .fala{font-size:18px;line-height:1.5}
-#apres .crono{font:700 52px/1 "Segoe UI",sans-serif;letter-spacing:2px;margin:6px 0 8px;padding:12px 10px;border-radius:12px;text-align:center}
+#apres .crono{margin:6px 0 8px;padding:12px 10px;border-radius:12px;text-align:center;line-height:0}#apres .crono svg{height:52px;width:auto}
 #apres .decor{font-size:14px;color:var(--mu);margin-bottom:10px;text-align:center}#apres .decor b{color:var(--tx);font-size:18px;letter-spacing:1px}
 #apres .dur{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mu)}#apres .dur input{width:64px;background:#15171a;color:var(--tx);border:1px solid var(--linha);border-radius:8px;padding:5px 8px;font-size:14px}
 .cr-verde{background:#1f9d55;color:#fff}.cr-amarelo{background:#f1c40f;color:#2a2100}.cr-vermelho{background:#e74c3c;color:#fff}
 .cr-pisca{animation:crpisca .8s steps(2) infinite}@keyframes crpisca{50%{opacity:.25}}
-#cronoP{display:none;position:fixed;top:18px;right:18px;z-index:40;font:700 46px/1 "Segoe UI",sans-serif;letter-spacing:2px;padding:14px 22px;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.45)}
+#cronoP{display:none;position:fixed;bottom:18px;left:18px;z-index:40;padding:14px 18px;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.45);line-height:0}
+#cronoP svg{height:64px;width:auto;display:block}
 body.proj #cronoP.vis{display:block}
 #apres .cx button{background:#2a2e35;color:var(--tx);border:1px solid var(--linha);border-radius:9px;padding:7px 10px;cursor:pointer;margin-right:4px}
 #apres .aviso{color:var(--mu);font-size:12.5px;line-height:1.5}
@@ -348,15 +349,26 @@ const hhmmss = x => [Math.floor(x / 3600), Math.floor(x % 3600 / 60), x % 60].ma
 function corDe(rest, tot) { const p = rest / tot; return p > .5 ? 'cr-verde' : p > .25 ? 'cr-amarelo' : 'cr-vermelho cr-pisca'; }
 function cronoMostra() {
   const tot = total(), rest = tot - cT, c = document.getElementById('crono');
-  c.textContent = mmss(Math.max(rest, 0)); c.className = 'crono ' + corDe(rest, tot);
+  c.innerHTML = seg7(mmss(Math.max(rest, 0))); c.className = 'crono ' + corDe(rest, tot);
   document.getElementById('decor').textContent = hhmmss(cT);
   if (projecao && !projecao.closed) projecao.postMessage({ simTempo: { rest, tot, vis: cI !== null || cT > 0 } }, '*');
 }
 function cronoIni() { if (!cI) { cI = setInterval(() => { cT++; cronoMostra(); }, 1000); cronoMostra(); } }
 function cronoPausa() { clearInterval(cI); cI = null; cronoMostra(); }
 function cronoZera() { clearInterval(cI); cI = null; cT = 0; cronoMostra(); }
+/* relógio digital de 7 segmentos (desenhado, funciona sem internet) */
+const SEG = { '0':'abcdef', '1':'bc', '2':'abged', '3':'abgcd', '4':'fgbc', '5':'afgcd', '6':'afgedc', '7':'abc', '8':'abcdefg', '9':'abcfgd' };
+const POL = { a:'6,0 34,0 28,6 12,6', b:'35,1 35,33 30,30 30,7', c:'35,37 35,69 30,63 30,40', d:'6,70 34,70 28,64 12,64', e:'5,37 5,69 10,63 10,40', f:'5,1 5,33 10,30 10,7', g:'7,35 12,31 28,31 33,35 28,39 12,39' };
+function seg7(txt) { let x = 0, g = '';
+  for (const ch of txt) {
+    if (ch === ':') { g += `<circle cx="${x+7}" cy="22" r="4.5"/><circle cx="${x+7}" cy="50" r="4.5"/>`; x += 16; continue; }
+    if (ch === '-') { g += `<polygon transform="translate(${x},0)" points="${POL.g}"/>`; x += 46; continue; }
+    const on = SEG[ch] || '';
+    for (const k of 'abcdefg') g += `<polygon transform="translate(${x},0) skewX(-6)" points="${POL[k]}" ${on.includes(k) ? '' : 'fill-opacity=".13"'}/>`;
+    x += 46; }
+  return `<svg viewBox="-4 -2 ${x + 4} 74" fill="currentColor">${g}</svg>`; }
 function tempoPlateia(t) { const el = document.getElementById('cronoP');
-  el.classList.toggle('vis', !!t.vis); el.textContent = mmss(Math.max(t.rest, 0)); el.className = (t.vis ? 'vis ' : '') + corDe(t.rest, t.tot); }
+  el.innerHTML = seg7(mmss(Math.max(t.rest, 0))); el.className = (t.vis ? 'vis ' : '') + corDe(t.rest, t.tot); }
 
 /* versão e aviso de atualização (só com internet) */
 document.getElementById('ver').textContent = BUILD.startsWith('__') ? (location.protocol.startsWith('http') ? 'online' : 'teste') : `v${BUILD} • ${DATA}`;
@@ -371,7 +383,7 @@ if (!PROJ && navigator.onLine && !BUILD.startsWith('__')) {
 
 /* início */
 if (PROJ) { document.getElementById('palco').addEventListener('dblclick', e => { if (e.target.id === 'palco') entrarTelaCheia(); }); mostrarPalco(); try { window.opener && window.opener.postMessage({ simPronta: true }, '*'); } catch (e) {} }
-else { try { const s = localStorage.getItem('simulador_app'); if (DISP[s]) app = s; } catch (e) {} EST.app = app; mostrarPalco(); desenharLado(); }
+else { try { const s = localStorage.getItem('simulador_app'); if (DISP[s]) app = s; } catch (e) {} EST.app = app; mostrarPalco(); desenharLado(); cronoMostra(); }
 </script>
 </body>
 </html>
