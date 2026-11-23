@@ -143,8 +143,8 @@ body.capa .pvCapa{display:flex}
       <div class="crono cr-verde" id="crono">10:00</div>
       <div class="decor">Tempo decorrido: <b id="decor">00:00:00</b></div>
       <button onclick="cronoIni()">▶ Iniciar</button><button onclick="cronoPausa()">⏸ Pausar</button><button onclick="cronoZera()">↺ Zerar</button></div>
-    <div class="cx" id="comoProj" style="border-left:6px solid var(--azul)"><h3>Como projetar</h3><div style="font-size:14.5px;line-height:1.55">1. Arraste a <b>janela da plateia</b> para o projetor (2ª tela).<br>2. Clique nela e aperte <b>F11</b> (ou dê <b>dois cliques no fundo preto</b>) para ficar em tela cheia.<br>3. Controle tudo por aqui, pela lateral.</div>
-      <button style="margin-top:8px" onclick="this.parentNode.style.display='none'">✓ Entendi</button></div>
+    <div class="cx" id="comoProj" style="border-left:6px solid var(--azul)"><h3>Como projetar</h3><div style="font-size:14.5px;line-height:1.55">1. Arraste a <b>janela da plateia</b> para o projetor (2ª tela).<br>2. Clique em <b>⛶ Plateia em tela cheia</b> abaixo — ou clique uma vez na janela da plateia — e ela entra em tela cheia.<br>3. Controle tudo por aqui, pela lateral.</div>
+      <button style="margin-top:8px" onclick="plateiaCheia()">⛶ Plateia em tela cheia</button><button style="margin-top:8px" onclick="this.parentNode.style.display='none'">✓ Entendi</button></div>
     <div class="aviso">Troque programa, perfil e tela pela lateral. Para digitar ou clicar dentro do app, use o mouse na 2ª tela. <b>⏹ Encerrar projeção</b> volta para uma tela só.</div>
   </div>
 </section>
@@ -268,6 +268,7 @@ window.addEventListener('message', e => {
   if (d.simTela) { if (PROJ && e.source === frameDe(chave())) { try { window.opener.postMessage({ simTela: d.simTela, k: chave() }, '*'); } catch (x) {} } else if (!PROJ) previa(d); return; }
   if (d.simInfo) { for (const a of ['organiza','stocktech','ecofood']) if (e.source === frameDe(a)) { INFO[a] = d.simInfo; if (a === app) avisaControle(); } return; }
   if (d.simTempo && PROJ) { tempoPlateia(d.simTempo); return; }
+  if (d.simCheia && PROJ) { entrarTelaCheia(); return; }
   if ('simCapa' in d && PROJ) { capaNaPlateia(d.simCapa); return; }
   if (d.simCmd && PROJ) { executar(d.simCmd); return; }                 // plateia recebe comando do apresentador
   if (d.simEstado && !PROJ) { receber(d.simEstado); return; }
@@ -348,7 +349,7 @@ async function projetar() {
   let feat = 'popup,width=1280,height=760';
   try {                                       // se o navegador permitir, já abre na outra tela
     if ('getScreenDetails' in window) { const sd = await window.getScreenDetails(); const outra = sd.screens.find(s => s !== sd.currentScreen);
-      if (outra) feat = `popup,left=${outra.availLeft},top=${outra.availTop},width=${outra.availWidth},height=${outra.availHeight}`; }
+      if (outra) feat = `popup,fullscreen,left=${outra.availLeft},top=${outra.availTop},width=${outra.availWidth},height=${outra.availHeight}`; }
   } catch (e) {}
   projecao = window.open(location.href.split('?')[0].split('#')[0] + '?projecao', 'tcc_projecao', feat);
   if (!projecao) { alert('O navegador bloqueou a janela. Permita pop-ups para este arquivo e tente de novo.'); return; }
@@ -367,8 +368,13 @@ function fimProjecao() {
 function entrarTelaCheia() { if (!document.fullscreenElement && document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => {}); }
 function cheia() { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
 
+/* tela cheia na plateia: pedido pelo apresentador (delegação) ou no 1º clique na janela da plateia */
+function plateiaCheia() { if (!projecao || projecao.closed) return;
+  try { projecao.postMessage({ simCheia: true }, { targetOrigin: '*', delegate: 'fullscreen' }); }
+  catch (e) { projecao.postMessage({ simCheia: true }, '*'); } }
+
 /* capa x protótipo na plateia */
-function transmitir() { comCapa = !comCapa; marcaCapa(); if (projecao && !projecao.closed) projecao.postMessage({ simCapa: comCapa }, '*'); }
+function transmitir() { plateiaCheia(); comCapa = !comCapa; marcaCapa(); if (projecao && !projecao.closed) projecao.postMessage({ simCapa: comCapa }, '*'); }
 function marcaCapa() { document.body.classList.toggle('capa', comCapa); const b = document.getElementById('bTrans');
   b.textContent = comCapa ? '📺 Transmitir protótipo' : '🖼 Voltar para a capa'; b.classList.toggle('voltar', !comCapa); desenharApres(); }
 let capaT = null;
@@ -388,7 +394,7 @@ function cronoMostra() {
   document.getElementById('decor').textContent = hhmmss(cT);
   if (projecao && !projecao.closed) projecao.postMessage({ simTempo: { rest, tot, dec: cT, vis: cI !== null || cT > 0 } }, '*');
 }
-function cronoIni() { if (!cI) { cI = setInterval(() => { cT++; cronoMostra(); }, 1000); cronoMostra(); } }
+function cronoIni() { plateiaCheia(); if (!cI) { cI = setInterval(() => { cT++; cronoMostra(); }, 1000); cronoMostra(); } }
 function cronoPausa() { clearInterval(cI); cI = null; cronoMostra(); }
 function cronoZera() { clearInterval(cI); cI = null; cT = 0; cronoMostra(); }
 /* relógio digital de 7 segmentos (desenhado, funciona sem internet) */
@@ -421,7 +427,8 @@ if (!PROJ && navigator.onLine && !BUILD.startsWith('__')) {
 }
 
 /* início */
-if (PROJ) { capaPlateia(); document.body.classList.add('comCapa'); document.getElementById('palco').addEventListener('dblclick', e => { if (e.target.id === 'palco') entrarTelaCheia(); }); mostrarPalco(); try { window.opener && window.opener.postMessage({ simPronta: true }, '*'); } catch (e) {} }
+if (PROJ) { capaPlateia(); document.body.classList.add('comCapa');
+  ['pointerdown', 'keydown'].forEach(ev => document.addEventListener(ev, () => entrarTelaCheia(), true)); document.getElementById('palco').addEventListener('dblclick', e => { if (e.target.id === 'palco') entrarTelaCheia(); }); mostrarPalco(); try { window.opener && window.opener.postMessage({ simPronta: true }, '*'); } catch (e) {} }
 else { try { const s = localStorage.getItem('simulador_app'); if (DISP[s]) app = s; } catch (e) {} EST.app = app; mostrarPalco(); desenharLado(); cronoMostra(); }
 </script>
 </body>
