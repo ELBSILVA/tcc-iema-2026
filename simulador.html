@@ -22,12 +22,15 @@ nav button:hover{opacity:1}
 .ferr{display:flex;gap:6px;margin-left:10px}
 .ferr button{white-space:nowrap;background:transparent;color:var(--tx);border:1px solid var(--linha);border-radius:10px;padding:8px 11px;cursor:pointer;font-size:13px}
 .ferr button:hover{background:#2d3138}
-#sub{height:44px;display:none;align-items:center;justify-content:center;gap:8px;background:#1c1f24;border-bottom:1px solid var(--linha)}
-#sub.vis{display:flex}
-#sub button{background:#2a2e35;color:var(--tx);border:1px solid var(--linha);border-radius:999px;padding:6px 14px;cursor:pointer;font-size:13px}
-#sub button.on{background:#2f7a49;border-color:#2f7a49}
-#palco{position:absolute;left:0;right:0;bottom:30px;top:74px;display:flex;align-items:center;justify-content:center}
-#sub.vis ~ #palco{top:118px}
+#rapido{background:#1c1f24;border-bottom:1px solid var(--linha);padding:6px 12px;display:flex;flex-direction:column;gap:6px}
+#rapido .lin{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap}
+#rapido .lb{color:var(--mu);font-size:12px;white-space:nowrap;margin-right:2px}
+#rapido .sep{color:#6b727d;font-size:11px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;margin:0 2px 0 8px}
+#rapido button{background:#2a2e35;color:var(--tx);border:1px solid var(--linha);border-radius:999px;padding:5px 12px;cursor:pointer;font-size:13px;white-space:nowrap}
+#rapido button:hover{background:#343942}
+#rapido button.on{background:var(--cor,#0d9ad8);border-color:var(--cor,#0d9ad8);color:#fff}
+#rapido #l2:empty{display:none}
+#palco{position:absolute;left:0;right:0;bottom:30px;top:160px;display:flex;align-items:center;justify-content:center}
 .disp{position:absolute;left:50%;top:50%;transform-origin:center center;display:none;transition:transform .6s cubic-bezier(.2,.8,.2,1),opacity .4s}
 .disp.vis{display:block}
 .tela{position:relative;overflow:hidden;background:#fff}
@@ -70,12 +73,7 @@ footer b{color:var(--tx)}
     <button onclick="cheia()" title="Tela cheia (F11)">⛶ <span>Tela cheia</span></button>
   </div>
 </header>
-<div id="sub">
-  <button data-modo="sistema">🖥 Sistema (PDV, cozinha, gestão)</button>
-  <button data-modo="totem">📺 Totem do refeitório</button>
-  <button data-modo="tablet">📱 Tablet de avaliação</button>
-  <button data-modo="mural">🏆 Mural</button>
-</div>
+<div id="rapido"><div class="lin" id="l1"></div><div class="lin" id="l2"></div></div>
 <div id="palco"></div>
 <div id="aviso"></div>
 <footer><span><b>F8</b> encerra o simulador (clique na tela antes)</span><span>Senha dos usuários de exemplo: <b>1234</b></span><span id="ver"></span></footer>
@@ -110,6 +108,7 @@ function escala(el) {
 }
 function pos(el, s, giro) { return `translate(-50%,-50%) translateY(${20*s}px) rotate(${giro}deg) scale(${s})`; }
 function ajustar(animar) {
+  document.getElementById('palco').style.top = (document.querySelector('header').offsetHeight + document.getElementById('rapido').offsetHeight) + 'px';
   const k = chave(), el = criados[k]; if (!el) return;
   el.style.transition = 'none';
   const s = escala(el);
@@ -132,14 +131,42 @@ function mostrar() {
   Object.values(criados).forEach(e => e.classList.remove('vis'));
   (criados[k] || criar(k)).classList.add('vis');
   document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.app === app));
-  document.querySelectorAll('#sub button').forEach(b => b.classList.toggle('on', b.dataset.modo === modo));
-  document.getElementById('sub').classList.toggle('vis', app === 'ecofood');
+  menuRapido();
   requestAnimationFrame(() => ajustar(true));
   try { localStorage.setItem('simulador_app', app); } catch (e) {}
 }
 document.querySelectorAll('nav button').forEach(b => b.onclick = () => { app = b.dataset.app; if (app !== 'ecofood') modo = 'sistema'; mostrar(); });
-document.querySelectorAll('#sub button').forEach(b => b.onclick = () => { modo = b.dataset.modo; mostrar(); });
-window.addEventListener('message', e => { if (e.data && e.data.ecofood === 'abrir' && DISP[e.data.modo]) { app = 'ecofood'; modo = e.data.modo; mostrar(); } });
+// ===== menu rápido (só no simulador): perfis e telas de cada perfil =====
+const COR = { organiza: '#6c5ce7', stocktech: '#ff8a00', ecofood: '#2f7a49' };
+const PERFIL = { aluno: '🎓 Aluno', professor: '👩‍🏫 Professor', coord: '🗂️ Coordenação', cozinha: '👩‍🍳 Cozinha', gestao: '📊 Gestão', pdv: '💳 PDV do refeitório' };
+const ICO = { home:'🏠', cal:'📅', list:'📋', chart:'📊', gear:'⚙️', book:'📚', mega:'📣', star:'⭐', users:'👥', in:'📥', out:'📤', bell:'🔔', box:'📦', cart:'🛒', card:'💳', tv:'📺', tablet:'📱', chef:'👩‍🍳', scale:'⚖️', trophy:'🏆' };
+const INFO = {};
+function frameDe(a) { const el = criados[a]; return el && el.querySelector('iframe').contentWindow; }
+function manda(msg) { const w = frameDe(app); if (w) w.postMessage(msg, '*'); }
+function menuRapido() {
+  const i = INFO[app] || { perfis: [] }, l1 = document.getElementById('l1'), l2 = document.getElementById('l2');
+  document.getElementById('rapido').style.setProperty('--cor', COR[app]);
+  const emDisp = app === 'ecofood' && modo !== 'sistema';
+  l1.innerHTML = '<span class="lb">Quem está usando:</span>'
+    + `<button class="${!i.perfil && !emDisp ? 'on' : ''}" onclick="irEntrada()">🔑 Tela de entrada</button>`
+    + i.perfis.map(p => `<button class="${i.perfil === p.perfil && !emDisp ? 'on' : ''}" onclick="usarPerfil('${p.perfil}')" title="${p.nome}">${PERFIL[p.perfil] || p.perfil}</button>`).join('');
+  requestAnimationFrame(() => ajustar(false));
+  if (!i.perfil) { l2.innerHTML = i.perfis.length ? '<span class="lb">Escolha um perfil acima para ver as telas dele.</span>' : ''; requestAnimationFrame(() => ajustar(false)); return; }
+  l2.innerHTML = `<span class="lb">Telas de ${i.usuario || ''}:</span>` + i.menu.map(n => n[0] === '#' ? `<span class="sep">${n[1]}</span>`
+    : `<button class="${(n[0].startsWith('win:') ? modo === n[0].slice(4) : (!emDisp && i.tela === n[0])) ? 'on' : ''}" onclick="irTela('${n[0]}')">${ICO[n[1]] || ''} ${n[2]}</button>`).join('');
+}
+function irEntrada() { if (app === 'ecofood') modo = 'sistema'; manda({ sim: 'sair' }); mostrar(); }
+function usarPerfil(p) { if (app === 'ecofood') modo = 'sistema'; manda({ sim: 'perfil', perfil: p }); mostrar(); }
+function irTela(t) {
+  if (t.startsWith('win:')) { modo = t.slice(4); mostrar(); return; }
+  if (app === 'ecofood') modo = 'sistema';
+  manda({ sim: 'ir', tela: t }); mostrar();
+}
+window.addEventListener('message', e => {
+  const d = e.data || {};
+  if (d.ecofood === 'abrir' && DISP[d.modo]) { app = 'ecofood'; modo = d.modo; mostrar(); return; }
+  if (d.simInfo) { for (const a of ['organiza', 'stocktech', 'ecofood']) if (e.source === frameDe(a)) { INFO[a] = d.simInfo; if (a === app) menuRapido(); } }
+});
 window.addEventListener('resize', () => ajustar(false));
 document.addEventListener('fullscreenchange', () => ajustar(false));
 function recarregar() { const el = criados[chave()]; if (el) { const f = el.querySelector('iframe'); f.src = DISP[chave()].src; } }

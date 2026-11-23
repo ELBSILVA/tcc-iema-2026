@@ -623,6 +623,25 @@ load(); render();
 setInterval(() => { const sl = document.querySelectorAll('.slide'); if (!sl.length) return; let i = [...sl].findIndex(x => x.classList.contains('on')); const j = (i+1) % sl.length; sl.forEach((x,k) => { if (k !== i) { x.style.transition='none'; x.classList.remove('sai','on'); } }); void sl[j].offsetWidth; sl.forEach(x => x.style.transition=''); sl[i].classList.remove('on'); sl[i].classList.add('sai'); sl[j].classList.add('on'); i = j;
   document.querySelectorAll('.dots i').forEach((d,k) => d.classList.toggle('on', k===i)); }, 3500);
 if (me() && me().perfil === 'aluno') setTimeout(() => verificarLembretes(me(), false), 800);
+
+/* ===== PONTE DO SIMULADOR (só funciona dentro do simulador) ===== */
+(function () {
+  if (window.parent === window) return;
+  let ult = '';
+  const envia = () => { try {
+    const u = me(), perfis = [];
+    DB.users.forEach(x => { if (!perfis.some(p => p.perfil === x.perfil)) perfis.push({ perfil: x.perfil, nome: x.nome }); });
+    window.parent.postMessage({ simInfo: { perfis, perfil: u ? u.perfil : null, usuario: u ? u.nome : null, tela: u ? tela : null, menu: u ? (NAVS[u.perfil] || []) : [] } }, '*');
+  } catch (e) {} };
+  setInterval(() => { try { const u = me(); const k = (u ? u.id : '') + '|' + tela; if (k !== ult) { ult = k; envia(); } } catch (e) {} }, 400);
+  window.addEventListener('message', e => { const d = e.data || {}; if (!d.sim) return;
+    try {
+      if (d.sim === 'perfil') { const u = DB.users.find(x => x.perfil === d.perfil); if (u) { DB.sessao = null; entrar(u.login, u.senha); } }
+      if (d.sim === 'sair') sair();
+      if (d.sim === 'ir' && me()) { if (String(d.tela).startsWith('win:')) abrirJanela(d.tela.slice(4)); else ir(d.tela); }
+    } catch (err) {}
+    ult = ''; envia(); });
+})();
 </script>
 </body>
 </html>
