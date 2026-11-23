@@ -580,7 +580,7 @@ function render() {
   if (!TELAS[tela] || !nav.some(n => n[0] === tela) && !['aluno','novoAluno','editCard','novoCard','prato'].includes(tela)) tela = telaInicial(u.perfil);
   $('#app').innerHTML = `<div class="top"><div class="brand">${ICON}<div><b><span style="color:var(--b)">Eco</span><span style="color:var(--r)">Food</span></b><small>PROJETO DESPERDÍCIO ZERO • IEMA</small></div></div>
    <div class="row" style="margin-left:auto;gap:10px"><span class="sub" style="text-align:right">${esc(u.nome)}<br><b>${DIASF[hoje().getDay()]}, ${br(iso(hoje()))}</b></span>
-   ${btnCheia()}${btnEncerrar()}<div class="av" title="Trocar usuário" onclick="menuUser()">${esc(iniciais(u.nome))}</div></div></div>
+   ${btnCheia()}<div class="av" title="Trocar usuário" onclick="menuUser()">${esc(iniciais(u.nome))}</div></div></div>
    <div class="main">${TELAS[tela](u)}</div>
    <div class="nav">${navHTML(u, nav)}</div>`;
   const cod = $('#codPdv'); if (cod) cod.focus();
@@ -678,6 +678,7 @@ function lerCarteirinha(cod) {
   render();
 }
 function simular() { const r = pdvRef || refAgora(); const livres = DB.alunos.filter(a => !regHoje(a.id, r).length); const lista = livres.length && Math.random() > .12 ? livres : DB.alunos; const a = lista[Math.floor(Math.random() * lista.length)]; lerCarteirinha(a.carteirinha); }
+document.addEventListener('keydown', e => { if (e.key === 'F8') { e.preventDefault(); if (DB.sessao || location.hash) encerrarSimulador(); } });
 document.addEventListener('keydown', e => { if (e.key === 'F2' && me() && NAVS[me().perfil].some(n => n[0]==='provisoria' || n[0]==='pdv')) { e.preventDefault(); ir('provisoria'); } });
 TELAS.situacoes = u => {
   const ex = DB.alunos.slice(0, 4);
@@ -859,7 +860,7 @@ function muralHTML(cheio) { const pr = estatPratos(30); const top = pr.slice(0,3
    <div class="card" style="background:#fff8e1;border:1px solid #f3dd9b;max-width:900px;margin:14px auto 0"><b style="color:#8a5a00">Vamos melhorar:</b> ${piores.map(x => `${esc(x.prato)} (${x.p}%)`).join(' • ')} <span class="sub">— a cozinha já está testando novas receitas.</span></div>
    <div style="text-align:center;margin-top:12px"><span class="sel s-b" style="font-size:${cheio?16:13}px;padding:7px 16px">💡 Sua opinião ajuda a melhorar a alimentação! Avalie no tablet.</span></div>`; }
 TELAS.mural = u => `<div class="row" style="margin-bottom:12px"><h2 style="margin:0">${ic('trophy')} Mural — ranking mensal</h2><button class="btn sm" style="margin-left:auto" onclick="abrirJanela('mural')">${ic('tv',16)} Abrir em tela cheia</button></div><div class="card">${muralHTML(false)}</div>`;
-function renderMuralCheio() { document.body.classList.add('modo'); $('#app').innerHTML = `<div class="tv"><div class="row" style="justify-content:space-between;margin-bottom:10px"><img src="logo_iema.png" style="height:56px"><div class="row">${ICON.replace('width="34" height="34"','width="50" height="50"')}<b style="font-size:30px"><span style="color:var(--b)">Eco</span><span style="color:var(--r)">Food</span></b></div><div class="row" style="gap:6px">${btnCheia()}${btnEncerrar()}</div></div>${muralHTML(true)}</div>`; }
+function renderMuralCheio() { document.body.classList.add('modo'); $('#app').innerHTML = `<div class="tv"><div class="row" style="justify-content:space-between;margin-bottom:10px"><img src="logo_iema.png" style="height:56px"><div class="row">${ICON.replace('width="34" height="34"','width="50" height="50"')}<b style="font-size:30px"><span style="color:var(--b)">Eco</span><span style="color:var(--r)">Food</span></b></div><div class="row" style="gap:6px">${btnCheia()}</div></div>${muralHTML(true)}</div>`; }
 
 // ====================== TOTEM ======================
 function renderTotem() {
@@ -868,7 +869,7 @@ function renderTotem() {
   const em = {'1º lanche':'🥐☕','Almoço':'🍛🥗','2º lanche':'🥤🍪'};
   $('#app').innerHTML = `<div class="totem"><div class="row" style="align-items:center"><div style="background:#fff;border-radius:12px;padding:6px 10px"><img src="logo_iema.png" style="height:46px;display:block"></div>
     <div style="margin-left:16px"><div style="font-size:34px;font-weight:800;letter-spacing:.5px">CARDÁPIO DE HOJE</div><div style="font-size:18px;opacity:.85">${DIASF[wd]}, ${hoje().getDate()} de ${MESF[hoje().getMonth()]}${c.motivo ? ` <span class="esptag">⭐ ${esc(c.motivo)}</span>` : ''}</div></div>
-    <div style="margin-left:auto;text-align:right"><div style="font-size:44px;font-weight:800" id="relogio">${hhmm()}</div><div class="row" style="justify-content:flex-end;gap:6px;margin-top:4px">${btnCheia().replace('class="tcb"','class="tcb escuro"')}${btnEncerrar('escuro')}</div></div></div>
+    <div style="margin-left:auto;text-align:right"><div style="font-size:44px;font-weight:800" id="relogio">${hhmm()}</div><div class="row" style="justify-content:flex-end;gap:6px;margin-top:4px">${btnCheia().replace('class="tcb"','class="tcb escuro"')}</div></div></div>
    <div class="tt3">${REF.map(x => `<div class="tc ${x===r?'agora':''}"><div class="tag">${x.toUpperCase()} • ${HORA[x]}${x===r?' • AGORA':''}</div><div class="pn">${esc(c[x] || '—')}</div>${descP(c[x]) ? `<div class="pdesc">${esc(descP(c[x]))}</div>` : ''}${fotoP(c[x]) ? `<div class="tfoto" style="background-image:url(${fotoP(c[x])})"></div>` : `<div style="font-size:64px;text-align:center;margin-top:auto">${em[x]}</div>`}</div>`).join('')}</div>
    ${c.restricao ? `<div style="text-align:center;font-size:17px;margin:10px 0 0;opacity:.9">🥛 ${esc(c.restricao)}</div>` : ''}
    <div class="row" style="justify-content:center;gap:8px;margin-top:12px;flex-wrap:wrap"><b style="margin-right:6px">Semana ${w} de 4:</b>${[1,2,3,4,5].map(d => `<span class="tw ${d===wd?'on':''}">${DIASF[d].slice(0,3)} • ${esc((DB.cardapio[w+'-'+d]||{})['Almoço']||'')}</span>`).join('')}</div>
@@ -905,7 +906,7 @@ function renderTablet() {
       </div></div></div>`; }
   else { const m = {ok:['💚','Obrigado!','Sua opinião ajuda a melhorar o cardápio.','#dcf3e4'], ja:['🙂','Você já avaliou esta refeição.','Cada aluno avalia 1 vez por refeição, até o fim do dia.','#e5f0e1'], nao:['🍽','Só avalia quem pegou a refeição.','Passe a carteirinha no PDV antes de avaliar.','#fff3cd'], desc:['❓','Carteirinha não encontrada.','Procure a secretaria.','#fde2e4']}[tab.etapa];
     corpo = `<div style="background:${m[3]};border-radius:24px;padding:40px 20px;max-width:640px;margin:30px auto"><div style="font-size:90px">${m[0]}</div><div style="font-size:30px;font-weight:800">${m[1]}</div><div class="sub" style="font-size:18px;margin-top:8px">${m[2]}</div></div>`; setTimeout(() => { tab = {etapa:'cart'}; renderTablet(); }, 3500); }
-  $('#app').innerHTML = `<div class="tablet"><div class="row" style="justify-content:space-between"><img src="logo_iema.png" style="height:42px"><div class="row">${ICON}<b style="font-size:22px"><span style="color:var(--b)">Eco</span><span style="color:var(--r)">Food</span></b></div><div class="row" style="gap:6px">${btnCheia()}${btnEncerrar()}</div></div>
+  $('#app').innerHTML = `<div class="tablet"><div class="row" style="justify-content:space-between"><img src="logo_iema.png" style="height:42px"><div class="row">${ICON}<b style="font-size:22px"><span style="color:var(--b)">Eco</span><span style="color:var(--r)">Food</span></b></div><div class="row" style="gap:6px">${btnCheia()}</div></div>
    <div style="text-align:center;flex:1;display:flex;flex-direction:column;justify-content:center">${corpo}</div></div>`;
   const i = $('#codTab'); if (i) i.focus();
 }
@@ -935,7 +936,7 @@ TELAS.ajustes = u => `${voltarBtn(ic('gear') + ' Ajustes')}<div class="card" sty
    <button class="btn out" style="color:var(--r);border-color:var(--r)" onclick="confirmar('Restaurar dados de exemplo?','Tudo o que foi registrado neste computador será apagado e o programa volta ao início.',()=>{localStorage.removeItem(KEY);load();renderLogin();toast('Dados de exemplo restaurados.')},'Restaurar')">Restaurar dados de exemplo</button></div>
    <div class="card" style="max-width:640px"><label class="row" style="cursor:pointer;gap:10px"><input type="checkbox" style="width:22px;height:22px;flex:none" ${DEMO()?'checked':''} onchange="DB.config.demo=this.checked;save();toast(this.checked?'Modo apresentação ligado':'Modo apresentação desligado');render()"><div><div class="ttl">Modo apresentação</div><div class="sub">Ligado: a mesma carteirinha pode passar várias vezes no PDV e avaliar no tablet sem ter pegado a refeição, para mostrar todas as telas. Desligado: regras reais (não libera duas vezes e só avalia quem pegou).</div></div></label></div>
    <div style="max-width:640px"><button class="btn out" style="color:#c8643b;border-color:#c8643b" onclick="zerarHoje()">↺ Zerar hoje (para passar as carteirinhas ao vivo)</button></div>
-   <div class="note">EcoFood • versão 2.0 para Windows • protótipo do TCC IEMA 2026 (Grupo 3)</div>`;
+   <div class="note">EcoFood • versão 2.1 para Windows • protótipo do TCC IEMA 2026 (Grupo 3)</div>`;
 
 // ====================== início ======================
 load(); render();
