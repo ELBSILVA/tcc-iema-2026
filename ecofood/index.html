@@ -241,6 +241,39 @@ body.modo{background:#fff}
 }
 
 
+/* ===== LOGIN PARA COMPUTADOR ===== */
+.lpc{display:flex;min-height:100vh;width:100%;background:var(--bg)}
+.lpc-a{flex:0 0 42%;max-width:620px;padding:44px 48px;display:flex;flex-direction:column;gap:28px;justify-content:space-between;position:relative;overflow:hidden}
+.lpc-a .ie{background:#fff;border-radius:12px;padding:8px 14px;display:inline-block}.lpc-a .ie img{height:54px;display:block}
+.lpc-a .marca{display:flex;align-items:center;gap:16px;margin-top:6px}
+.lpc-a .lema{font-size:19px;line-height:1.45;max-width:440px;margin:6px 0 0;opacity:.9}
+.lpc-a ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:14px}
+.lpc-a li{display:flex;gap:12px;align-items:center;font-size:16px}
+.lpc-a li i{font-style:normal;width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex:none}
+.lpc-a .rod{font-size:12.5px;opacity:.7}
+.lpc-b{flex:1;display:flex;align-items:center;justify-content:center;padding:36px 40px;overflow-y:auto;position:relative}
+.lpc-b .cheia{position:absolute;top:16px;right:20px}
+.lpc-box{width:100%;max-width:600px}
+.lpc-box h1{margin:0 0 4px;font-size:30px}
+.lpc-box .sub{margin:0 0 18px}
+.lpc-form{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end;background:var(--card);border:1px solid var(--ln);padding:18px;border-radius:var(--rf,12px)}
+.lpc-form label{display:block;font-size:12.5px;font-weight:700;color:var(--mu);margin-bottom:5px}
+.lpc-form input{width:100%;margin:0}
+.lpc-form .btn{margin:0;width:auto;padding:0 26px;height:44px}
+.lpc-grupo{font-size:12px;font-weight:700;color:var(--mu);letter-spacing:.6px;text-transform:uppercase;margin:20px 0 8px}
+.lpc-us{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.lpc-us .demo{margin:0;cursor:pointer}
+.lpc-extra{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.lpc-extra .qa{margin:0}
+.lpc-box .note{margin-top:18px;text-align:left}
+@media (max-width:860px){.lpc{flex-direction:column}.lpc-a{flex:none;max-width:none;padding:22px;gap:16px}.lpc-a ul,.lpc-a .rod{display:none}.lpc-b{padding:20px 16px}.lpc-form{grid-template-columns:1fr}.lpc-form .btn{width:100%}.lpc-b{flex-direction:column}.lpc-b .cheia{position:static;align-self:flex-end;margin-bottom:8px}}
+
+.lpc-a{background:radial-gradient(circle at 90% 8%,#3f7a4f,transparent 40%),linear-gradient(160deg,#1b3024,#23412f 55%,#2f5e40);color:#f6f1e6}
+.lpc-a:before{content:"";position:absolute;right:-60px;bottom:-40px;width:300px;height:300px;background:#cfe6b4;opacity:.08;border-radius:0 220px 0 220px;transform:rotate(-12deg)}
+.lpc-a .nome{font:700 66px/1 Fraunces,Georgia,serif}.lpc-a .nome span{color:#f2a07b;font-style:italic}
+.lpc-a li i{background:rgba(255,253,248,.1);border:1px solid rgba(255,253,248,.18)}
+.lpc-box h1{font:700 32px Fraunces,Georgia,serif;color:#23412f}
+.lpc-form{border-radius:18px}
 /* ===== TEMA ecofood ===== */
 @font-face{font-family:'DM Sans';src:url(fonts/dm-sans-400.woff2) format('woff2');font-weight:400;font-display:swap}@font-face{font-family:'DM Sans';src:url(fonts/dm-sans-500.woff2) format('woff2');font-weight:500;font-display:swap}@font-face{font-family:'DM Sans';src:url(fonts/dm-sans-600.woff2) format('woff2');font-weight:600;font-display:swap}@font-face{font-family:'DM Sans';src:url(fonts/dm-sans-700.woff2) format('woff2');font-weight:700;font-display:swap}@font-face{font-family:'Fraunces';src:url(fonts/fraunces-600.woff2) format('woff2');font-weight:600;font-display:swap}@font-face{font-family:'Fraunces';src:url(fonts/fraunces-700.woff2) format('woff2');font-weight:700;font-display:swap}@font-face{font-family:'Fraunces';src:url(fonts/fraunces-800.woff2) format('woff2');font-weight:800;font-display:swap}
 :root{--g:#23412f;--b:#2f7a49;--b2:#26653c;--r:#c8643b;--y:#d9962b;--ok:#2f7a49;--bg:#f6f1e6;--card:#fffdf8;--tx:#2a2a22;--mu:#7a6a52;--ln:#e7dcc6;--lb:#e5f0e1}
@@ -589,17 +622,24 @@ function menuUser() { confirmar('Trocar de usuário?', 'Você vai voltar para a 
 
 // ====================== login ======================
 function renderLogin() {
-  $('#app').innerHTML = `<div class="login"><div style="text-align:right">${btnCheia()}</div><img class="logo" src="logo_iema.png" alt="IEMA">
-   <div style="display:flex;justify-content:center;align-items:center;gap:8px;margin:10px 0 2px">${ICON.replace('width="34" height="34"','width="44" height="44"')}<b style="font-size:30px"><span style="color:var(--b)">Eco</span><span style="color:var(--r)">Food</span></b></div>
-   <div class="note" style="margin:0 0 16px">Projeto Desperdício Zero • relatórios da carteirinha</div>
-   <div class="card"><label class="lbl" style="margin-top:0">Usuário</label><input id="lu" autocomplete="off" placeholder="ex.: pdv">
-   <label class="lbl">Senha</label><input id="ls" type="password" placeholder="1234" onkeydown="if(event.key==='Enter')entrar($('#lu').value,this.value)"><button class="btn" onclick="entrar($('#lu').value,$('#ls').value)">Entrar</button></div>
-   <div class="sec">Entrar com um usuário de exemplo</div>
-   ${DB.users.map(u => `<div class="demo" onclick="entrar('${u.login}','${u.senha}')"><div class="av" style="background:${u.perfil==='pdv'?'var(--b)':u.perfil==='cozinha'?'var(--g)':'var(--r)'}">${esc(iniciais(u.nome))}</div>
-     <div><div class="ttl">${esc(u.nome)}</div><div class="sub">${esc(u.cargo)} • usuário: <b>${esc(u.login)}</b></div></div></div>`).join('')}
-   <div class="sec">Telas sem login (tela cheia)</div>
-   <div class="grid2"><div class="qa" onclick="abrirJanela('totem')">${ic('tv')}Totem do cardápio</div><div class="qa" onclick="abrirJanela('tablet')">${ic('tablet')}Tablet de avaliação</div></div>
-   <div class="note">Senha de todos os usuários de exemplo: <b>1234</b><br>Protótipo (MVP) — TCC IEMA 2026 • Grupo 3 • IEMA Pleno Coroatá</div></div>`;
+  const grupos = [['pdv','Refeitório (PDV)','var(--b)'],['cozinha','Cozinha','var(--g)'],['gestao','Gestão escolar','var(--r)']];
+  $('#app').innerHTML = `<div class="lpc">
+   <aside class="lpc-a"><div><div class="ie"><img src="logo_iema.png" alt="IEMA"></div>
+     <div class="marca">${ICON.replace('width="34" height="34"','width="76" height="76"')}<div class="nome">Eco<span>Food</span></div></div>
+     <p class="lema">Projeto Desperdício Zero: a carteirinha mostra o que os alunos comem e o que sobra, para o cardápio melhorar.</p></div>
+    <ul><li><i>💳</i>PDV da carteirinha registra cada refeição</li><li><i>📺</i>Totem com o cardápio e tablet de avaliação</li><li><i>📊</i>Relatórios para reduzir o desperdício</li></ul>
+    <div class="rod">Protótipo (MVP) — TCC IEMA 2026 • Grupo 3 • IEMA Pleno Coroatá</div></aside>
+   <main class="lpc-b"><div class="cheia">${btnCheia()}</div><div class="lpc-box">
+    <h1>Entrar no sistema</h1><div class="sub">Use seu usuário e senha ou escolha um usuário de exemplo.</div>
+    <div class="lpc-form"><div><label>Usuário</label><input id="lu" autocomplete="off" placeholder="ex.: pdv"></div>
+     <div><label>Senha</label><input id="ls" type="password" placeholder="1234" onkeydown="if(event.key==='Enter')entrar($('#lu').value,this.value)"></div>
+     <button class="btn" onclick="entrar($('#lu').value,$('#ls').value)">Entrar</button></div>
+    ${grupos.map(([p,t,c]) => { const us = DB.users.filter(u => u.perfil === p); return us.length ? `<div class="lpc-grupo">${t}</div><div class="lpc-us">` + us.map(u => `<div class="demo" onclick="entrar('${u.login}','${u.senha}')"><div class="av" style="background:${c};color:#fff">${esc(iniciais(u.nome))}</div>
+      <div><div class="ttl">${esc(u.nome)}</div><div class="sub">${esc(u.cargo)} • usuário: <b>${esc(u.login)}</b></div></div></div>`).join('') + '</div>' : ''; }).join('')}
+    <div class="lpc-grupo">Telas dos alunos (sem login)</div>
+    <div class="lpc-extra"><div class="qa" onclick="abrirJanela('totem')">${ic('tv')}Totem do cardápio</div><div class="qa" onclick="abrirJanela('tablet')">${ic('tablet')}Tablet de avaliação</div></div>
+    <div class="note">Senha de todos os usuários de exemplo: <b>1234</b> • F8 encerra o simulador</div>
+   </div></main></div>`;
 }
 function entrar(l, s) { const u = DB.users.find(x => x.login.toLowerCase() === String(l).trim().toLowerCase() && x.senha === String(s).trim()); if (!u) return toast('Usuário ou senha incorretos.');
   DB.sessao = u.id; save(); pilha = []; tela = telaInicial(u.perfil); param = null; render(); }
