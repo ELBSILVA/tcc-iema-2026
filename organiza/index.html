@@ -665,6 +665,20 @@ if (me() && me().perfil === 'aluno') setTimeout(() => verificarLembretes(me(), f
   obs.observe(document.documentElement, { subtree: true, childList: true, attributes: true, characterData: true });
   document.addEventListener('input', agenda, true); document.addEventListener('scroll', agenda, true);
   window.addEventListener('message', e => { const d = e.data || {}; if (d.sim === 'espelho') { liga = !!d.on; if (liga) { clearTimeout(t); t = null; foto(); } } });
+  window.addEventListener('message', e => { const d = e.data || {}; try {
+    if (d.sim === 'clique') { const el = document.elementFromPoint(d.x, d.y); if (el) {
+      if (el.focus) el.focus();
+      ['pointerdown', 'mousedown', 'pointerup', 'mouseup'].forEach(t => el.dispatchEvent(new MouseEvent(t, { bubbles: true, cancelable: true, clientX: d.x, clientY: d.y, view: window })));
+      el.click(); if (el.tagName === 'SELECT' && el.options.length) { el.selectedIndex = (el.selectedIndex + 1) % el.options.length; el.dispatchEvent(new Event('change', { bubbles: true })); } } }
+    if (d.sim === 'tecla') { const a = document.activeElement, campo = a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA');
+      const tgt = a || document.body; const kd = new KeyboardEvent('keydown', { key: d.key, bubbles: true, cancelable: true }); tgt.dispatchEvent(kd);
+      if (campo && !kd.defaultPrevented) { if (d.key === 'Backspace') a.value = a.value.slice(0, -1); else if (d.key.length === 1) a.value += d.key;
+        if (d.key.length === 1 || d.key === 'Backspace') a.dispatchEvent(new Event('input', { bubbles: true })); }
+      tgt.dispatchEvent(new KeyboardEvent('keyup', { key: d.key, bubbles: true })); }
+    if (d.sim === 'rolar') { let el = document.elementFromPoint(d.x, d.y);
+      while (el && el !== document.body) { const cs = getComputedStyle(el); if (/(auto|scroll)/.test(cs.overflowY) && el.scrollHeight > el.clientHeight) break; el = el.parentElement; }
+      (el && el !== document.body ? el : (document.scrollingElement || document.documentElement)).scrollBy(0, d.dy); }
+  } catch (err) {} });
 })();
 </script>
 </body>
