@@ -416,11 +416,11 @@ const PNOMES = ['Ana','João','Maria','Pedro','Lucas','Júlia','Gabriel','Beatri
 const SNOMES = ['Silva','Souza','Oliveira','Santos','Pereira','Lima','Costa','Ribeiro','Almeida','Carvalho','Gomes','Martins','Rocha','Araújo','Mendes','Barros','Freitas','Moura','Teixeira','Cardoso'];
 // Grupo 3 do TCC (alunos reais, carteirinhas fictícias para a demonstração)
 const GRUPO3 = [
-  {id:'g1', nome:'Lara Anny Pontes Miranda', carteirinha:'001', img:'alunos/lara-anny.jpg'},
-  {id:'g2', nome:'Gabriela Moraes Ribeiro', carteirinha:'002', img:'alunos/gabriela.jpg'},
-  {id:'g3', nome:'João Victor Ferreira Castro Costa', carteirinha:'003', img:'alunos/joao-victor.jpg'},
-  {id:'g4', nome:'Francisca Loany Azevedo Sousa', carteirinha:'004', img:'alunos/francisca-loany.jpg'}
-].map((a, i) => ({...a, turma:'301', matricula:'2026000' + (i + 1), cor:'#2f7a49', restricao:'', sabatista:false}));
+  {id:'g1', nome:'Lara Anny Pontes Miranda', turma:'303', carteirinha:'001', img:'alunos/lara-anny.jpg'},
+  {id:'g2', nome:'Gabriela Moraes Ribeiro', turma:'304', carteirinha:'002', img:'alunos/gabriela.jpg'},
+  {id:'g3', nome:'João Victor Ferreira Castro Costa', turma:'304', carteirinha:'003', img:'alunos/joao-victor.jpg'},
+  {id:'g4', nome:'Francisca Loany Azevedo Sousa', turma:'304', carteirinha:'004', img:'alunos/francisca-loany.jpg'}
+].map((a, i) => ({...a, matricula:'2026000' + (i + 1), cor:'#2f7a49', restricao:'', sabatista:false}));
 const TURMAS = ['101','102','201','203','204','301','303'];
 const CORES = ['#2f7a49','#c8643b','#23412f','#7b5ea7','#1b8a4a','#e08a00','#0b7a8a'];
 function rnd(seed) { let s = seed; return () => (s = (s * 9301 + 49297) % 233280) / 233280; }
@@ -467,7 +467,7 @@ let DB = null;
 function load() { try { DB = JSON.parse(localStorage.getItem(KEY)); } catch(e) { DB = null; } if (!DB || !DB.users) { DB = seed(); save(); } if (!DB.fotos) DB.fotos = {};
   if (DB.alunos.some(a => a.id[0] !== 'g')) { const ids = new Set(DB.alunos.filter(a => a.id[0] !== 'g').map(a => a.id)); DB.alunos = DB.alunos.filter(a => !ids.has(a.id)); DB.registros = DB.registros.filter(x => !ids.has(x.alunoId)); DB.avaliacoes = DB.avaliacoes.filter(x => !ids.has(x.alunoId)); DB.provisorias = DB.provisorias.filter(x => !ids.has(x.alunoId)); save(); }
   const faltam = GRUPO3.filter(g => !DB.alunos.some(a => a.id === g.id)); if (faltam.length) { DB.alunos.unshift(...faltam.map(a => ({...a}))); save(); }
-  GRUPO3.forEach(g => { const a = DB.alunos.find(x => x.id === g.id); if (a) a.img = g.img; }); }
+  GRUPO3.forEach(g => { const a = DB.alunos.find(x => x.id === g.id); if (a) { a.img = g.img; if (!DB.config.turmasOk) a.turma = g.turma; } }); if (!DB.config.turmasOk) { DB.config.turmasOk = true; save(); } }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(DB)); } catch(e) {} }
 const me = () => DB.users.find(u => u.id === DB.sessao);
 const aluno = id => DB.alunos.find(a => a.id === id);
@@ -848,7 +848,7 @@ TELAS.ajustes = u => `${voltarBtn(ic('gear') + ' Ajustes')}<div class="card" sty
    <button class="btn out" style="color:var(--r);border-color:var(--r)" onclick="confirmar('Restaurar dados de exemplo?','Tudo o que foi registrado neste computador será apagado e o programa volta ao início.',()=>{localStorage.removeItem(KEY);load();renderLogin();toast('Dados de exemplo restaurados.')},'Restaurar')">Restaurar dados de exemplo</button></div>
    <div class="card" style="max-width:640px"><label class="row" style="cursor:pointer;gap:10px"><input type="checkbox" style="width:22px;height:22px;flex:none" ${DEMO()?'checked':''} onchange="DB.config.demo=this.checked;save();toast(this.checked?'Modo apresentação ligado':'Modo apresentação desligado');render()"><div><div class="ttl">Modo apresentação</div><div class="sub">Ligado: a mesma carteirinha pode passar várias vezes no PDV e avaliar no tablet sem ter pegado a refeição, para mostrar todas as telas. Desligado: regras reais (não libera duas vezes e só avalia quem pegou).</div></div></label></div>
    <div style="max-width:640px"><button class="btn out" style="color:#c8643b;border-color:#c8643b" onclick="zerarHoje()">↺ Zerar hoje (para passar as carteirinhas ao vivo)</button></div>
-   <div class="note">EcoFood • versão 1.9 para Windows • protótipo do TCC IEMA 2026 (Grupo 3)</div>`;
+   <div class="note">EcoFood • versão 1.9.1 para Windows • protótipo do TCC IEMA 2026 (Grupo 3)</div>`;
 
 // ====================== início ======================
 load(); render();
