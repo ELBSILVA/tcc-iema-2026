@@ -76,7 +76,7 @@ body.apresentando #apres{display:flex}body.apresentando #palco{display:none}
 #apres .dur{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mu)}#apres .dur input{width:64px;background:#15171a;color:var(--tx);border:1px solid var(--linha);border-radius:8px;padding:5px 8px;font-size:14px}
 .cr-verde{background:#1f9d55;color:#fff}.cr-amarelo{background:#f1c40f;color:#2a2100}.cr-vermelho{background:#e74c3c;color:#fff}
 .cr-pisca{animation:crpisca .8s steps(2) infinite}@keyframes crpisca{50%{opacity:.25}}
-#cronoP{display:none;position:fixed;bottom:18px;left:18px;z-index:40;gap:12px;align-items:stretch}
+#cronoP{display:none;position:fixed;bottom:18px;left:18px;z-index:60;gap:12px;align-items:stretch}
 body.proj #cronoP.vis{display:flex}
 #cronoP .rel{padding:12px 16px;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.45);line-height:0;display:flex;flex-direction:column;align-items:center;gap:6px}
 #cronoP .rel small{font:700 11px/1 "Segoe UI",sans-serif;letter-spacing:1px;text-transform:uppercase;opacity:.85}
@@ -92,7 +92,9 @@ body.proj .rot{display:none}
 #cortina div{max-width:620px;font-size:20px;line-height:1.5}#cortina b{color:#5cc8ff}
 body.proj #cortina.vis{display:flex}
 /* capa com a logo (antes de iniciar o tempo) */
-#capa{display:none;position:fixed;inset:0;z-index:45;flex-direction:column;align-items:center;justify-content:center;gap:34px;background:radial-gradient(circle at 50% 40%,#ffffff,#eef1f5);transition:opacity .6s}
+#capa{display:none;position:fixed;inset:0;z-index:45;flex-direction:column;align-items:center;justify-content:center;gap:34px;background:radial-gradient(circle at 50% 40%,#ffffff,#eef1f5);transition:opacity .9s ease,transform .9s ease}
+#capa.saindo{opacity:0;transform:scale(1.04)}
+body.proj #palco{transition:opacity .8s ease}body.proj.comCapa #palco{opacity:0}
 body.proj #capa.vis{display:flex}
 #capa .lg{max-width:62vw;max-height:38vh}
 #capa .ie{position:absolute;top:4vh;left:4vw;height:9vh}
@@ -102,6 +104,8 @@ body.proj #capa.vis{display:flex}
 .pvCapa{position:absolute;inset:44px 10px 10px;display:none;align-items:center;justify-content:center;flex-direction:column;gap:10px;background:rgba(255,255,255,.96);border-radius:10px;z-index:3;color:#22252b;font-size:14px;text-align:center}
 .pvCapa img{max-width:60%;max-height:40%}
 body.capa .pvCapa{display:flex}
+#bTrans{width:100%;margin-top:10px;padding:11px;border-radius:10px;border:0;cursor:pointer;font-weight:700;font-size:15px;background:#1f9d55;color:#fff}
+#bTrans.voltar{background:#3a3f47}
 .pv{position:relative}
 #aviso{display:none;position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:9;background:#fff3c4;color:#3a2a00;border-radius:12px;padding:10px 16px;font-size:14px;box-shadow:0 8px 24px rgba(0,0,0,.4)}
 #aviso a{color:#0b6fa0;font-weight:700}#aviso button{margin-left:10px;border:0;background:transparent;cursor:pointer;font-size:16px}
@@ -130,9 +134,9 @@ body.capa .pvCapa{display:flex}
 </aside>
 <main id="palco"></main>
 <section id="apres">
-  <div class="pv"><div class="pvTop"><i></i>Prévia — o que a plateia está vendo</div><div id="previa"></div><div class="pvCapa"><img id="pvCapaLogo" src="Logo_IEMA_Organiza.png" alt=""><div><b>A plateia está vendo a capa (logo do projeto).</b><br>Clique em ▶ Iniciar no tempo para mostrar o protótipo.</div></div></div>
+  <div class="pv"><div class="pvTop"><i></i>Prévia — o que a plateia está vendo</div><div id="previa"></div><div class="pvCapa"><img id="pvCapaLogo" src="Logo_IEMA_Organiza.png" alt=""><div><b>A plateia está vendo a capa (logo do projeto) e o tempo.</b><br>Quando chegar a hora da demonstração, clique em 📺 Transmitir protótipo.</div></div></div>
   <div class="col">
-    <div class="agora"><small>Na tela da plateia agora</small><h2 id="aTit">—</h2><p id="aSub"></p></div>
+    <div class="agora"><small>Na tela da plateia agora</small><h2 id="aTit">—</h2><p id="aSub"></p><button id="bTrans" onclick="transmitir()">📺 Transmitir protótipo</button></div>
     <div class="cx"><h3>O que mostrar / falar</h3><div class="fala" id="aFala"></div></div>
     <div class="cx"><h3>Tempo de apresentação</h3>
       <div class="dur">Duração: <input id="durMin" type="number" min="1" max="60" value="10" onchange="cronoZera()"> min <span style="margin-left:auto">regressivo</span></div>
@@ -196,6 +200,7 @@ const FALA = {
 
 /* ================= PALCO: onde os programas rodam ================= */
 const criados = {}, INFO = {};
+var comCapa = true;
 let app = 'organiza', modo = 'sistema', ultimo = null;
 const chave = () => app === 'ecofood' && modo !== 'sistema' ? modo : app;
 const retrato = k => DISP[k].tipo === 'cel';
@@ -263,10 +268,11 @@ window.addEventListener('message', e => {
   if (d.simTela) { if (PROJ && e.source === frameDe(chave())) { try { window.opener.postMessage({ simTela: d.simTela, k: chave() }, '*'); } catch (x) {} } else if (!PROJ) previa(d); return; }
   if (d.simInfo) { for (const a of ['organiza','stocktech','ecofood']) if (e.source === frameDe(a)) { INFO[a] = d.simInfo; if (a === app) avisaControle(); } return; }
   if (d.simTempo && PROJ) { tempoPlateia(d.simTempo); return; }
+  if ('simCapa' in d && PROJ) { capaNaPlateia(d.simCapa); return; }
   if (d.simCmd && PROJ) { executar(d.simCmd); return; }                 // plateia recebe comando do apresentador
   if (d.simEstado && !PROJ) { receber(d.simEstado); return; }
   if (d.simTela) {}           // apresentador recebe o estado da plateia
-  if (d.simPronta && !PROJ && projecao) { projecao.postMessage({ simCmd: { cmd: 'app', app: EST.app } }, '*'); cronoMostra(); }
+  if (d.simPronta && !PROJ && projecao) { projecao.postMessage({ simCmd: { cmd: 'app', app: EST.app } }, '*'); projecao.postMessage({ simCapa: comCapa }, '*'); cronoMostra(); }
 });
 window.addEventListener('resize', () => ajustar(false));
 document.addEventListener('fullscreenchange', () => ajustar(false));
@@ -295,6 +301,7 @@ function desenharApres() {
   document.getElementById('aTit').textContent = `${NOME[a]} — ${nomeTela}`;
   document.getElementById('aSub').textContent = emDisp ? 'Aparelho do refeitório' : (i && i.perfil ? `${PERFIL[i.perfil] || i.perfil} • ${i.usuario}` : 'Ninguém entrou ainda');
   document.getElementById('aFala').textContent = FALA[a + ':' + tela] || FALA[a + ':'] || '';
+  if (comCapa && document.body.classList.contains('apresentando')) { document.getElementById('aTit').textContent = `Capa — ${NOME[a]}`; document.getElementById('aSub').textContent = 'Logo do projeto + tempo. O protótipo está pronto por trás.'; }
 }
 document.querySelectorAll('.apps button').forEach(b => b.onclick = () => cmd({ cmd: 'app', app: b.dataset.app }));
 
@@ -347,7 +354,7 @@ async function projetar() {
   if (!projecao) { alert('O navegador bloqueou a janela. Permita pop-ups para este arquivo e tente de novo.'); return; }
   // o palco desta janela é desligado: os programas passam a rodar só na janela da plateia
   Object.keys(criados).forEach(k => { criados[k].remove(); delete criados[k]; });
-  document.body.classList.add('apresentando'); pvK = null; document.getElementById('previa').innerHTML = '';
+  document.body.classList.add('apresentando'); comCapa = true; marcaCapa(); pvK = null; document.getElementById('previa').innerHTML = '';
   const b = document.getElementById('bProj'); b.textContent = '⏹ Encerrar projeção'; b.classList.add('ativo');
   desenharApres();
   const vigia = setInterval(() => { if (!projecao || projecao.closed) { clearInterval(vigia); fimProjecao(); } }, 800);
@@ -360,6 +367,15 @@ function fimProjecao() {
 function entrarTelaCheia() { if (!document.fullscreenElement && document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => {}); }
 function cheia() { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
 
+/* capa x protótipo na plateia */
+function transmitir() { comCapa = !comCapa; marcaCapa(); if (projecao && !projecao.closed) projecao.postMessage({ simCapa: comCapa }, '*'); }
+function marcaCapa() { document.body.classList.toggle('capa', comCapa); const b = document.getElementById('bTrans');
+  b.textContent = comCapa ? '📺 Transmitir protótipo' : '🖼 Voltar para a capa'; b.classList.toggle('voltar', !comCapa); desenharApres(); }
+let capaT = null;
+function capaNaPlateia(on) { const c = document.getElementById('capa'); clearTimeout(capaT);
+  if (on) { c.classList.add('vis'); c.offsetWidth; c.classList.remove('saindo'); document.body.classList.add('comCapa'); }
+  else { c.classList.add('saindo'); capaT = setTimeout(() => { c.classList.remove('vis'); document.body.classList.remove('comCapa'); setTimeout(() => ajustar(false), 50); }, 900); } }
+
 /* cronômetro: regressivo (cores) + tempo decorrido; a plateia vê o regressivo no canto */
 let cT = 0, cI = null;
 const total = () => Math.max(1, +document.getElementById('durMin').value || 10) * 60;
@@ -370,7 +386,6 @@ function cronoMostra() {
   const tot = total(), rest = tot - cT, c = document.getElementById('crono');
   c.innerHTML = seg7(mmss(Math.max(rest, 0))); c.className = 'crono ' + corDe(rest, tot);
   document.getElementById('decor').textContent = hhmmss(cT);
-  document.body.classList.toggle('capa', !(cI !== null || cT > 0)); document.getElementById('pvCapaLogo').src = LOGO[EST.app];
   if (projecao && !projecao.closed) projecao.postMessage({ simTempo: { rest, tot, dec: cT, vis: cI !== null || cT > 0 } }, '*');
 }
 function cronoIni() { if (!cI) { cI = setInterval(() => { cT++; cronoMostra(); }, 1000); cronoMostra(); } }
@@ -389,7 +404,7 @@ function seg7(txt) { let x = 0, g = '';
   return `<svg viewBox="-4 -2 ${x + 4} 74" fill="currentColor">${g}</svg>`; }
 function capaPlateia() { document.getElementById('capaLogo').src = LOGO[app]; const g = GRUPO[app];
   document.getElementById('capaTxt').innerHTML = `<b>${g[1]}</b>TCC IEMA 2026 • ${g[0]} • Design Thinking`; document.documentElement.style.setProperty('--cor', COR[app]); }
-function tempoPlateia(t) { document.getElementById('capa').classList.toggle('vis', !t.vis); const el = document.getElementById('cronoP');
+function tempoPlateia(t) { const el = document.getElementById('cronoP');
   const dec = t.dec >= 3600 ? hhmmss(t.dec) : mmss(t.dec);
   el.innerHTML = `<div class="rel ${corDe(t.rest, t.tot)}"><small>Tempo</small>${seg7(dec)}</div>`;
   el.className = t.vis ? 'vis' : ''; }
@@ -406,7 +421,7 @@ if (!PROJ && navigator.onLine && !BUILD.startsWith('__')) {
 }
 
 /* início */
-if (PROJ) { capaPlateia(); document.getElementById('palco').addEventListener('dblclick', e => { if (e.target.id === 'palco') entrarTelaCheia(); }); mostrarPalco(); try { window.opener && window.opener.postMessage({ simPronta: true }, '*'); } catch (e) {} }
+if (PROJ) { capaPlateia(); document.body.classList.add('comCapa'); document.getElementById('palco').addEventListener('dblclick', e => { if (e.target.id === 'palco') entrarTelaCheia(); }); mostrarPalco(); try { window.opener && window.opener.postMessage({ simPronta: true }, '*'); } catch (e) {} }
 else { try { const s = localStorage.getItem('simulador_app'); if (DISP[s]) app = s; } catch (e) {} EST.app = app; mostrarPalco(); desenharLado(); cronoMostra(); }
 </script>
 </body>
