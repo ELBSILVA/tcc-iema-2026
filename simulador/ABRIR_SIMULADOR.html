@@ -71,7 +71,13 @@ body.apresentando #apres{display:flex}body.apresentando #palco{display:none}
 #apres .cx{background:#22262c;border:1px solid var(--linha);border-radius:14px;padding:14px 16px}
 #apres .cx h3{margin:0 0 8px;font-size:12px;color:var(--mu);text-transform:uppercase;letter-spacing:.8px}
 #apres .fala{font-size:18px;line-height:1.5}
-#apres .crono{font:700 48px/1 "Segoe UI",sans-serif;letter-spacing:2px;margin:4px 0 10px}
+#apres .crono{font:700 52px/1 "Segoe UI",sans-serif;letter-spacing:2px;margin:6px 0 8px;padding:12px 10px;border-radius:12px;text-align:center}
+#apres .decor{font-size:14px;color:var(--mu);margin-bottom:10px;text-align:center}#apres .decor b{color:var(--tx);font-size:18px;letter-spacing:1px}
+#apres .dur{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mu)}#apres .dur input{width:64px;background:#15171a;color:var(--tx);border:1px solid var(--linha);border-radius:8px;padding:5px 8px;font-size:14px}
+.cr-verde{background:#1f9d55;color:#fff}.cr-amarelo{background:#f1c40f;color:#2a2100}.cr-vermelho{background:#e74c3c;color:#fff}
+.cr-pisca{animation:crpisca .8s steps(2) infinite}@keyframes crpisca{50%{opacity:.25}}
+#cronoP{display:none;position:fixed;top:18px;right:18px;z-index:40;font:700 46px/1 "Segoe UI",sans-serif;letter-spacing:2px;padding:14px 22px;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.45)}
+body.proj #cronoP.vis{display:block}
 #apres .cx button{background:#2a2e35;color:var(--tx);border:1px solid var(--linha);border-radius:9px;padding:7px 10px;cursor:pointer;margin-right:4px}
 #apres .aviso{color:var(--mu);font-size:12.5px;line-height:1.5}
 /* ===== janela da plateia (2ª tela): só o aparelho ===== */
@@ -112,13 +118,17 @@ body.proj #cortina.vis{display:flex}
   <div class="col">
     <div class="agora"><small>Na tela da plateia agora</small><h2 id="aTit">—</h2><p id="aSub"></p></div>
     <div class="cx"><h3>O que mostrar / falar</h3><div class="fala" id="aFala"></div></div>
-    <div class="cx"><h3>Tempo de apresentação</h3><div class="crono" id="crono">00:00</div>
+    <div class="cx"><h3>Tempo de apresentação</h3>
+      <div class="dur">Duração: <input id="durMin" type="number" min="1" max="60" value="10" onchange="cronoZera()"> min <span style="margin-left:auto">regressivo</span></div>
+      <div class="crono cr-verde" id="crono">10:00</div>
+      <div class="decor">Tempo decorrido: <b id="decor">00:00:00</b></div>
       <button onclick="cronoIni()">▶ Iniciar</button><button onclick="cronoPausa()">⏸ Pausar</button><button onclick="cronoZera()">↺ Zerar</button></div>
     <div class="cx" id="comoProj" style="border-left:6px solid var(--azul)"><h3>Como projetar</h3><div style="font-size:14.5px;line-height:1.55">1. Arraste a <b>janela da plateia</b> para o projetor (2ª tela).<br>2. Clique nela e aperte <b>F11</b> (ou dê <b>dois cliques no fundo preto</b>) para ficar em tela cheia.<br>3. Controle tudo por aqui, pela lateral.</div>
       <button style="margin-top:8px" onclick="this.parentNode.style.display='none'">✓ Entendi</button></div>
     <div class="aviso">Troque programa, perfil e tela pela lateral. Para digitar ou clicar dentro do app, use o mouse na 2ª tela. <b>⏹ Encerrar projeção</b> volta para uma tela só.</div>
   </div>
 </section>
+<div id="cronoP"></div>
 <div id="aviso"></div>
 <script>
 const BUILD = '__BUILD__', DATA = '__DATA__';
@@ -232,10 +242,11 @@ window.addEventListener('message', e => {
   if (d.ecofood === 'abrir' && DISP[d.modo]) { executar({ cmd: 'modo', modo: d.modo }); return; }
   if (d.simTela) { if (PROJ && e.source === frameDe(chave())) { try { window.opener.postMessage({ simTela: d.simTela, k: chave() }, '*'); } catch (x) {} } else if (!PROJ) previa(d); return; }
   if (d.simInfo) { for (const a of ['organiza','stocktech','ecofood']) if (e.source === frameDe(a)) { INFO[a] = d.simInfo; if (a === app) avisaControle(); } return; }
+  if (d.simTempo && PROJ) { tempoPlateia(d.simTempo); return; }
   if (d.simCmd && PROJ) { executar(d.simCmd); return; }                 // plateia recebe comando do apresentador
   if (d.simEstado && !PROJ) { receber(d.simEstado); return; }
   if (d.simTela) {}           // apresentador recebe o estado da plateia
-  if (d.simPronta && !PROJ && projecao) { projecao.postMessage({ simCmd: { cmd: 'app', app: EST.app } }, '*'); }
+  if (d.simPronta && !PROJ && projecao) { projecao.postMessage({ simCmd: { cmd: 'app', app: EST.app } }, '*'); cronoMostra(); }
 });
 window.addEventListener('resize', () => ajustar(false));
 document.addEventListener('fullscreenchange', () => ajustar(false));
@@ -329,12 +340,23 @@ function fimProjecao() {
 function entrarTelaCheia() { if (!document.fullscreenElement && document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => {}); }
 function cheia() { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
 
-/* cronômetro do apresentador */
+/* cronômetro: regressivo (cores) + tempo decorrido; a plateia vê o regressivo no canto */
 let cT = 0, cI = null;
-function cronoMostra() { document.getElementById('crono').textContent = String(Math.floor(cT/60)).padStart(2,'0') + ':' + String(cT%60).padStart(2,'0'); }
-function cronoIni() { if (!cI) cI = setInterval(() => { cT++; cronoMostra(); }, 1000); }
-function cronoPausa() { clearInterval(cI); cI = null; }
-function cronoZera() { cronoPausa(); cT = 0; cronoMostra(); }
+const total = () => Math.max(1, +document.getElementById('durMin').value || 10) * 60;
+const mmss = x => { const n = Math.abs(x); return (x < 0 ? '-' : '') + String(Math.floor(n / 60)).padStart(2, '0') + ':' + String(n % 60).padStart(2, '0'); };
+const hhmmss = x => [Math.floor(x / 3600), Math.floor(x % 3600 / 60), x % 60].map(v => String(v).padStart(2, '0')).join(':');
+function corDe(rest, tot) { const p = rest / tot; return p > .5 ? 'cr-verde' : p > .25 ? 'cr-amarelo' : 'cr-vermelho cr-pisca'; }
+function cronoMostra() {
+  const tot = total(), rest = tot - cT, c = document.getElementById('crono');
+  c.textContent = mmss(Math.max(rest, 0)); c.className = 'crono ' + corDe(rest, tot);
+  document.getElementById('decor').textContent = hhmmss(cT);
+  if (projecao && !projecao.closed) projecao.postMessage({ simTempo: { rest, tot, vis: cI !== null || cT > 0 } }, '*');
+}
+function cronoIni() { if (!cI) { cI = setInterval(() => { cT++; cronoMostra(); }, 1000); cronoMostra(); } }
+function cronoPausa() { clearInterval(cI); cI = null; cronoMostra(); }
+function cronoZera() { clearInterval(cI); cI = null; cT = 0; cronoMostra(); }
+function tempoPlateia(t) { const el = document.getElementById('cronoP');
+  el.classList.toggle('vis', !!t.vis); el.textContent = mmss(Math.max(t.rest, 0)); el.className = (t.vis ? 'vis ' : '') + corDe(t.rest, t.tot); }
 
 /* versão e aviso de atualização (só com internet) */
 document.getElementById('ver').textContent = BUILD.startsWith('__') ? (location.protocol.startsWith('http') ? 'online' : 'teste') : `v${BUILD} • ${DATA}`;
