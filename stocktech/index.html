@@ -368,6 +368,8 @@ function entrar(l, s) {
   DB.sessao = u.id; save(); pilha = []; tela = 'painel'; param = null; render(); setTimeout(() => avisarAlertas(false), 700);
 }
 function sair() { DB.sessao = null; save(); renderLogin(); }
+function encerrarSimulador() { if (!DB.sessao) return; confirmar('Encerrar o simulador?', 'Você sai do usuário e volta para a tela inicial.', () => { sair(); window.scrollTo(0, 0); }, 'Encerrar'); }
+document.addEventListener('keydown', e => { if (e.key === 'F8') { e.preventDefault(); encerrarSimulador(); } });
 function avisarAlertas(forcar) {
   const al = alertas(); const k = iso(hoje()) + '|' + DB.sessao;
   if (!forcar && DB.notificados[k]) return; DB.notificados[k] = 1; save();
@@ -555,7 +557,7 @@ TELAS.ajustes = u => `${voltarBtn(ic('gear')+' Ajustes')}<div class="card"><div 
    <div class="card" style="margin-top:12px">🛡 <b>IEMA Pleno de Coroatá</b><div class="sub">Controle do estoque de alimentos da cozinha. Os dados ficam salvos neste computador (protótipo).</div></div>
    <button class="btn gray" onclick="sair()">↪ Sair da conta</button>
    <button class="btn out" style="color:var(--r);border-color:var(--r)" onclick="confirmar('Restaurar dados de exemplo?','Tudo o que foi registrado neste computador será apagado e o app volta ao início.',()=>{localStorage.removeItem(KEY);load();renderLogin();toast('Dados de exemplo restaurados.')},'Restaurar')">Restaurar dados de exemplo</button>
-   <div class="note">StockTech • versão 1.1 para Windows • protótipo do TCC IEMA 2026 (Grupo 2)</div>`;
+   <div class="note">StockTech • versão 1.2 para Windows • protótipo do TCC IEMA 2026 (Grupo 2)</div>`;
 function salvarMeus() { const u = me(); u.nome = $('#un').value.trim() || u.nome; u.cargo = $('#uc').value.trim(); if ($('#us').value.trim()) u.senha = $('#us').value.trim(); save(); toast('Dados salvos!'); render(); }
 TELAS.usuarios = u => `${voltarBtn(ic('users')+' Usuários')}${DB.users.map(x => `<div class="card row"><div class="av" style="margin:0;background:${x.perfil==='cozinha'?'var(--b)':'var(--r)'}">${esc(iniciais(x.nome))}</div><div style="flex:1"><div class="ttl">${esc(x.nome)}</div><div class="sub">${esc(x.cargo)} • login: ${esc(x.login)}</div></div>${x.id!==u.id?`<button class="del" onclick="confirmar('Excluir usuário?','${esc(x.nome)} não poderá mais entrar.',()=>{DB.users=DB.users.filter(y=>y.id!=='${x.id}');save();render()},'Excluir')">Excluir</button>`:''}</div>`).join('')}
    <div class="card"><div class="ttl">+ Cadastrar usuário</div><label class="lbl">Nome</label><input id="nn"><div class="row"><div style="flex:1"><label class="lbl">Perfil</label><select id="np"><option value="cozinha">Cozinha</option><option value="gestao">Gestão</option></select></div><div style="flex:1"><label class="lbl">Cargo</label><input id="nc" placeholder="ex.: Merendeira"></div></div>

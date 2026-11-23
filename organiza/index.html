@@ -315,6 +315,8 @@ function entrar(l, s) {
   if (u.perfil === 'aluno') setTimeout(() => verificarLembretes(u, false), 600);
 }
 function sair() { DB.sessao = null; save(); renderLogin(); }
+function encerrarSimulador() { if (!DB.sessao) return; confirmar('Encerrar o simulador?', 'Você sai do usuário e volta para a tela inicial.', () => { sair(); window.scrollTo(0, 0); }, 'Encerrar'); }
+document.addEventListener('keydown', e => { if (e.key === 'F8') { e.preventDefault(); encerrarSimulador(); } });
 
 // ====================== regras do aluno ======================
 const minhasAtiv = u => DB.atividades.filter(a => a.turmas.includes(u.turma)).sort((a,b) => a.prazo.localeCompare(b.prazo));
@@ -472,7 +474,7 @@ function telaAjustes(u) {
    <div class="card" style="margin-top:12px">🛡 <b>IEMA Pleno de Coroatá</b><div class="sub">Aplicativo de organização escolar. Seus dados ficam apenas neste aparelho (protótipo).</div></div>
    <button class="btn gray" onclick="sair()">↪ Sair da conta</button>
    <button class="btn out" style="color:var(--r);border-color:var(--r)" onclick="confirmar('Restaurar dados de exemplo?','Tudo o que foi cadastrado neste aparelho será apagado e o app volta ao início.',()=>{localStorage.removeItem(KEY);load();renderLogin();toast('Dados de exemplo restaurados.')},'Restaurar')">Restaurar dados de exemplo</button>
-   <div class="note">IEMA Organiza • versão 1.3 • protótipo do TCC IEMA 2026 (Grupo 1)</div>`;
+   <div class="note">IEMA Organiza • versão 1.4 • protótipo do TCC IEMA 2026 (Grupo 1)</div>`;
 }
 function confirmar(titulo, texto, sim, rotulo) {
   const m = document.createElement('div'); m.className = 'modal';
