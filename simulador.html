@@ -76,9 +76,12 @@ body.apresentando #apres{display:flex}body.apresentando #palco{display:none}
 #apres .dur{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mu)}#apres .dur input{width:64px;background:#15171a;color:var(--tx);border:1px solid var(--linha);border-radius:8px;padding:5px 8px;font-size:14px}
 .cr-verde{background:#1f9d55;color:#fff}.cr-amarelo{background:#f1c40f;color:#2a2100}.cr-vermelho{background:#e74c3c;color:#fff}
 .cr-pisca{animation:crpisca .8s steps(2) infinite}@keyframes crpisca{50%{opacity:.25}}
-#cronoP{display:none;position:fixed;bottom:18px;left:18px;z-index:40;padding:14px 18px;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.45);line-height:0}
-#cronoP svg{height:64px;width:auto;display:block}
-body.proj #cronoP.vis{display:block}
+#cronoP{display:none;position:fixed;bottom:18px;left:18px;z-index:40;gap:12px;align-items:stretch}
+body.proj #cronoP.vis{display:flex}
+#cronoP .rel{padding:12px 16px;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.45);line-height:0;display:flex;flex-direction:column;align-items:center;gap:6px}
+#cronoP .rel small{font:700 11px/1 "Segoe UI",sans-serif;letter-spacing:1px;text-transform:uppercase;opacity:.85}
+#cronoP svg{height:56px;width:auto;display:block}
+#cronoP .dec{background:#111316;color:#5cc8ff;border:1px solid #2a2e35}
 #apres .cx button{background:#2a2e35;color:var(--tx);border:1px solid var(--linha);border-radius:9px;padding:7px 10px;cursor:pointer;margin-right:4px}
 #apres .aviso{color:var(--mu);font-size:12.5px;line-height:1.5}
 /* ===== janela da plateia (2ª tela): só o aparelho ===== */
@@ -351,7 +354,7 @@ function cronoMostra() {
   const tot = total(), rest = tot - cT, c = document.getElementById('crono');
   c.innerHTML = seg7(mmss(Math.max(rest, 0))); c.className = 'crono ' + corDe(rest, tot);
   document.getElementById('decor').textContent = hhmmss(cT);
-  if (projecao && !projecao.closed) projecao.postMessage({ simTempo: { rest, tot, vis: cI !== null || cT > 0 } }, '*');
+  if (projecao && !projecao.closed) projecao.postMessage({ simTempo: { rest, tot, dec: cT, vis: cI !== null || cT > 0 } }, '*');
 }
 function cronoIni() { if (!cI) { cI = setInterval(() => { cT++; cronoMostra(); }, 1000); cronoMostra(); } }
 function cronoPausa() { clearInterval(cI); cI = null; cronoMostra(); }
@@ -368,7 +371,9 @@ function seg7(txt) { let x = 0, g = '';
     x += 46; }
   return `<svg viewBox="-4 -2 ${x + 4} 74" fill="currentColor">${g}</svg>`; }
 function tempoPlateia(t) { const el = document.getElementById('cronoP');
-  el.innerHTML = seg7(mmss(Math.max(t.rest, 0))); el.className = (t.vis ? 'vis ' : '') + corDe(t.rest, t.tot); }
+  const dec = t.dec >= 3600 ? hhmmss(t.dec) : mmss(t.dec);
+  el.innerHTML = `<div class="rel ${corDe(t.rest, t.tot)}"><small>Restante</small>${seg7(mmss(Math.max(t.rest, 0)))}</div><div class="rel dec"><small>Decorrido</small>${seg7(dec)}</div>`;
+  el.className = t.vis ? 'vis' : ''; }
 
 /* versão e aviso de atualização (só com internet) */
 document.getElementById('ver').textContent = BUILD.startsWith('__') ? (location.protocol.startsWith('http') ? 'online' : 'teste') : `v${BUILD} • ${DATA}`;
