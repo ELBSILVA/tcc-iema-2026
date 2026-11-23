@@ -1005,6 +1005,29 @@ window.addEventListener('hashchange', () => render());
     } catch (err) {}
     ult = ''; envia(); });
 })();
+
+/* ===== ESPELHO DO SIMULADOR (prévia para o apresentador) ===== */
+(function () {
+  if (window.parent === window) return;
+  let liga = false, t = null, obs = null;
+  const foto = () => { t = null; if (!liga) return; try {
+    document.querySelectorAll('input,textarea,select').forEach(el => {
+      if (el.type === 'checkbox' || el.type === 'radio') { el.checked ? el.setAttribute('checked', '') : el.removeAttribute('checked'); }
+      else if (el.tagName === 'SELECT') { [...el.options].forEach(o => o.selected ? o.setAttribute('selected', '') : o.removeAttribute('selected')); }
+      else if (el.type !== 'password') el.setAttribute('value', el.value);
+    });
+    document.querySelectorAll('[data-sc]').forEach(el => el.removeAttribute('data-sc'));
+    document.querySelectorAll('body *').forEach(el => { if (el.scrollTop > 0) el.setAttribute('data-sc', el.scrollTop); });
+    const html = document.documentElement.outerHTML.replace(/<script\b[\s\S]*?<\/script>/gi, '');
+    const base = location.href.split('#')[0].replace(/[^\/]*$/, '');
+    window.parent.postMessage({ simTela: { html, base, sy: (document.scrollingElement || document.documentElement).scrollTop } }, '*');
+  } catch (e) {} if (obs) obs.takeRecords(); };
+  const agenda = () => { if (liga && !t) t = setTimeout(foto, 300); };
+  obs = new MutationObserver(agenda);
+  obs.observe(document.documentElement, { subtree: true, childList: true, attributes: true, characterData: true });
+  document.addEventListener('input', agenda, true); document.addEventListener('scroll', agenda, true);
+  window.addEventListener('message', e => { const d = e.data || {}; if (d.sim === 'espelho') { liga = !!d.on; if (liga) { clearTimeout(t); t = null; foto(); } } });
+})();
 </script>
 
 </body>
