@@ -91,6 +91,18 @@ body.proj .rot{display:none}
 #cortina{display:none;position:fixed;inset:0;z-index:50;background:rgba(10,11,13,.92);align-items:center;justify-content:center;text-align:center;cursor:pointer}
 #cortina div{max-width:620px;font-size:20px;line-height:1.5}#cortina b{color:#5cc8ff}
 body.proj #cortina.vis{display:flex}
+/* capa com a logo (antes de iniciar o tempo) */
+#capa{display:none;position:fixed;inset:0;z-index:45;flex-direction:column;align-items:center;justify-content:center;gap:34px;background:radial-gradient(circle at 50% 40%,#ffffff,#eef1f5);transition:opacity .6s}
+body.proj #capa.vis{display:flex}
+#capa .lg{max-width:62vw;max-height:38vh}
+#capa .ie{position:absolute;top:4vh;left:4vw;height:9vh}
+#capa .gp{font:600 2.6vh "Segoe UI",sans-serif;color:#5b6270;letter-spacing:.5px;text-align:center}
+#capa .gp b{display:block;font-size:4vh;color:#22252b;margin-bottom:.8vh}
+#capa .fx{position:absolute;bottom:0;left:0;right:0;height:1.4vh;background:var(--cor)}
+.pvCapa{position:absolute;inset:44px 10px 10px;display:none;align-items:center;justify-content:center;flex-direction:column;gap:10px;background:rgba(255,255,255,.96);border-radius:10px;z-index:3;color:#22252b;font-size:14px;text-align:center}
+.pvCapa img{max-width:60%;max-height:40%}
+body.capa .pvCapa{display:flex}
+.pv{position:relative}
 #aviso{display:none;position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:9;background:#fff3c4;color:#3a2a00;border-radius:12px;padding:10px 16px;font-size:14px;box-shadow:0 8px 24px rgba(0,0,0,.4)}
 #aviso a{color:#0b6fa0;font-weight:700}#aviso button{margin-left:10px;border:0;background:transparent;cursor:pointer;font-size:16px}
 @media (max-width:1100px){#apres .col{width:280px}}
@@ -118,7 +130,7 @@ body.proj #cortina.vis{display:flex}
 </aside>
 <main id="palco"></main>
 <section id="apres">
-  <div class="pv"><div class="pvTop"><i></i>Prévia — o que a plateia está vendo</div><div id="previa"></div></div>
+  <div class="pv"><div class="pvTop"><i></i>Prévia — o que a plateia está vendo</div><div id="previa"></div><div class="pvCapa"><img id="pvCapaLogo" src="Logo_IEMA_Organiza.png" alt=""><div><b>A plateia está vendo a capa (logo do projeto).</b><br>Clique em ▶ Iniciar no tempo para mostrar o protótipo.</div></div></div>
   <div class="col">
     <div class="agora"><small>Na tela da plateia agora</small><h2 id="aTit">—</h2><p id="aSub"></p></div>
     <div class="cx"><h3>O que mostrar / falar</h3><div class="fala" id="aFala"></div></div>
@@ -132,6 +144,7 @@ body.proj #cortina.vis{display:flex}
     <div class="aviso">Troque programa, perfil e tela pela lateral. Para digitar ou clicar dentro do app, use o mouse na 2ª tela. <b>⏹ Encerrar projeção</b> volta para uma tela só.</div>
   </div>
 </section>
+<div id="capa" class="vis"><img class="ie" src="logo_iema.png" alt="IEMA"><img class="lg" id="capaLogo" src="Logo_IEMA_Organiza.png" alt=""><div class="gp" id="capaTxt"></div><div class="fx"></div></div>
 <div id="cronoP"></div>
 <div id="aviso"></div>
 <script>
@@ -146,6 +159,8 @@ const DISP = {
   tablet:    {tipo:'tab', w:1280, h:800, src:'ecofood/index.html#tablet', rot:'EcoFood – tablet de avaliação'},
   mural:     {tipo:'mon', w:1366, h:768, src:'ecofood/index.html#mural', rot:'EcoFood – mural do ranking'},
 };
+const LOGO = { organiza: 'Logo_IEMA_Organiza.png', stocktech: 'Logo_StockTech.png', ecofood: 'Logo_EcoFood.png' };
+const GRUPO = { organiza: ['Grupo 1', 'Organização da Rotina Escolar'], stocktech: ['Grupo 2', 'Controle do Estoque de Alimentos'], ecofood: ['Grupo 3', 'Desperdício Zero'] };
 const NOME = { organiza: 'IEMA Organiza', stocktech: 'StockTech', ecofood: 'EcoFood' };
 const COR = { organiza: '#6c5ce7', stocktech: '#ff8a00', ecofood: '#2f7a49' };
 const PERFIL = { aluno: '🎓 Aluno', professor: '👩‍🏫 Professor', coord: '🗂️ Coordenação', cozinha: '👩‍🍳 Cozinha', gestao: '📊 Gestão', pdv: '💳 PDV do refeitório' };
@@ -238,6 +253,7 @@ function executar(c) {                       // comandos vindos do painel (mesma
   if (c.cmd === 'espelho') { const w = frameDe(chave()); w && w.postMessage({ sim: 'espelho', on: true }, '*'); return; }
   if (c.cmd === 'recarregar') { const el = criados[chave()]; if (el) el.querySelector('iframe').src = fonte(chave()); }
   if (!document.body.classList.contains('apresentando')) mostrarPalco();
+  if (PROJ) capaPlateia();
   try { localStorage.setItem('simulador_app', app); } catch (e) {}
   avisaControle();
 }
@@ -258,7 +274,7 @@ document.addEventListener('fullscreenchange', () => ajustar(false));
 /* ================= CONTROLE: painel lateral ================= */
 let EST = { app, modo, info: null };
 function cmd(c) { if (projecao && !projecao.closed) projecao.postMessage({ simCmd: c }, '*'); else executar(c); }
-function receber(st) { EST = st; desenharLado(); desenharApres(); }
+function receber(st) { EST = st; desenharLado(); desenharApres(); document.getElementById('pvCapaLogo').src = LOGO[EST.app]; }
 function desenharLado() {
   const { app: a, modo: m, info: i } = EST, emDisp = a === 'ecofood' && m !== 'sistema';
   document.documentElement.style.setProperty('--cor', COR[a]);
@@ -354,6 +370,7 @@ function cronoMostra() {
   const tot = total(), rest = tot - cT, c = document.getElementById('crono');
   c.innerHTML = seg7(mmss(Math.max(rest, 0))); c.className = 'crono ' + corDe(rest, tot);
   document.getElementById('decor').textContent = hhmmss(cT);
+  document.body.classList.toggle('capa', !(cI !== null || cT > 0)); document.getElementById('pvCapaLogo').src = LOGO[EST.app];
   if (projecao && !projecao.closed) projecao.postMessage({ simTempo: { rest, tot, dec: cT, vis: cI !== null || cT > 0 } }, '*');
 }
 function cronoIni() { if (!cI) { cI = setInterval(() => { cT++; cronoMostra(); }, 1000); cronoMostra(); } }
@@ -370,9 +387,11 @@ function seg7(txt) { let x = 0, g = '';
     for (const k of 'abcdefg') g += `<polygon transform="translate(${x},0) skewX(-6)" points="${POL[k]}" ${on.includes(k) ? '' : 'fill-opacity=".13"'}/>`;
     x += 46; }
   return `<svg viewBox="-4 -2 ${x + 4} 74" fill="currentColor">${g}</svg>`; }
-function tempoPlateia(t) { const el = document.getElementById('cronoP');
+function capaPlateia() { document.getElementById('capaLogo').src = LOGO[app]; const g = GRUPO[app];
+  document.getElementById('capaTxt').innerHTML = `<b>${g[1]}</b>TCC IEMA 2026 • ${g[0]} • Design Thinking`; document.documentElement.style.setProperty('--cor', COR[app]); }
+function tempoPlateia(t) { document.getElementById('capa').classList.toggle('vis', !t.vis); const el = document.getElementById('cronoP');
   const dec = t.dec >= 3600 ? hhmmss(t.dec) : mmss(t.dec);
-  el.innerHTML = `<div class="rel ${corDe(t.rest, t.tot)}"><small>Restante</small>${seg7(mmss(Math.max(t.rest, 0)))}</div><div class="rel dec"><small>Decorrido</small>${seg7(dec)}</div>`;
+  el.innerHTML = `<div class="rel ${corDe(t.rest, t.tot)}"><small>Tempo</small>${seg7(dec)}</div>`;
   el.className = t.vis ? 'vis' : ''; }
 
 /* versão e aviso de atualização (só com internet) */
@@ -387,7 +406,7 @@ if (!PROJ && navigator.onLine && !BUILD.startsWith('__')) {
 }
 
 /* início */
-if (PROJ) { document.getElementById('palco').addEventListener('dblclick', e => { if (e.target.id === 'palco') entrarTelaCheia(); }); mostrarPalco(); try { window.opener && window.opener.postMessage({ simPronta: true }, '*'); } catch (e) {} }
+if (PROJ) { capaPlateia(); document.getElementById('palco').addEventListener('dblclick', e => { if (e.target.id === 'palco') entrarTelaCheia(); }); mostrarPalco(); try { window.opener && window.opener.postMessage({ simPronta: true }, '*'); } catch (e) {} }
 else { try { const s = localStorage.getItem('simulador_app'); if (DISP[s]) app = s; } catch (e) {} EST.app = app; mostrarPalco(); desenharLado(); cronoMostra(); }
 </script>
 </body>
