@@ -357,6 +357,34 @@ input:focus,select:focus,textarea:focus{border-color:#2f7a49}
 @media (max-width:700px){.cart4{grid-template-columns:1fr}}
 @media print{.top,.nav,.noprint,#toasts,.pdvbar{display:none!important}.main{margin:0!important;padding:0!important;overflow:visible}body,#app,.main{background:#fff!important;height:auto}.cart4{grid-template-columns:repeat(2,85.6mm);gap:8mm}.cart{width:85.6mm;padding:3mm 4mm;border-width:1.5px}.cartfoto{width:22mm;height:28mm}.cartnome{font-size:12px}.cartnum{font-size:18px}.carttopo img{height:7mm}}
 
+.encb{border:1px solid #f0c9b6;background:#fff6f1;color:#b4502a;border-radius:999px;padding:7px 14px;font:700 13px 'DM Sans',sans-serif;cursor:pointer;white-space:nowrap}
+.encb:hover{background:#fde4d8}.encb.escuro{background:rgba(255,255,255,.12);color:#ffd9c7;border-color:rgba(255,255,255,.3)}
+@media (max-width:700px){.top .encb span{display:none}.top .encb{padding:7px 10px}}
+.esptag{display:inline-block;background:#f2c14e;color:#3a2a00;border-radius:999px;padding:2px 12px;font-size:15px;font-weight:800;margin-left:8px}
+.pdesc{font-size:14px;opacity:.8;margin-top:6px;line-height:1.35}
+.avbox{max-width:1120px;width:100%;margin:0 auto;background:#fffdf8;border:1px solid #efe5d1;border-radius:28px;padding:20px 24px;box-shadow:0 18px 40px rgba(60,45,20,.10);text-align:left}
+.avtopo{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding-bottom:14px;border-bottom:1px solid #f0e7d5}
+.avgrid{display:grid;grid-template-columns:5fr 6fr;gap:26px;margin-top:16px;align-items:center}
+.avprato{text-align:center;background:radial-gradient(circle at 50% 45%,#fff 0,#f4eddf 70%);border-radius:24px;padding:18px}
+.avprato img{width:100%;max-height:250px;object-fit:contain;filter:drop-shadow(0 12px 16px rgba(0,0,0,.22))}
+.avtag{display:inline-block;background:#2f7a49;color:#fff;font-weight:800;font-size:12px;letter-spacing:1.5px;border-radius:999px;padding:4px 12px;margin-bottom:6px}
+.avpn{font-family:Fraunces,Georgia,serif;font-weight:800;font-size:24px;color:#23412f;margin-top:6px}
+.avq{font-weight:800;font-size:19px;color:#23412f;display:flex;align-items:center;gap:10px;margin:4px 0 10px}
+.avn{width:28px;height:28px;border-radius:50%;background:#2f7a49;color:#fff;font-size:14px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.avnotas{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+.avnt{position:relative;background:var(--c);border:3px solid transparent;border-radius:20px;padding:12px 6px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;font-family:inherit;color:#2a2a22;transition:transform .12s}
+.avnt:hover{transform:translateY(-3px)}.avnt b{font-size:15px}.avemo{font-size:46px;line-height:1.1}
+.avnt.on{border-color:#2f7a49;transform:scale(1.06);box-shadow:0 10px 22px rgba(47,122,73,.25)}
+.avnt i{position:absolute;top:-10px;right:-8px;background:#2f7a49;color:#fff;font-style:normal;font-weight:800;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px}
+.avsn{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+.avsn button{border:2px solid #e2d5bb;background:#fff;border-radius:16px;padding:12px;font:800 17px 'DM Sans',sans-serif;color:#5b4d36;cursor:pointer}
+.avsn button.on{background:#2f7a49;border-color:#2f7a49;color:#fff}.avsn button.on.nao{background:#c8643b;border-color:#c8643b}
+.avenviar{width:100%;border:0;border-radius:18px;padding:18px;font:800 21px 'DM Sans',sans-serif;background:#2f7a49;color:#fff;cursor:pointer;box-shadow:0 10px 24px rgba(47,122,73,.3)}
+.avenviar.off{background:#a9c3ad;box-shadow:none}
+.avcanc{display:block;margin:10px auto 0;border:0;background:none;color:#7a6a52;font:600 14px 'DM Sans',sans-serif;text-decoration:underline;cursor:pointer}
+.tablet{overflow-y:auto}
+@media (max-width:800px){.avgrid{grid-template-columns:1fr}.avnotas{grid-template-columns:1fr 1fr}.avbox{padding:14px;border-radius:20px}.avprato img{max-height:170px}}
+
 /* ===== FIM DO TEMA ===== */
 </style>
 </head>
@@ -462,9 +490,9 @@ function seed() {
   return {users, alunos, cardapio:card, registros, avaliacoes, pesagens, repeticao:{}, provisorias:[], config:{inicioCiclo:ini}, sessao:null};
 }
 function semanaCiclo(card, dt, inicio) { const dias = Math.floor((parse(dt) - parse(inicio)) / 86400000); const w = ((Math.floor(dias / 7) % 4) + 4) % 4 + 1; return w; }
-function cardDia(card, dt, inicio) { const wd = parse(dt).getDay(); const ini = inicio || (DB && DB.config.inicioCiclo) || addD(-14); const w = semanaCiclo(card, dt, ini); return card[w + '-' + (wd >= 1 && wd <= 5 ? wd : 1)] || {}; }
+function cardDia(card, dt, inicio) { const esp = DB && DB.especiais && DB.especiais[dt]; if (esp) return esp; const wd = parse(dt).getDay(); const ini = inicio || (DB && DB.config.inicioCiclo) || addD(-14); const w = semanaCiclo(card, dt, ini); return card[w + '-' + (wd >= 1 && wd <= 5 ? wd : 1)] || {}; }
 let DB = null;
-function load() { try { DB = JSON.parse(localStorage.getItem(KEY)); } catch(e) { DB = null; } if (!DB || !DB.users) { DB = seed(); save(); } if (!DB.fotos) DB.fotos = {};
+function load() { try { DB = JSON.parse(localStorage.getItem(KEY)); } catch(e) { DB = null; } if (!DB || !DB.users) { DB = seed(); save(); } if (!DB.fotos) DB.fotos = {}; if (!DB.especiais) DB.especiais = {}; if (!DB.pratos) DB.pratos = []; if (!DB.descr) DB.descr = {};
   if (DB.alunos.some(a => a.id[0] !== 'g')) { const ids = new Set(DB.alunos.filter(a => a.id[0] !== 'g').map(a => a.id)); DB.alunos = DB.alunos.filter(a => !ids.has(a.id)); DB.registros = DB.registros.filter(x => !ids.has(x.alunoId)); DB.avaliacoes = DB.avaliacoes.filter(x => !ids.has(x.alunoId)); DB.provisorias = DB.provisorias.filter(x => !ids.has(x.alunoId)); save(); }
   const faltam = GRUPO3.filter(g => !DB.alunos.some(a => a.id === g.id)); if (faltam.length) { DB.alunos.unshift(...faltam.map(a => ({...a}))); save(); }
   GRUPO3.forEach(g => { const a = DB.alunos.find(x => x.id === g.id); if (a) { a.img = g.img; if (!DB.config.turmasOk) a.turma = g.turma; } }); if (!DB.config.turmasOk) { DB.config.turmasOk = true; save(); } }
@@ -479,7 +507,13 @@ const PADRAO = new Set(["Arroz, feijão e frango assado", "Macarronada com carne
 const fotoP = nome => (DB.fotos || {})[nome] || (PADRAO.has(nome) ? 'pratos/' + slugP(nome) + '.png' : null);
 const fotoPropria = nome => !!(DB.fotos || {})[nome];
 const thumb = (nome, w, h) => fotoP(nome) ? `<img src="${fotoP(nome)}" style="width:${w}px;height:${h}px;object-fit:contain;border-radius:8px;flex:none">` : `<div style="width:${w}px;height:${h}px;border-radius:8px;background:#eef2f5;display:flex;align-items:center;justify-content:center;color:#a5adb4;font-size:${Math.round(h/2.2)}px;flex:none">🍽</div>`;
-function pratosTodos() { const s = new Set(); Object.values(DB.cardapio).forEach(c => REF.forEach(r => c[r] && s.add(c[r]))); return [...s].sort((a,b) => a.localeCompare(b)); }
+function pratosTodos() { const s = new Set(); [...Object.values(DB.cardapio), ...Object.values(DB.especiais || {})].forEach(c => REF.forEach(r => c[r] && s.add(c[r]))); (DB.pratos || []).forEach(p => s.add(p.nome)); return [...s].sort((a,b) => a.localeCompare(b)); }
+const descP = n => (DB.descr || {})[n] || ((DB.pratos || []).find(p => p.nome === n) || {}).desc || '';
+function lerFotoArquivo(cb) { const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*';
+  inp.onchange = () => { const f = inp.files[0]; if (!f) return; const rd = new FileReader(); rd.onload = () => { const img = new Image(); img.onload = () => {
+    const W = 640, H = 480, cv = document.createElement('canvas'); cv.width = W; cv.height = H; const k = Math.min(W / img.width, H / img.height); const w = img.width * k, h = img.height * k;
+    const g = cv.getContext('2d'); g.drawImage(img, (W - w) / 2, (H - h) / 2, w, h); cb(cv.toDataURL('image/png').length < 900000 ? cv.toDataURL('image/png') : cv.toDataURL('image/webp', .85)); }; img.src = rd.result; }; rd.readAsDataURL(f); };
+  inp.click(); }
 function escolherFoto(i) { const nome = pratosTodos()[i]; const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*';
   inp.onchange = () => { const f = inp.files[0]; if (!f) return; const rd = new FileReader(); rd.onload = () => { const img = new Image(); img.onload = () => {
     const W = 640, H = 480, cv = document.createElement('canvas'); cv.width = W; cv.height = H; const k = Math.max(W / img.width, H / img.height); const w = img.width * k, h = img.height * k;
@@ -502,6 +536,11 @@ const iniciais = n => n.split(' ').filter(Boolean).slice(0,2).map(x => x[0]).joi
 function foto(a, sz) { sz = sz || 56; if (a.img) return `<div class="foto" style="width:${sz}px;height:${sz}px;background:#e9ecef"><img src="${a.img}" alt="" style="width:100%;height:100%;object-fit:cover;object-position:center 22%"></div>`; return `<div class="foto" style="width:${sz}px;height:${sz}px;background:${a.cor}"><svg viewBox="0 0 40 40" width="${sz}" height="${sz}"><circle cx="20" cy="15" r="7.5" fill="rgba(255,255,255,.85)"/><path d="M6 40a14 14 0 0 1 28 0z" fill="rgba(255,255,255,.85)"/></svg><span>${esc(iniciais(a.nome))}</span></div>`; }
 function abrirJanela(modo) { window.open(location.href.split('#')[0] + '#' + modo, 'ecofood_' + modo); }
 function telaCheia() { const d = document.documentElement; if (!document.fullscreenElement) d.requestFullscreen && d.requestFullscreen(); else document.exitFullscreen(); }
+function encerrarSimulador() { confirmar('Encerrar o simulador?', 'Você sai do usuário e volta para a tela inicial.', () => {
+  if (location.hash && window.opener) { try { window.close(); } catch(e) {} }
+  DB.sessao = null; save(); ultima = null; pilha = []; tab = {etapa:'cart'}; document.body.classList.remove('modo');
+  if (location.hash) history.replaceState(null, '', location.pathname + location.search); renderLogin(); }, 'Encerrar'); }
+const btnEncerrar = (cl = '') => `<button class="encb ${cl}" onclick="encerrarSimulador()" title="Encerrar o simulador e voltar para a tela inicial">⏻ <span>Encerrar simulador</span></button>`;
 const btnCheia = () => `<button class="tcb" onclick="telaCheia()" title="Tela cheia (F11)">${document.fullscreenElement ? '✕ Sair da tela cheia' : '⛶ Tela cheia'}</button>`;
 document.addEventListener('fullscreenchange', () => document.querySelectorAll('.tcb').forEach(b => b.textContent = document.fullscreenElement ? '✕ Sair da tela cheia' : '⛶ Tela cheia'));
 const NOTAS = {1:['😠','Ruim','#fde2e4'],2:['😐','Razoável','#fff3cd'],3:['🙂','Bom','#e5f0e1'],4:['🤩','Ótimo','#dcf3e4']};
@@ -538,10 +577,10 @@ function render() {
   if (modo === 'mural') return renderMuralCheio();
   if (!DB.sessao || !me()) return renderLogin();
   const u = me(); const nav = NAVS[u.perfil];
-  if (!TELAS[tela] || !nav.some(n => n[0] === tela) && !['aluno','novoAluno','editCard'].includes(tela)) tela = telaInicial(u.perfil);
+  if (!TELAS[tela] || !nav.some(n => n[0] === tela) && !['aluno','novoAluno','editCard','novoCard','prato'].includes(tela)) tela = telaInicial(u.perfil);
   $('#app').innerHTML = `<div class="top"><div class="brand">${ICON}<div><b><span style="color:var(--b)">Eco</span><span style="color:var(--r)">Food</span></b><small>PROJETO DESPERDÍCIO ZERO • IEMA</small></div></div>
    <div class="row" style="margin-left:auto;gap:10px"><span class="sub" style="text-align:right">${esc(u.nome)}<br><b>${DIASF[hoje().getDay()]}, ${br(iso(hoje()))}</b></span>
-   ${btnCheia()}<div class="av" title="Trocar usuário" onclick="menuUser()">${esc(iniciais(u.nome))}</div></div></div>
+   ${btnCheia()}${btnEncerrar()}<div class="av" title="Trocar usuário" onclick="menuUser()">${esc(iniciais(u.nome))}</div></div></div>
    <div class="main">${TELAS[tela](u)}</div>
    <div class="nav">${navHTML(u, nav)}</div>`;
   const cod = $('#codPdv'); if (cod) cod.focus();
@@ -704,7 +743,26 @@ TELAS.cardapio = u => { const w = semSel || semanaCiclo(DB.cardapio, iso(hoje())
    ${[1,2,3,4,5].map(d => { const c = DB.cardapio[w + '-' + d]; const hj = w === wHoje && d === wdHoje;
      return `<div class="li" style="${hj?'background:#e5f0e1;border-radius:8px':''}"><b style="width:110px">${DIASF[d]}${hj?' <span class="sel s-b">hoje</span>':''}</b>${REF.map(r => `<span style="flex:1;font-size:13.5px;display:flex;gap:8px;align-items:center">${thumb(c[r],46,34)}${esc(c[r])}</span>`).join('')}<span style="flex:1;font-size:12.5px;color:#8a5a00">${esc(c.restricao||'—')}</span>
       <button class="btn sm out" style="width:60px" onclick="ir('editCard','${w}-${d}')">Editar</button></div>`; }).join('')}</div>
-   <div class="note">O cardápio aparece no totem do refeitório e fica registrado junto de cada refeição para os relatórios.</div>`; };
+   <div class="row" style="margin:20px 0 10px;flex-wrap:wrap"><div class="sec" style="margin:0">Cardápios especiais</div><span class="sub" style="margin-left:10px">sábado letivo, feriado ou cardápio provisório de um dia</span><button class="btn sm" style="margin-left:auto" onclick="ir('novoCard')">${ic('plus',16)} Cadastrar novo cardápio</button></div>
+   <div class="card" style="padding:6px 14px">${Object.keys(DB.especiais).sort().map(dt => { const c = DB.especiais[dt]; const pass = dt < iso(hoje());
+     return `<div class="li" style="${dt===iso(hoje())?'background:#e5f0e1;border-radius:8px':''}${pass?';opacity:.55':''}"><div style="width:150px"><b>${DIASF[parse(dt).getDay()]}, ${br(dt)}</b>${dt===iso(hoje())?' <span class="sel s-b">hoje</span>':''}<div class="sub">⭐ ${esc(c.motivo||'Cardápio especial')}</div></div>${REF.map(r => `<span style="flex:1;font-size:13.5px;display:flex;gap:8px;align-items:center">${c[r] ? thumb(c[r],46,34) + esc(c[r]) : '<span class="sub">sem ' + r.toLowerCase() + '</span>'}</span>`).join('')}
+      <span style="width:150px;display:flex;gap:6px;justify-content:flex-end"><button class="btn sm out" onclick="ir('novoCard','${dt}')">Editar</button><button class="del" onclick="excluirEsp('${dt}')">Excluir</button></span></div>`; }).join('') || '<div class="empty">Nenhum cardápio especial. Clique em “Cadastrar novo cardápio” para um sábado letivo ou um dia com cardápio diferente.</div>'}</div>
+   <div class="note">O cardápio aparece no totem do refeitório e fica registrado junto de cada refeição para os relatórios. No dia de um cardápio especial, ele substitui o da semana.</div>`; };
+TELAS.novoCard = u => { const dt0 = param; const c = dt0 ? DB.especiais[dt0] : {}; const sab = (() => { const d = hoje(); const x = new Date(d); x.setDate(d.getDate() + ((6 - d.getDay() + 7) % 7 || 7)); return iso(x); })();
+  return `${voltarBtn(ic('list') + (dt0 ? ' Editar cardápio especial' : ' Cadastrar novo cardápio'))}<div class="card" style="max-width:680px">
+   <div class="row" style="align-items:flex-end;flex-wrap:wrap"><div style="flex:1;min-width:180px"><label class="lbl">Data</label><input id="ed" type="date" value="${dt0 || sab}"></div>
+   <div style="flex:2;min-width:220px"><label class="lbl">Motivo</label><input id="em" value="${esc(c.motivo || '')}" placeholder="ex.: Sábado letivo, cardápio provisório…" list="motivos"></div></div>
+   <datalist id="motivos"><option value="Sábado letivo"><option value="Cardápio provisório"><option value="Evento na escola"><option value="Dia especial"></datalist>
+   <datalist id="lpratos">${pratosTodos().map(n => `<option value="${esc(n)}">`).join('')}</datalist>
+   ${REF.map((r,i) => `<label class="lbl">${r} <span class="sub" style="font-weight:400">(deixe em branco se não tiver)</span></label><input id="er${i}" value="${esc(c[r] || '')}" list="lpratos" placeholder="escolha da lista ou digite um prato novo">`).join('')}
+   <label class="lbl">Opção para restrição (opcional)</label><input id="err" value="${esc(c.restricao || '')}" placeholder="ex.: sem lactose: suco no lugar do leite">
+   <div class="note" style="text-align:left">Prato novo? Depois cadastre a foto e a descrição em <b>Fotos dos pratos</b>.</div>
+   <div class="row"><button class="btn out" style="flex:1" onclick="voltar()">Cancelar</button><button class="btn" style="flex:1" onclick="salvarEsp('${dt0||''}')">Salvar cardápio</button></div></div>`; };
+function salvarEsp(ant) { const dt = $('#ed').value; if (!dt) return toast('Escolha a data.'); const c = {motivo:$('#em').value.trim() || 'Cardápio especial', restricao:$('#err').value.trim()};
+  REF.forEach((r,i) => { const v = $('#er' + i).value.trim(); if (v) c[r] = v; }); if (!REF.some(r => c[r])) return toast('Preencha pelo menos uma refeição.');
+  if (ant && ant !== dt) delete DB.especiais[ant]; if (!ant && DB.especiais[dt]) return confirmar('Já existe cardápio nesse dia', 'Deseja substituir o cardápio especial de ' + br(dt) + '?', () => { DB.especiais[dt] = c; save(); toast('✔ Cardápio salvo!'); voltar(); }, 'Substituir');
+  DB.especiais[dt] = c; save(); toast('✔ Cardápio especial de ' + br(dt) + ' salvo!'); voltar(); }
+function excluirEsp(dt) { confirmar('Excluir cardápio especial?', 'O dia ' + br(dt) + ' volta a usar o cardápio da semana.', () => { delete DB.especiais[dt]; save(); toast('Cardápio excluído.'); render(); }, 'Excluir'); }
 TELAS.editCard = u => { const c = DB.cardapio[param]; const [w,d] = param.split('-');
   return `${voltarBtn(ic('list') + ` Editar cardápio — semana ${w}, ${DIASF[d]}`)}<div class="card" style="max-width:640px">${REF.map((r,i) => `<label class="lbl">${r}</label><input id="cr${i}" value="${esc(c[r])}">`).join('')}
    <label class="lbl">Opção para restrição (opcional)</label><input id="crr" value="${esc(c.restricao||'')}" placeholder="ex.: sem lactose: suco no lugar do leite">
@@ -712,11 +770,31 @@ TELAS.editCard = u => { const c = DB.cardapio[param]; const [w,d] = param.split(
 function voltar() { if (pilha.length) { const [t,p] = pilha.pop(); tela = t; param = p; render(); } }
 function salvarCard() { const c = DB.cardapio[param]; REF.forEach((r,i) => c[r] = $('#cr' + i).value.trim() || c[r]); c.restricao = $('#crr').value.trim(); save(); toast('✔ Cardápio salvo!'); voltar(); }
 
+let _novaFoto = null;
+TELAS.prato = u => { const nome = param; const ex = nome ? (DB.pratos.find(p => p.nome === nome) || null) : null; const proprio = !nome || !!ex; const src = _novaFoto || (nome && fotoP(nome));
+  return `${voltarBtn(ic('star') + (nome ? ' ' + esc(nome) : ' Novo prato'))}<div class="pdv" style="max-width:980px"><div class="card">
+   <label class="lbl" style="margin-top:0">Nome do prato</label><input id="pn" value="${esc(nome || '')}" ${proprio ? '' : 'readonly style="opacity:.7"'} placeholder="ex.: Arroz, feijão e carne assada">
+   <label class="lbl">Refeição</label><select id="pt">${['Almoço','Lanche'].map(t => `<option ${((ex && ex.tipo) || 'Almoço') === t ? 'selected' : ''}>${t}</option>`).join('')}</select>
+   <label class="lbl">Descrição</label><textarea id="pd" placeholder="ex.: arroz, feijão carioca, carne assada e salada de tomate">${esc(nome ? descP(nome) : '')}</textarea>
+   <div class="sub">A descrição aparece no totem, no tablet de avaliação e no cardápio.</div>
+   <div class="row" style="margin-top:12px"><button class="btn out" style="flex:1" onclick="_novaFoto=null;voltar()">Cancelar</button><button class="btn" style="flex:1" onclick="salvarPrato(param||'')">Salvar prato</button></div>
+   ${nome && ex ? `<button class="btn out" style="color:var(--r);border-color:var(--r)" onclick="excluirPrato(param)">Excluir prato</button>` : ''}</div>
+   <div class="card" style="text-align:center"><div class="ttl" style="text-align:left">Foto</div>
+   ${src ? `<img src="${src}" style="width:100%;aspect-ratio:4/3;object-fit:contain;border-radius:12px;margin:10px 0">` : `<div style="width:100%;aspect-ratio:4/3;border-radius:12px;background:#f1eadb;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#a3937a;margin:10px 0"><div style="font-size:54px">📷</div>Sem foto</div>`}
+   <button class="btn" onclick="lerFotoArquivo(url => { _novaFoto = url; render(); })">${src ? 'Trocar foto' : 'Escolher foto'}</button><div class="sub" style="margin-top:6px">Dica: foto de cima, com o prato inteiro aparecendo.</div></div></div>`; };
+function salvarPrato(ant) { const nome = $('#pn').value.trim(), tipo = $('#pt').value, desc = $('#pd').value.trim(); if (!nome) return toast('Digite o nome do prato.');
+  if (!ant && (DB.pratos.some(p => p.nome === nome) || PADRAO.has(nome))) return toast('Já existe um prato com esse nome. Use “✎ Descrição” nele.');
+  const ex = DB.pratos.find(p => p.nome === (ant || nome)); if (ex) { ex.nome = nome; ex.tipo = tipo; ex.desc = desc; } else if (!ant) DB.pratos.push({nome, tipo, desc}); else DB.descr[nome] = desc;
+  if (ant && ant !== nome) { if (DB.fotos[ant]) { DB.fotos[nome] = DB.fotos[ant]; delete DB.fotos[ant]; } }
+  const antF = DB.fotos[nome]; if (_novaFoto) DB.fotos[nome] = _novaFoto;
+  try { localStorage.setItem(KEY, JSON.stringify(DB)); } catch(e) { if (antF) DB.fotos[nome] = antF; else delete DB.fotos[nome]; _novaFoto = null; return toast('Memória cheia: use uma foto menor.'); }
+  _novaFoto = null; toast('✔ Prato salvo: ' + esc(nome)); voltar(); }
+function excluirPrato(nome) { confirmar('Excluir prato?', 'O prato sai da lista de fotos. Os cardápios que já usam o nome continuam iguais.', () => { DB.pratos = DB.pratos.filter(p => p.nome !== nome); delete DB.fotos[nome]; delete DB.descr[nome]; save(); toast('Prato excluído.'); _novaFoto = null; voltar(); }, 'Excluir'); }
 TELAS.fotos = u => { const l = pratosTodos(); const com = l.filter(n => fotoPropria(n)).length;
-  return `<div class="row" style="margin-bottom:6px"><h2 style="margin:0">${ic('star')} Fotos dos pratos</h2><span class="sel s-b" style="margin-left:auto">${l.length} pratos com foto</span></div>
+  return `<div class="row" style="margin-bottom:6px;flex-wrap:wrap"><h2 style="margin:0">${ic('star')} Fotos dos pratos</h2><span class="sel s-b" style="margin-left:auto">${l.length} pratos</span><button class="btn sm" onclick="_novaFoto=null;ir('prato')">${ic('plus',16)} Novo prato (foto e descrição)</button></div>
    <div class="sub" style="margin-bottom:12px">Os pratos já vêm com foto na <b>bandeja de inox</b> (almoço) e com a <b>caneca de inox</b> (lanches). Para usar uma foto tirada no refeitório, clique em “Trocar foto”. A foto aparece no <b>totem</b>, no <b>tablet de avaliação</b>, no <b>mural</b> e no cardápio.</div>
    <div class="fotos">${l.map((n,i) => `<div class="card" style="margin:0;padding:10px">${fotoP(n) ? `<img src="${fotoP(n)}" style="width:100%;aspect-ratio:4/3;object-fit:contain;border-radius:10px">` : `<div style="width:100%;aspect-ratio:4/3;border-radius:10px;background:#eef2f5;display:flex;align-items:center;justify-content:center;font-size:44px;color:#a5adb4">📷</div>`}
-     <div class="ttl" style="margin:8px 0 6px;font-size:13.5px;min-height:36px">${esc(n)}</div><div class="row"><button class="btn sm" style="flex:1" onclick="escolherFoto(${i})">${fotoP(n)?'Trocar foto':'Escolher foto'}</button>${fotoPropria(n)?`<button class="del" onclick="removerFoto(${i})">Voltar à padrão</button>`:''}</div></div>`).join('')}</div>`; };
+     <div class="ttl" style="margin:8px 0 2px;font-size:13.5px">${esc(n)}</div><div class="sub" style="min-height:34px;margin-bottom:6px">${descP(n) ? esc(descP(n)) : '<i>sem descrição</i>'}</div><div class="row" style="flex-wrap:wrap;gap:6px"><button class="btn sm" style="flex:1" onclick="escolherFoto(${i})">${fotoP(n)?'Trocar foto':'Escolher foto'}</button><button class="btn sm out" style="flex:1" onclick="_novaFoto=null;ir('prato',pratosTodos()[${i}])">✎ Descrição</button>${fotoPropria(n)?`<button class="del" onclick="removerFoto(${i})">Voltar à padrão</button>`:''}</div></div>`).join('')}</div>`; };
 
 // ====================== ALUNOS ======================
 TELAS.alunos = u => { const q = (param || '').toLowerCase(); const l = DB.alunos.filter(a => !q || a.nome.toLowerCase().includes(q) || a.turma.includes(q) || (q === 'restrição' && (a.restricao || a.sabatista)));
@@ -781,7 +859,7 @@ function muralHTML(cheio) { const pr = estatPratos(30); const top = pr.slice(0,3
    <div class="card" style="background:#fff8e1;border:1px solid #f3dd9b;max-width:900px;margin:14px auto 0"><b style="color:#8a5a00">Vamos melhorar:</b> ${piores.map(x => `${esc(x.prato)} (${x.p}%)`).join(' • ')} <span class="sub">— a cozinha já está testando novas receitas.</span></div>
    <div style="text-align:center;margin-top:12px"><span class="sel s-b" style="font-size:${cheio?16:13}px;padding:7px 16px">💡 Sua opinião ajuda a melhorar a alimentação! Avalie no tablet.</span></div>`; }
 TELAS.mural = u => `<div class="row" style="margin-bottom:12px"><h2 style="margin:0">${ic('trophy')} Mural — ranking mensal</h2><button class="btn sm" style="margin-left:auto" onclick="abrirJanela('mural')">${ic('tv',16)} Abrir em tela cheia</button></div><div class="card">${muralHTML(false)}</div>`;
-function renderMuralCheio() { document.body.classList.add('modo'); $('#app').innerHTML = `<div class="tv"><div class="row" style="justify-content:space-between;margin-bottom:10px"><img src="logo_iema.png" style="height:56px"><div class="row">${ICON.replace('width="34" height="34"','width="50" height="50"')}<b style="font-size:30px"><span style="color:var(--b)">Eco</span><span style="color:var(--r)">Food</span></b></div>${btnCheia()}</div>${muralHTML(true)}</div>`; }
+function renderMuralCheio() { document.body.classList.add('modo'); $('#app').innerHTML = `<div class="tv"><div class="row" style="justify-content:space-between;margin-bottom:10px"><img src="logo_iema.png" style="height:56px"><div class="row">${ICON.replace('width="34" height="34"','width="50" height="50"')}<b style="font-size:30px"><span style="color:var(--b)">Eco</span><span style="color:var(--r)">Food</span></b></div><div class="row" style="gap:6px">${btnCheia()}${btnEncerrar()}</div></div>${muralHTML(true)}</div>`; }
 
 // ====================== TOTEM ======================
 function renderTotem() {
@@ -789,9 +867,9 @@ function renderTotem() {
   const w = semanaCiclo(DB.cardapio, iso(hoje()), DB.config.inicioCiclo); const wd = hoje().getDay();
   const em = {'1º lanche':'🥐☕','Almoço':'🍛🥗','2º lanche':'🥤🍪'};
   $('#app').innerHTML = `<div class="totem"><div class="row" style="align-items:center"><div style="background:#fff;border-radius:12px;padding:6px 10px"><img src="logo_iema.png" style="height:46px;display:block"></div>
-    <div style="margin-left:16px"><div style="font-size:34px;font-weight:800;letter-spacing:.5px">CARDÁPIO DE HOJE</div><div style="font-size:18px;opacity:.85">${DIASF[wd]}, ${hoje().getDate()} de ${MESF[hoje().getMonth()]}</div></div>
-    <div style="margin-left:auto;text-align:right"><div style="font-size:44px;font-weight:800" id="relogio">${hhmm()}</div>${btnCheia().replace('class="tcb"','class="tcb escuro"')}</div></div>
-   <div class="tt3">${REF.map(x => `<div class="tc ${x===r?'agora':''}"><div class="tag">${x.toUpperCase()} • ${HORA[x]}${x===r?' • AGORA':''}</div><div class="pn">${esc(c[x] || '—')}</div>${fotoP(c[x]) ? `<div class="tfoto" style="background-image:url(${fotoP(c[x])})"></div>` : `<div style="font-size:64px;text-align:center;margin-top:auto">${em[x]}</div>`}</div>`).join('')}</div>
+    <div style="margin-left:16px"><div style="font-size:34px;font-weight:800;letter-spacing:.5px">CARDÁPIO DE HOJE</div><div style="font-size:18px;opacity:.85">${DIASF[wd]}, ${hoje().getDate()} de ${MESF[hoje().getMonth()]}${c.motivo ? ` <span class="esptag">⭐ ${esc(c.motivo)}</span>` : ''}</div></div>
+    <div style="margin-left:auto;text-align:right"><div style="font-size:44px;font-weight:800" id="relogio">${hhmm()}</div><div class="row" style="justify-content:flex-end;gap:6px;margin-top:4px">${btnCheia().replace('class="tcb"','class="tcb escuro"')}${btnEncerrar('escuro')}</div></div></div>
+   <div class="tt3">${REF.map(x => `<div class="tc ${x===r?'agora':''}"><div class="tag">${x.toUpperCase()} • ${HORA[x]}${x===r?' • AGORA':''}</div><div class="pn">${esc(c[x] || '—')}</div>${descP(c[x]) ? `<div class="pdesc">${esc(descP(c[x]))}</div>` : ''}${fotoP(c[x]) ? `<div class="tfoto" style="background-image:url(${fotoP(c[x])})"></div>` : `<div style="font-size:64px;text-align:center;margin-top:auto">${em[x]}</div>`}</div>`).join('')}</div>
    ${c.restricao ? `<div style="text-align:center;font-size:17px;margin:10px 0 0;opacity:.9">🥛 ${esc(c.restricao)}</div>` : ''}
    <div class="row" style="justify-content:center;gap:8px;margin-top:12px;flex-wrap:wrap"><b style="margin-right:6px">Semana ${w} de 4:</b>${[1,2,3,4,5].map(d => `<span class="tw ${d===wd?'on':''}">${DIASF[d].slice(0,3)} • ${esc((DB.cardapio[w+'-'+d]||{})['Almoço']||'')}</span>`).join('')}</div>
    ${lib ? `<div class="faixa">🔄 REPETIÇÃO LIBERADA! Passe sua carteirinha no PDV</div>` : ''}
@@ -808,17 +886,26 @@ function renderTablet() {
      ${DEMO() ? `<div class="row" style="justify-content:center;gap:10px;margin-top:16px;flex-wrap:wrap">${DB.alunos.filter(a => a.id[0] === 'g').map(a => `<div onclick="tabLer('${a.carteirinha}')" style="cursor:pointer;text-align:center;width:96px"><div style="display:flex;justify-content:center">${foto(a, 72)}</div><div class="sub" style="font-size:12px;margin-top:4px">${esc(a.carteirinha)} • ${esc(a.nome.split(' ')[0])}</div></div>`).join('')}</div>` : ''}
      <div class="row" style="justify-content:center;margin-top:12px"><button class="btn sm out" onclick="tabSimular()">Simular leitura</button></div>`;
   else if (tab.etapa === 'avaliar') { const a = aluno(tab.alunoId); const c = cardHoje();
-    corpo = `<div class="row" style="justify-content:center">${foto(a, 64)}<div style="text-align:left"><b style="font-size:20px">${esc(a.nome)}</b><div class="sub">Turma ${esc(a.turma)} • ${esc(tab.ref)} registrado às ${tab.hora}</div></div></div>
-     ${DEMO() ? `<div class="chips" style="justify-content:center;margin-top:12px">${REF.map(x => `<span class="chip ${x===tab.ref?'on':''}" onclick="tab.ref='${x}';tab.nota=0;tab.seg=undefined;renderTablet()">${x}</span>`).join('')}</div>` : ''}
-     <div style="font-size:30px;font-weight:800;margin-top:18px">Como estava o ${esc(tab.ref.toUpperCase())} de hoje?</div>${fotoP(c[tab.ref]) ? `<img src="${fotoP(c[tab.ref])}" style="width:260px;height:170px;object-fit:contain;border-radius:16px;margin:10px auto 4px;display:block;filter:drop-shadow(0 8px 12px rgba(0,0,0,.2))">` : ''}<div class="sub" style="font-size:17px">${esc(c[tab.ref] || '')}</div>
-     <div class="notas4">${[1,2,3,4].map(n => `<div class="nt ${tab.nota===n?'on':''}" style="background:${NOTAS[n][2]}" onclick="tab.nota=${n};renderTablet()"><div style="font-size:64px">${NOTAS[n][0]}</div><b style="font-size:20px">${NOTAS[n][1]}</b></div>`).join('')}</div>
-     <div style="font-size:20px;font-weight:700;margin-top:10px">O cardápio do totem foi seguido?</div>
-     <div class="row" style="justify-content:center;margin-top:10px"><button class="btn ${tab.seg===true?'':'out'}" style="width:150px;margin:0" onclick="tab.seg=true;renderTablet()">✔ Sim</button><button class="btn ${tab.seg===false?'red':'out'}" style="width:150px;margin:0" onclick="tab.seg=false;renderTablet()">✕ Não</button></div>
-     <button class="btn" style="max-width:420px;margin:22px auto 0;font-size:19px;padding:15px" onclick="tabEnviar()">➤ Enviar avaliação</button>
-     <div><button class="btn sm out" style="margin-top:12px" onclick="tab={etapa:'cart'};renderTablet()">Cancelar</button></div>`; }
+    const prato = c[tab.ref] || ''; const pronto = tab.nota && tab.seg !== undefined;
+    corpo = `<div class="avbox">
+     <div class="avtopo">${foto(a, 60)}<div style="text-align:left;flex:1;min-width:0"><b style="font-size:20px">${esc(a.nome)}</b><div class="sub">Turma ${esc(a.turma)} • ${esc(tab.ref)} registrado às ${tab.hora}</div></div>
+      ${DEMO() ? `<div class="chips">${REF.map(x => `<span class="chip ${x===tab.ref?'on':''}" onclick="tab.ref='${x}';tab.nota=0;tab.seg=undefined;renderTablet()">${x}</span>`).join('')}</div>` : ''}</div>
+     <div class="avgrid">
+      <div class="avprato"><div class="avtag">${esc(tab.ref.toUpperCase())} DE HOJE</div>
+       ${fotoP(prato) ? `<img src="${fotoP(prato)}" alt="">` : `<div style="font-size:90px;margin:20px 0">🍽</div>`}
+       <div class="avpn">${esc(prato || tab.ref)}</div>${descP(prato) ? `<div class="sub" style="font-size:14px;margin-top:4px">${esc(descP(prato))}</div>` : ''}</div>
+      <div class="avlado">
+       <div class="avq"><span class="avn">1</span> Como estava?</div>
+       <div class="avnotas">${[1,2,3,4].map(n => `<button class="avnt ${tab.nota===n?'on':''}" style="--c:${NOTAS[n][2]}" onclick="tab.nota=${n};renderTablet()"><span class="avemo">${NOTAS[n][0]}</span><b>${NOTAS[n][1]}</b>${tab.nota===n?'<i>✔</i>':''}</button>`).join('')}</div>
+       <div class="avq"><span class="avn">2</span> O cardápio do totem foi seguido?</div>
+       <div class="avsn"><button class="${tab.seg===true?'on':''}" onclick="tab.seg=true;renderTablet()">✔ Sim</button><button class="${tab.seg===false?'on nao':''}" onclick="tab.seg=false;renderTablet()">✕ Não</button></div>
+       <button class="avenviar ${pronto?'':'off'}" onclick="tabEnviar()">➤ Enviar avaliação</button>
+       <div class="sub" style="text-align:center;margin-top:6px">${pronto ? 'Tudo pronto! Toque em Enviar.' : 'Escolha uma carinha e responda Sim ou Não.'}</div>
+       <button class="avcanc" onclick="tab={etapa:'cart'};renderTablet()">Cancelar</button>
+      </div></div></div>`; }
   else { const m = {ok:['💚','Obrigado!','Sua opinião ajuda a melhorar o cardápio.','#dcf3e4'], ja:['🙂','Você já avaliou esta refeição.','Cada aluno avalia 1 vez por refeição, até o fim do dia.','#e5f0e1'], nao:['🍽','Só avalia quem pegou a refeição.','Passe a carteirinha no PDV antes de avaliar.','#fff3cd'], desc:['❓','Carteirinha não encontrada.','Procure a secretaria.','#fde2e4']}[tab.etapa];
     corpo = `<div style="background:${m[3]};border-radius:24px;padding:40px 20px;max-width:640px;margin:30px auto"><div style="font-size:90px">${m[0]}</div><div style="font-size:30px;font-weight:800">${m[1]}</div><div class="sub" style="font-size:18px;margin-top:8px">${m[2]}</div></div>`; setTimeout(() => { tab = {etapa:'cart'}; renderTablet(); }, 3500); }
-  $('#app').innerHTML = `<div class="tablet"><div class="row" style="justify-content:space-between"><img src="logo_iema.png" style="height:42px"><div class="row">${ICON}<b style="font-size:22px"><span style="color:var(--b)">Eco</span><span style="color:var(--r)">Food</span></b></div>${btnCheia()}</div>
+  $('#app').innerHTML = `<div class="tablet"><div class="row" style="justify-content:space-between"><img src="logo_iema.png" style="height:42px"><div class="row">${ICON}<b style="font-size:22px"><span style="color:var(--b)">Eco</span><span style="color:var(--r)">Food</span></b></div><div class="row" style="gap:6px">${btnCheia()}${btnEncerrar()}</div></div>
    <div style="text-align:center;flex:1;display:flex;flex-direction:column;justify-content:center">${corpo}</div></div>`;
   const i = $('#codTab'); if (i) i.focus();
 }
@@ -848,7 +935,7 @@ TELAS.ajustes = u => `${voltarBtn(ic('gear') + ' Ajustes')}<div class="card" sty
    <button class="btn out" style="color:var(--r);border-color:var(--r)" onclick="confirmar('Restaurar dados de exemplo?','Tudo o que foi registrado neste computador será apagado e o programa volta ao início.',()=>{localStorage.removeItem(KEY);load();renderLogin();toast('Dados de exemplo restaurados.')},'Restaurar')">Restaurar dados de exemplo</button></div>
    <div class="card" style="max-width:640px"><label class="row" style="cursor:pointer;gap:10px"><input type="checkbox" style="width:22px;height:22px;flex:none" ${DEMO()?'checked':''} onchange="DB.config.demo=this.checked;save();toast(this.checked?'Modo apresentação ligado':'Modo apresentação desligado');render()"><div><div class="ttl">Modo apresentação</div><div class="sub">Ligado: a mesma carteirinha pode passar várias vezes no PDV e avaliar no tablet sem ter pegado a refeição, para mostrar todas as telas. Desligado: regras reais (não libera duas vezes e só avalia quem pegou).</div></div></label></div>
    <div style="max-width:640px"><button class="btn out" style="color:#c8643b;border-color:#c8643b" onclick="zerarHoje()">↺ Zerar hoje (para passar as carteirinhas ao vivo)</button></div>
-   <div class="note">EcoFood • versão 1.9.1 para Windows • protótipo do TCC IEMA 2026 (Grupo 3)</div>`;
+   <div class="note">EcoFood • versão 2.0 para Windows • protótipo do TCC IEMA 2026 (Grupo 3)</div>`;
 
 // ====================== início ======================
 load(); render();
