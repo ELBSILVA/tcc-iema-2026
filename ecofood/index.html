@@ -122,11 +122,11 @@ h2 .ic{width:20px;height:20px;color:var(--b)}
 @media (min-width:900px){
  #app{max-width:none}
  .top{height:64px;padding:0 24px;position:relative;z-index:6}
- .nav{top:64px;bottom:0;left:0;right:auto;width:230px;height:auto;max-width:none;margin:0;flex-direction:column;justify-content:flex-start;border-top:0;border-right:1px solid var(--ln);padding:16px 10px;gap:4px}
+ .nav{top:64px;bottom:0;left:0;right:auto;width:250px;height:auto;max-width:none;margin:0;flex-direction:column;justify-content:flex-start;border-top:0;border-right:1px solid var(--ln);padding:16px 10px;gap:4px}
  .nav button{flex:none;flex-direction:row;justify-content:flex-start;gap:12px;height:46px;padding:0 16px;font-size:14.5px;border-radius:10px;color:#5b6570}
  .nav button.on{box-shadow:none;background:#e6f3fa}
  .nav button em{position:static;margin-left:auto}
- .main{margin-left:230px;padding:24px 32px 32px}
+ .main{margin-left:250px;padding:24px 32px 32px}
  .main>*{max-width:1100px}
  .car{height:170px}
  .kpis{grid-template-columns:repeat(4,1fr)}
@@ -286,6 +286,8 @@ input:focus,select:focus,textarea:focus{border-color:#2f7a49}
  .nav button{color:#6f6250}
  .nav button.on{background:#e5f0e1;color:#26653c}
  .nav button.on .ic{background:none;padding:0;width:22px;height:22px}
+ .nav button{text-align:left;white-space:nowrap;align-items:center;font-size:14px}
+ .nav button .ic{flex:none}
 }
 
 /* ===== FIM DO TEMA ===== */
@@ -332,9 +334,10 @@ const ic = (n, sz) => `<svg class="ic" viewBox="0 0 24 24" width="${sz||22}" hei
 const ICON = `<svg viewBox="0 0 40 40" width="34" height="34"><circle cx="20" cy="20" r="19" fill="#2f7a49"/><circle cx="19" cy="20" r="12.5" fill="none" stroke="#f6f1e6" stroke-width="2.2"/><path d="M12.5 25.5C12.5 16 18.5 11 27 11c0 9.5-5.5 14.5-14.5 14.5z" fill="#cfe6b4"/><path d="M13.8 24.4c3.6-4.4 7.2-8 11.6-11.6" stroke="#2f7a49" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="30" cy="29" r="5" fill="#c8643b" stroke="#f6f1e6" stroke-width="2"/><path d="M30 24.6c.6-1.4 1.8-2 3-2" stroke="#2f7a49" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>`;
 
 // ====================== dados de exemplo ======================
-const KEY = 'ecofood_v1';
+const KEY = 'ecofood_v2';
 const REF = ['1º lanche','Almoço','2º lanche'];
 const HORA = {'1º lanche':'09:30','Almoço':'11:30','2º lanche':'15:00'};
+const DEMO = () => !DB || !DB.config || DB.config.demo !== false; // modo apresentação: nenhuma tela bloqueia
 const refAgora = () => { const h = new Date().getHours() + new Date().getMinutes() / 60; return h < 11 ? REF[0] : h < 14 ? REF[1] : REF[2]; };
 // pratos: [nome, aceitação base 0-1]
 const PR = {
@@ -362,9 +365,7 @@ function seed() {
     {id:'u3', nome:'Gestão Escolar', login:'gestao', senha:'1234', perfil:'gestao', cargo:'Gestão'}
   ];
   const alunos = GRUPO3.map(a => ({...a})); let n = 0;
-  TURMAS.forEach((t, ti) => { for (let i = 0; i < 9; i++) { const pn = PNOMES[(n * 7 + ti) % PNOMES.length], sn = SNOMES[(n * 3 + i) % SNOMES.length], sn2 = SNOMES[(n * 11 + 5) % SNOMES.length];
-    alunos.push({id:'a' + n, nome:`${pn} ${sn}${sn2!==sn?' '+sn2:''}`, turma:t, matricula:'2026' + String(1000 + n), carteirinha:String(78900100 + n * 13), cor:CORES[n % CORES.length],
-      restricao: n % 23 === 4 ? 'Sem lactose' : n % 29 === 9 ? 'Sem glúten' : '', sabatista: n % 19 === 7}); n++; } });
+  // simulação só com os 4 alunos do Grupo 3
   // cardápio: 4 semanas x 5 dias
   const ini = addD(-((hoje().getDay() + 6) % 7) - 14);
   const card = {}; for (let w = 1; w <= 4; w++) for (let d = 1; d <= 5; d++) { const k = (w - 1) * 5 + d;
@@ -385,9 +386,9 @@ function seed() {
         const prob = Math.min(.98, baseAd * (0.55 + ac * 0.6)); if (R() > prob) return;
         const [h0, m0] = HORA[r].split(':').map(Number); const mm = m0 + Math.floor(R() * (r === 'Almoço' ? 70 : 25));
         registros.push({id:uid(), alunoId:a.id, data:dt, refeicao:r, hora:String(h0 + Math.floor(mm / 60)).padStart(2,'0') + ':' + String(mm % 60).padStart(2,'0')}); pegaram++;
-        if (R() < .32) { const v = R() + ac * .9; const nota = v > 1.25 ? 4 : v > .95 ? 3 : v > .6 ? 2 : 1; avaliacoes.push({id:uid(), alunoId:a.id, data:dt, refeicao:r, prato, nota, seguido: R() > .07}); }
+        if (R() < .9) { const v = R() + ac * .9; const nota = v > 1.25 ? 4 : v > .95 ? 3 : v > .6 ? 2 : 1; avaliacoes.push({id:uid(), alunoId:a.id, data:dt, refeicao:r, prato, nota, seguido: R() > .07}); }
       });
-      if (r === 'Almoço' && ac > .75 && R() < .7) { alunos.filter(() => R() < .08).forEach(a => registros.push({id:uid(), alunoId:a.id, data:dt, refeicao:r, hora:'12:4' + Math.floor(R() * 9), repeticao:true})); }
+      if (r === 'Almoço' && ac > .75 && R() < .7) { alunos.filter(() => R() < .35).forEach(a => registros.push({id:uid(), alunoId:a.id, data:dt, refeicao:r, hora:'12:4' + Math.floor(R() * 9), repeticao:true})); }
       pesagens.push({id:uid(), data:dt, refeicao:r, kg: Math.round(((r === 'Almoço' ? 9 : 2.6) * (1.25 - ac) + R() * 1.2) * 10) / 10});
     });
   }
@@ -397,7 +398,7 @@ function semanaCiclo(card, dt, inicio) { const dias = Math.floor((parse(dt) - pa
 function cardDia(card, dt, inicio) { const wd = parse(dt).getDay(); const ini = inicio || (DB && DB.config.inicioCiclo) || addD(-14); const w = semanaCiclo(card, dt, ini); return card[w + '-' + (wd >= 1 && wd <= 5 ? wd : 1)] || {}; }
 let DB = null;
 function load() { try { DB = JSON.parse(localStorage.getItem(KEY)); } catch(e) { DB = null; } if (!DB || !DB.users) { DB = seed(); save(); } if (!DB.fotos) DB.fotos = {};
-  // inclui o Grupo 3 em quem já tinha dados salvos (sem apagar nada)
+  if (DB.alunos.some(a => a.id[0] !== 'g')) { const ids = new Set(DB.alunos.filter(a => a.id[0] !== 'g').map(a => a.id)); DB.alunos = DB.alunos.filter(a => !ids.has(a.id)); DB.registros = DB.registros.filter(x => !ids.has(x.alunoId)); DB.avaliacoes = DB.avaliacoes.filter(x => !ids.has(x.alunoId)); DB.provisorias = DB.provisorias.filter(x => !ids.has(x.alunoId)); save(); }
   const faltam = GRUPO3.filter(g => !DB.alunos.some(a => a.id === g.id)); if (faltam.length) { DB.alunos.unshift(...faltam.map(a => ({...a}))); save(); }
   GRUPO3.forEach(g => { const a = DB.alunos.find(x => x.id === g.id); if (a) a.img = g.img; }); }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(DB)); } catch(e) {} }
@@ -452,7 +453,7 @@ function render() {
   if (modo === 'mural') return renderMuralCheio();
   if (!DB.sessao || !me()) return renderLogin();
   const u = me(); const nav = NAVS[u.perfil];
-  if (!TELAS[tela] || !nav.some(n => n[0] === tela) && !['aluno','novoAluno','editCard'].includes(tela)) tela = nav[0][0];
+  if (!TELAS[tela] || !nav.some(n => n[0] === tela) && !['aluno','novoAluno','editCard','situacoes','provisoria'].includes(tela)) tela = nav[0][0];
   $('#app').innerHTML = `<div class="top"><div class="brand">${ICON}<div><b><span style="color:var(--b)">Eco</span><span style="color:var(--r)">Food</span></b><small>PROJETO DESPERDÍCIO ZERO • IEMA</small></div></div>
    <div class="row" style="margin-left:auto;gap:10px"><span class="sub" style="text-align:right">${esc(u.nome)}<br><b>${DIASF[hoje().getDay()]}, ${br(iso(hoje()))}</b></span>
    <div class="av" title="Trocar usuário" onclick="menuUser()">${esc(iniciais(u.nome))}</div></div></div>
@@ -515,7 +516,7 @@ TELAS.pdv = u => {
      <button class="btn out" onclick="ir('provisoria')">🪪 Carteirinha provisória (F2)</button>
      <button class="btn out" onclick="ir('situacoes')">Ver as 4 situações da leitura</button>
      <div class="note" style="text-align:left">O leitor da carteirinha funciona como teclado: é só passar a carteirinha com o cursor no campo de leitura.</div>
-     <div class="note" style="text-align:left">Para testar: digite <b>001</b>, <b>002</b>, <b>003</b> ou <b>004</b> (alunos do Grupo 3) e tecle Enter.</div>
+     <div class="note" style="text-align:left">${DEMO() ? '<b style="color:var(--b)">Modo apresentação ligado</b> (Ajustes): a carteirinha pode passar quantas vezes quiser. ' : ''}Para testar: digite <b>001</b>, <b>002</b>, <b>003</b> ou <b>004</b> (alunos do Grupo 3) e tecle Enter.</div>
     </div></div>`;
 };
 function achaCart(cod) { cod = String(cod).trim(); const n = /^\d{1,3}$/.test(cod) ? cod.padStart(3, '0') : cod; return DB.alunos.find(x => x.carteirinha === cod || x.carteirinha === n || x.matricula === cod); }
@@ -526,9 +527,10 @@ function lerCarteirinha(cod) {
   if (!a) { ultima = {tipo:'nao', cod, hora:h, msg:'Carteirinha não encontrada. Encaminhe à secretaria para a carteirinha provisória — ninguém fica sem comer.'}; return render(); }
   const ja = regHoje(a.id, r).filter(x => !x.repeticao);
   if (ja.length) {
-    if (repLiberada(r)) { if (regHoje(a.id, r).some(x => x.repeticao)) { ultima = {tipo:'ja', alunoId:a.id, hora:h, msg:`Já repetiu este ${r.toLowerCase()}.`}; return render(); }
+    if (repLiberada(r)) { if (regHoje(a.id, r).some(x => x.repeticao)) { if (DEMO()) DB.registros = DB.registros.filter(x => !(x.alunoId === a.id && x.data === iso(hoje()) && x.refeicao === r && x.repeticao)); else { ultima = {tipo:'ja', alunoId:a.id, hora:h, msg:`Já repetiu este ${r.toLowerCase()}.`}; return render(); } }
       DB.registros.push({id:uid(), alunoId:a.id, data:iso(hoje()), refeicao:r, hora:h, repeticao:true}); save(); ultima = {tipo:'rep', alunoId:a.id, hora:h, msg:`Repetição registrada. Primeira vez às ${ja[0].hora}.`}; return render(); }
-    ultima = {tipo:'ja', alunoId:a.id, hora:h, msg:`Já registrou este ${r.toLowerCase()} às ${ja[0].hora}. A repetição ainda não foi liberada pela cozinha.`}; return render();
+    if (DEMO()) { DB.registros = DB.registros.filter(x => !(x.alunoId === a.id && x.data === iso(hoje()) && x.refeicao === r)); }
+    else { ultima = {tipo:'ja', alunoId:a.id, hora:h, msg:`Já registrou este ${r.toLowerCase()} às ${ja[0].hora}. A repetição ainda não foi liberada pela cozinha.`}; return render(); }
   }
   DB.registros.push({id:uid(), alunoId:a.id, data:iso(hoje()), refeicao:r, hora:h, provisoria:!!prov}); save();
   ultima = {tipo: prov ? 'prov' : 'ok', alunoId:a.id, hora:h, msg: prov ? `Carteirinha provisória ${prov.codigo} (válida só hoje). Refeição registrada.` : `Refeição registrada: ${cardHoje()[r] || r}.`};
@@ -538,15 +540,25 @@ function simular() { const r = pdvRef || refAgora(); const livres = DB.alunos.fi
 document.addEventListener('keydown', e => { if (e.key === 'F2' && me() && NAVS[me().perfil].some(n => n[0]==='provisoria' || n[0]==='pdv')) { e.preventDefault(); ir('provisoria'); } });
 TELAS.situacoes = u => {
   const ex = DB.alunos.slice(0, 4);
+  const tp = {'✔ LIBERADO':'ok','⚠ JÁ PEGOU':'ja','🔄 REPETIÇÃO':'rep','🪪 PROVISÓRIA':'prov'};
   const st = (a, cor, tit, txt, hor) => `<div class="card" style="border:3px solid ${cor};display:flex;flex-direction:column;gap:10px"><div class="row">${foto(a, 64)}<div><div class="ttl">${esc(a.nome)}</div><div class="sub">Turma ${esc(a.turma)}</div></div></div>
-    <div style="background:${cor};color:#fff;border-radius:10px;padding:10px;text-align:center;font-size:19px;font-weight:800">${tit}</div><div style="font-size:14px;line-height:1.45">${txt}</div><div class="sub">${hor}</div></div>`;
+    <div style="background:${cor};color:#fff;border-radius:10px;padding:10px;text-align:center;font-size:19px;font-weight:800">${tit}</div><div style="font-size:14px;line-height:1.45">${txt}</div><div class="sub">${hor}</div><button class="btn sm" style="margin-top:auto;background:${cor}" onclick="demoSit('${tp[tit]}','${a.id}')">▶ Mostrar no PDV</button></div>`;
   return `${voltarBtn(ic('list') + ' Situações da leitura no PDV')}<div class="sit4">
    ${st(ex[0],'var(--ok)','✔ LIBERADO','Primeira vez nesta refeição. O sistema guarda o horário e o cardápio do dia.','Almoço • 11:47')}
    ${st(ex[1],'var(--r)','⚠ JÁ PEGOU','Já registrou este almoço. Com a repetição bloqueada, não libera de novo.','Tentativa • 11:50')}
    ${st(ex[2],'#e0a100','🔄 REPETIÇÃO','A cozinha liberou a repetição. O sistema registra que o aluno <b>repetiu</b>.','Repetição • 12:43')}
    ${st(ex[3],'#2b6cb0','🪪 PROVISÓRIA','Esqueceu a carteirinha: a secretaria emite a provisória e o aluno <b>nunca fica sem comer</b>.','Provisória PROV-012 • 11:46')}</div>
-   <div class="note">Teste de verdade na tela do PDV: passe a mesma carteirinha duas vezes, ou libere a repetição no painel da cozinha.</div>`;
+   <div class="note">Clique em <b>▶ Mostrar no PDV</b> para ver cada situação na tela do PDV, com a foto do aluno.</div>`;
 };
+function demoSit(tipo, id) { const a = aluno(id); const r = pdvRef || refAgora(); const d = iso(hoje()); const h = hhmm();
+  DB.registros = DB.registros.filter(x => !(x.alunoId === id && x.data === d && x.refeicao === r));
+  const antes = (() => { const [hh, mm] = HORA[r].split(':').map(Number); return String(hh).padStart(2,'0') + ':' + String(mm + 12).padStart(2,'0'); })();
+  if (tipo === 'ok') { DB.registros.push({id:uid(), alunoId:id, data:d, refeicao:r, hora:h}); ultima = {tipo, alunoId:id, hora:h, msg:`Refeição registrada: ${cardHoje()[r] || r}.`}; }
+  if (tipo === 'ja') { DB.registros.push({id:uid(), alunoId:id, data:d, refeicao:r, hora:antes}); ultima = {tipo, alunoId:id, hora:h, msg:`Já registrou este ${r.toLowerCase()} às ${antes}. A repetição ainda não foi liberada pela cozinha.`}; }
+  if (tipo === 'rep') { DB.registros.push({id:uid(), alunoId:id, data:d, refeicao:r, hora:antes}, {id:uid(), alunoId:id, data:d, refeicao:r, hora:h, repeticao:true}); ultima = {tipo, alunoId:id, hora:h, msg:`Repetição registrada. Primeira vez às ${antes}.`}; }
+  if (tipo === 'prov') { const p = {codigo:'PROV-' + String(DB.provisorias.length + 1).padStart(3,'0'), alunoId:id, data:d, hora:h}; DB.provisorias.push(p);
+    DB.registros.push({id:uid(), alunoId:id, data:d, refeicao:r, hora:h, provisoria:true}); ultima = {tipo, alunoId:id, hora:h, msg:`Carteirinha provisória ${p.codigo} (válida só hoje). Refeição registrada.`}; }
+  save(); ir('pdv', null, true); }
 TELAS.provisoria = u => { const q = (param || '').toLowerCase(); const l = q ? DB.alunos.filter(a => a.nome.toLowerCase().includes(q) || a.turma.includes(q)).slice(0, 8) : [];
   const hojeP = DB.provisorias.filter(p => p.data === iso(hoje()));
   return `${voltarBtn('🪪 Carteirinha provisória')}<div class="card"><div class="sub">Para quem esqueceu ou perdeu a carteirinha. Vale <b>só hoje</b>.</div>
@@ -640,7 +652,7 @@ TELAS.relatorios = u => {
   const av = DB.avaliacoes.filter(a => dias.includes(a.data)); const pr = estatPratos(perRel);
   const pes = DB.pesagens.filter(p => dias.includes(p.data)); const kgDia = dias.map(d => pes.filter(p => p.data === d).reduce((t,p) => t + p.kg, 0)); const mKg = kgDia.length ? kgDia.reduce((a,b)=>a+b,0) / kgDia.length : 0;
   const reps = DB.registros.filter(x => dias.includes(x.data) && x.repeticao).length;
-  const porT = TURMAS.map(t => { const al = DB.alunos.filter(a => a.turma === t); const s = dias.map(d => al.filter(a => !regs.some(x => x.data === d && x.alunoId === a.id)).length); return [t, al.length ? pct(s.reduce((a,b)=>a+b,0) / (s.length || 1), al.length) : 0]; }).sort((a,b) => b[1] - a[1]);
+  const porT = [...new Set(DB.alunos.map(a => a.turma))].sort().map(t => { const al = DB.alunos.filter(a => a.turma === t); const s = dias.map(d => al.filter(a => !regs.some(x => x.data === d && x.alunoId === a.id)).length); return [t, al.length ? pct(s.reduce((a,b)=>a+b,0) / (s.length || 1), al.length) : 0]; }).sort((a,b) => b[1] - a[1]);
   const W = 520, H = 120, ult = kgDia.slice(-15), mk = Math.max(...ult, 1); const pts = ult.map((v,i) => `${20 + i * (W - 30) / Math.max(1, ult.length - 1)},${H - 12 - v / mk * (H - 30)}`).join(' ');
   const txt = `📊 EcoFood — relatório (${perRel===7?'7':'28'} dias)\nAlmoço: ${adesao('Almoço')}% • 1º lanche: ${adesao('1º lanche')}% • 2º lanche: ${adesao('2º lanche')}%\nSem comer (média/dia): ${mSem} aluno(s)\nSobras: ${fmt(mKg)} kg/dia\nMais aceito: ${pr[0]?pr[0].prato+' ('+pr[0].p+'%)':'—'}\nMenos aceito: ${pr.length?pr[pr.length-1].prato+' ('+pr[pr.length-1].p+'%)':'—'}`;
   return `<div class="row" style="margin-bottom:12px"><h2 style="margin:0">${ic('chart')} Relatórios da gestão</h2><span style="margin-left:auto" class="chips"><span class="chip ${perRel===7?'on':''}" onclick="perRel=7;render()">7 dias</span><span class="chip ${perRel===28?'on':''}" onclick="perRel=28;render()">4 semanas</span></span>
@@ -691,9 +703,11 @@ function renderTablet() {
   if (tab.etapa === 'cart') corpo = `<div style="font-size:30px;font-weight:800">Como estava a refeição?</div><div class="sub" style="font-size:17px;margin:6px 0 24px">A avaliação é opcional • 1 vez por refeição</div>
      <div style="font-size:90px">💳</div><div style="font-size:22px;font-weight:700;margin:10px 0">Passe sua carteirinha para avaliar</div>
      <input id="codTab" placeholder="número da carteirinha" onkeydown="if(event.key==='Enter')tabLer(this.value)" style="max-width:360px;margin:0 auto;display:block;text-align:center;font-size:18px">
+     ${DEMO() ? `<div class="row" style="justify-content:center;gap:10px;margin-top:16px;flex-wrap:wrap">${DB.alunos.filter(a => a.id[0] === 'g').map(a => `<div onclick="tabLer('${a.carteirinha}')" style="cursor:pointer;text-align:center;width:96px"><div style="display:flex;justify-content:center">${foto(a, 72)}</div><div class="sub" style="font-size:12px;margin-top:4px">${esc(a.carteirinha)} • ${esc(a.nome.split(' ')[0])}</div></div>`).join('')}</div>` : ''}
      <div class="row" style="justify-content:center;margin-top:12px"><button class="btn sm out" onclick="tabSimular()">Simular leitura</button></div>`;
   else if (tab.etapa === 'avaliar') { const a = aluno(tab.alunoId); const c = cardHoje();
     corpo = `<div class="row" style="justify-content:center">${foto(a, 64)}<div style="text-align:left"><b style="font-size:20px">${esc(a.nome)}</b><div class="sub">Turma ${esc(a.turma)} • ${esc(tab.ref)} registrado às ${tab.hora}</div></div></div>
+     ${DEMO() ? `<div class="chips" style="justify-content:center;margin-top:12px">${REF.map(x => `<span class="chip ${x===tab.ref?'on':''}" onclick="tab.ref='${x}';tab.nota=0;tab.seg=undefined;renderTablet()">${x}</span>`).join('')}</div>` : ''}
      <div style="font-size:30px;font-weight:800;margin-top:18px">Como estava o ${esc(tab.ref.toUpperCase())} de hoje?</div>${fotoP(c[tab.ref]) ? `<img src="${fotoP(c[tab.ref])}" style="width:260px;height:170px;object-fit:contain;border-radius:16px;margin:10px auto 4px;display:block;filter:drop-shadow(0 8px 12px rgba(0,0,0,.2))">` : ''}<div class="sub" style="font-size:17px">${esc(c[tab.ref] || '')}</div>
      <div class="notas4">${[1,2,3,4].map(n => `<div class="nt ${tab.nota===n?'on':''}" style="background:${NOTAS[n][2]}" onclick="tab.nota=${n};renderTablet()"><div style="font-size:64px">${NOTAS[n][0]}</div><b style="font-size:20px">${NOTAS[n][1]}</b></div>`).join('')}</div>
      <div style="font-size:20px;font-weight:700;margin-top:10px">O cardápio do totem foi seguido?</div>
@@ -708,12 +722,15 @@ function renderTablet() {
 }
 function tabLer(cod) { cod = String(cod).trim(); const prov = DB.provisorias.find(p => p.codigo.toUpperCase() === cod.toUpperCase() && p.data === iso(hoje()));
   const a = prov ? aluno(prov.alunoId) : achaCart(cod); if (!a) { tab = {etapa:'desc'}; return renderTablet(); }
-  const regs = DB.registros.filter(x => x.alunoId === a.id && x.data === iso(hoje()) && !x.repeticao).sort((p,q) => q.hora.localeCompare(p.hora)); if (!regs.length) { tab = {etapa:'nao'}; return renderTablet(); }
+  const regs = DB.registros.filter(x => x.alunoId === a.id && x.data === iso(hoje()) && !x.repeticao).sort((p,q) => q.hora.localeCompare(p.hora));
+  if (DEMO()) { const rr = refAgora(); const g = regs.find(x => x.refeicao === rr); tab = {etapa:'avaliar', alunoId:a.id, ref:rr, hora:g ? g.hora : hhmm()}; return renderTablet(); }
+  if (!regs.length) { tab = {etapa:'nao'}; return renderTablet(); }
   const pend = regs.find(x => !DB.avaliacoes.some(v => v.alunoId === a.id && v.data === x.data && v.refeicao === x.refeicao)); if (!pend) { tab = {etapa:'ja'}; return renderTablet(); }
   tab = {etapa:'avaliar', alunoId:a.id, ref:pend.refeicao, hora:pend.hora}; renderTablet(); }
 function tabSimular() { const hojeR = DB.registros.filter(x => x.data === iso(hoje()) && !x.repeticao); const cand = hojeR.filter(x => !DB.avaliacoes.some(v => v.alunoId === x.alunoId && v.data === x.data && v.refeicao === x.refeicao));
   const l = cand.length && Math.random() > .15 ? cand : DB.alunos.map(a => ({alunoId:a.id})); const x = l[Math.floor(Math.random() * l.length)]; tabLer(aluno(x.alunoId).carteirinha); }
 function tabEnviar() { if (!tab.nota) return toast('Escolha uma das 4 carinhas.'); if (tab.seg === undefined) return toast('Responda se o cardápio foi seguido.');
+  if (DEMO()) DB.avaliacoes = DB.avaliacoes.filter(v => !(v.alunoId === tab.alunoId && v.data === iso(hoje()) && v.refeicao === tab.ref));
   DB.avaliacoes.push({id:uid(), alunoId:tab.alunoId, data:iso(hoje()), refeicao:tab.ref, prato:cardHoje()[tab.ref] || tab.ref, nota:tab.nota, seguido:tab.seg}); save(); tab = {etapa:'ok'}; renderTablet(); }
 
 // ====================== JANELAS / AJUSTES ======================
@@ -727,7 +744,8 @@ TELAS.ajustes = u => `${voltarBtn(ic('gear') + ' Ajustes')}<div class="card" sty
    <div class="card" style="max-width:640px">🛡 <b>IEMA Pleno de Coroatá</b><div class="sub">EcoFood • relatórios da carteirinha. Os dados ficam salvos neste computador (protótipo).</div></div>
    <div style="max-width:640px"><button class="btn gray" onclick="sair()">${ic('swap',18)} Trocar usuário / sair</button>
    <button class="btn out" style="color:var(--r);border-color:var(--r)" onclick="confirmar('Restaurar dados de exemplo?','Tudo o que foi registrado neste computador será apagado e o programa volta ao início.',()=>{localStorage.removeItem(KEY);load();renderLogin();toast('Dados de exemplo restaurados.')},'Restaurar')">Restaurar dados de exemplo</button></div>
-   <div class="note">EcoFood • versão 1.5 para Windows • protótipo do TCC IEMA 2026 (Grupo 3)</div>`;
+   <div class="card" style="max-width:640px"><label class="row" style="cursor:pointer;gap:10px"><input type="checkbox" style="width:22px;height:22px;flex:none" ${DEMO()?'checked':''} onchange="DB.config.demo=this.checked;save();toast(this.checked?'Modo apresentação ligado':'Modo apresentação desligado');render()"><div><div class="ttl">Modo apresentação</div><div class="sub">Ligado: a mesma carteirinha pode passar várias vezes no PDV e avaliar no tablet sem ter pegado a refeição, para mostrar todas as telas. Desligado: regras reais (não libera duas vezes e só avalia quem pegou).</div></div></label></div>
+   <div class="note">EcoFood • versão 1.7 para Windows • protótipo do TCC IEMA 2026 (Grupo 3)</div>`;
 
 // ====================== início ======================
 load(); render();
