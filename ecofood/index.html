@@ -346,6 +346,17 @@ input:focus,select:focus,textarea:focus{border-color:#2f7a49}
  .treg{font-size:12.5px}.treg th,.treg td{padding:6px}.treg th:first-child,.treg td:first-child{display:none}
 }
 
+.tcb{border:1px solid #e2d5bb;background:#fffdf8;color:#2f7a49;border-radius:999px;padding:7px 14px;font:700 13px 'DM Sans',sans-serif;cursor:pointer;white-space:nowrap}
+.tcb:hover{background:#e5f0e1}.tcb.escuro{background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3)}
+@media (max-width:700px){.top .tcb{display:none}}
+.cart4{display:grid;grid-template-columns:repeat(2,minmax(0,430px));gap:18px}
+.cart{background:#fff;border:2px solid #2f7a49;border-radius:16px;padding:14px 16px;break-inside:avoid}
+.carttopo{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e7dcc6;padding-bottom:8px;margin-bottom:10px}.carttopo img{height:30px}.carttopo b{font-family:Fraunces,Georgia,serif;font-size:20px}
+.cartcorpo{display:flex;gap:14px;align-items:center;margin-bottom:10px}.cartfoto{width:96px;height:120px;object-fit:cover;object-position:center 20%;border-radius:10px;flex:none}
+.cartnome{font-weight:800;font-size:17px;line-height:1.2}.cartnum{font-family:Fraunces,Georgia,serif;font-weight:800;font-size:26px;color:#23412f;margin-top:6px}
+@media (max-width:700px){.cart4{grid-template-columns:1fr}}
+@media print{.top,.nav,.noprint,#toasts,.pdvbar{display:none!important}.main{margin:0!important;padding:0!important;overflow:visible}body,#app,.main{background:#fff!important;height:auto}.cart4{grid-template-columns:repeat(2,85.6mm);gap:8mm}.cart{width:85.6mm;padding:3mm 4mm;border-width:1.5px}.cartfoto{width:22mm;height:28mm}.cartnome{font-size:12px}.cartnum{font-size:18px}.carttopo img{height:7mm}}
+
 /* ===== FIM DO TEMA ===== */
 </style>
 </head>
@@ -491,20 +502,22 @@ const iniciais = n => n.split(' ').filter(Boolean).slice(0,2).map(x => x[0]).joi
 function foto(a, sz) { sz = sz || 56; if (a.img) return `<div class="foto" style="width:${sz}px;height:${sz}px;background:#e9ecef"><img src="${a.img}" alt="" style="width:100%;height:100%;object-fit:cover;object-position:center 22%"></div>`; return `<div class="foto" style="width:${sz}px;height:${sz}px;background:${a.cor}"><svg viewBox="0 0 40 40" width="${sz}" height="${sz}"><circle cx="20" cy="15" r="7.5" fill="rgba(255,255,255,.85)"/><path d="M6 40a14 14 0 0 1 28 0z" fill="rgba(255,255,255,.85)"/></svg><span>${esc(iniciais(a.nome))}</span></div>`; }
 function abrirJanela(modo) { window.open(location.href.split('#')[0] + '#' + modo, 'ecofood_' + modo); }
 function telaCheia() { const d = document.documentElement; if (!document.fullscreenElement) d.requestFullscreen && d.requestFullscreen(); else document.exitFullscreen(); }
+const btnCheia = () => `<button class="tcb" onclick="telaCheia()" title="Tela cheia (F11)">${document.fullscreenElement ? '✕ Sair da tela cheia' : '⛶ Tela cheia'}</button>`;
+document.addEventListener('fullscreenchange', () => document.querySelectorAll('.tcb').forEach(b => b.textContent = document.fullscreenElement ? '✕ Sair da tela cheia' : '⛶ Tela cheia'));
 const NOTAS = {1:['😠','Ruim','#fde2e4'],2:['😐','Razoável','#fff3cd'],3:['🙂','Bom','#e5f0e1'],4:['🤩','Ótimo','#dcf3e4']};
 
 // ====================== navegação ======================
 let pilha = [], tela = 'inicio', param = null;
 function ir(t, p, semPilha) { if (!semPilha) pilha.push([tela, param]); tela = t; param = p ?? null; render(); const mm = $('.main'); if (mm) mm.scrollTop = 0; }
 const NAVS = {
-  pdv: [['#','Refeitório'],['pdv','card','PDV — registro'],['situacoes','list','Situações da leitura'],['provisoria','card','Carteirinha provisória'],
+  pdv: [['#','Refeitório'],['pdv','card','PDV — registro'],['situacoes','list','Situações da leitura'],['provisoria','card','Carteirinha provisória'],['carteirinhas','users','Carteirinhas (imprimir)'],
         ['#','Telas dos alunos'],['win:totem','tv','Totem do cardápio'],['win:tablet','tablet','Tablet de avaliação'],
         ['#','Sistema'],['ajustes','gear','Ajustes']],
   cozinha: [['#','Cozinha'],['cozinha','chef','Painel da cozinha'],['cardapio','list','Cardápio'],['fotos','star','Fotos dos pratos'],['pesagem','scale','Pesagem das sobras'],
         ['#','Telas dos alunos'],['win:totem','tv','Totem do cardápio'],['win:tablet','tablet','Tablet de avaliação'],
         ['#','Sistema'],['ajustes','gear','Ajustes']],
   gestao: [['#','Gestão'],['relatorios','chart','Relatórios'],['mural','trophy','Mural (ranking)'],['alunos','users','Alunos e restrições'],
-        ['#','Refeitório'],['pdv','card','PDV — registro'],['situacoes','list','Situações da leitura'],['provisoria','card','Carteirinha provisória'],
+        ['#','Refeitório'],['pdv','card','PDV — registro'],['situacoes','list','Situações da leitura'],['provisoria','card','Carteirinha provisória'],['carteirinhas','users','Carteirinhas (imprimir)'],
         ['#','Cozinha'],['cozinha','chef','Painel da cozinha'],['cardapio','list','Cardápio'],['fotos','star','Fotos dos pratos'],['pesagem','scale','Pesagem das sobras'],
         ['#','Telas dos alunos'],['win:totem','tv','Totem do cardápio'],['win:tablet','tablet','Tablet de avaliação'],['win:mural','trophy','Mural em tela cheia'],
         ['#','Sistema'],['ajustes','gear','Ajustes']]
@@ -528,7 +541,7 @@ function render() {
   if (!TELAS[tela] || !nav.some(n => n[0] === tela) && !['aluno','novoAluno','editCard'].includes(tela)) tela = telaInicial(u.perfil);
   $('#app').innerHTML = `<div class="top"><div class="brand">${ICON}<div><b><span style="color:var(--b)">Eco</span><span style="color:var(--r)">Food</span></b><small>PROJETO DESPERDÍCIO ZERO • IEMA</small></div></div>
    <div class="row" style="margin-left:auto;gap:10px"><span class="sub" style="text-align:right">${esc(u.nome)}<br><b>${DIASF[hoje().getDay()]}, ${br(iso(hoje()))}</b></span>
-   <div class="av" title="Trocar usuário" onclick="menuUser()">${esc(iniciais(u.nome))}</div></div></div>
+   ${btnCheia()}<div class="av" title="Trocar usuário" onclick="menuUser()">${esc(iniciais(u.nome))}</div></div></div>
    <div class="main">${TELAS[tela](u)}</div>
    <div class="nav">${navHTML(u, nav)}</div>`;
   const cod = $('#codPdv'); if (cod) cod.focus();
@@ -537,7 +550,7 @@ function menuUser() { confirmar('Trocar de usuário?', 'Você vai voltar para a 
 
 // ====================== login ======================
 function renderLogin() {
-  $('#app').innerHTML = `<div class="login"><img class="logo" src="logo_iema.png" alt="IEMA">
+  $('#app').innerHTML = `<div class="login"><div style="text-align:right">${btnCheia()}</div><img class="logo" src="logo_iema.png" alt="IEMA">
    <div style="display:flex;justify-content:center;align-items:center;gap:8px;margin:10px 0 2px">${ICON.replace('width="34" height="34"','width="44" height="44"')}<b style="font-size:30px"><span style="color:var(--b)">Eco</span><span style="color:var(--r)">Food</span></b></div>
    <div class="note" style="margin:0 0 16px">Projeto Desperdício Zero • relatórios da carteirinha</div>
    <div class="card"><label class="lbl" style="margin-top:0">Usuário</label><input id="lu" autocomplete="off" placeholder="ex.: pdv">
@@ -590,11 +603,24 @@ TELAS.pdv = u => {
        || `<tr><td colspan="6" class="empty">Nenhum registro hoje. Passe a carteirinha no campo abaixo.</td></tr>`}</tbody></table></div>
 
    <div class="pdvbar">
-     <div class="pbin">${ic('card',24)}<input id="codPdv" placeholder="Passe a carteirinha (ou digite 001 e Enter)" onkeydown="if(event.key==='Enter'){lerCarteirinha(this.value);this.value=''}"></div>
+     <div class="pbin">${ic('card',24)}<input id="codPdv" placeholder="Passe a carteirinha (ou digite 001)" oninput="autoLer(this)" onkeydown="if(event.key==='Enter'){clearTimeout(_auto);lerCarteirinha(this.value);this.value=''}"></div>
      <div class="pbtot"><b>${nR}</b><span>${esc(r)}<br>de ${DB.alunos.length} alunos</span></div>
-     <div class="pbbt"><button class="btn sm" onclick="simular()">Simular leitura</button><button class="btn sm out" onclick="ir('provisoria')">🪪 Provisória (F2)</button><button class="btn sm out" onclick="ir('situacoes')">Situações</button></div>
+     <div class="pbbt"><button class="btn sm" onclick="simular()">Simular leitura</button><button class="btn sm out" onclick="ir('provisoria')">🪪 Provisória (F2)</button><button class="btn sm out" onclick="ir('situacoes')">Situações</button><button class="btn sm out" style="color:#c8643b;border-color:#c8643b" onclick="zerarHoje()">↺ Zerar hoje</button></div>
    </div>`;
 };
+function zerarHoje() { confirmar('Começar do zero hoje?', 'Apaga as leituras, avaliações, provisórias e repetições de hoje. Os outros dias continuam. Use antes de passar as carteirinhas ao vivo.', () => {
+  const d = iso(hoje()); DB.registros = DB.registros.filter(x => x.data !== d); DB.avaliacoes = DB.avaliacoes.filter(x => x.data !== d); DB.provisorias = DB.provisorias.filter(x => x.data !== d);
+  Object.keys(DB.repeticao).forEach(k => { if (k.startsWith(d)) delete DB.repeticao[k]; }); ultima = null; save(); toast('✔ Pronto! Pode passar as carteirinhas.'); pilha = []; ir('pdv', null, true); }, 'Zerar hoje'); }
+let _auto = null;
+function autoLer(el) { clearTimeout(_auto); const v = el.value.trim(); if (v.length < 3 || !achaCart(v)) return; _auto = setTimeout(() => { if (el.value.trim() === v) { el.value = ''; lerCarteirinha(v); } }, 300); }
+const C39 = {'0':'nnnwwnwnn','1':'wnnwnnnnw','2':'nnwwnnnnw','3':'wnwwnnnnn','4':'nnnwwnnnw','5':'wnnwwnnnn','6':'nnwwwnnnn','7':'nnnwnnwnw','8':'wnnwnnwnn','9':'nnwwnnwnn','*':'nwnnwnwnn'};
+function barras(cod) { let x = 24, h = ''; ('*' + cod + '*').split('').forEach(c => { (C39[c] || C39['0']).split('').forEach((e, i) => { const w = e === 'w' ? 6 : 2; if (i % 2 === 0) h += `<rect x="${x}" y="0" width="${w}" height="60"/>`; x += w; }); x += 2; });
+  return `<svg viewBox="0 0 ${x + 24} 60" preserveAspectRatio="none" style="width:100%;height:56px;display:block;background:#fff">${h}</svg>`; }
+TELAS.carteirinhas = u => `<div class="row noprint" style="margin-bottom:12px;flex-wrap:wrap"><h2 style="margin:0">${ic('users')} Carteirinhas para a apresentação</h2><button class="btn sm" style="margin-left:auto" onclick="window.print()">🖨 Imprimir</button></div>
+   <div class="sub noprint" style="margin-bottom:14px">Imprima, recorte e passe no leitor de código de barras (Code 39). No PDV a leitura entra sozinha, mesmo se o leitor não mandar Enter.</div>
+   <div class="cart4">${DB.alunos.map(a => `<div class="cart"><div class="carttopo"><img src="logo_iema.png" alt=""><b><span style="color:#2f7a49">Eco</span><span style="color:#c8643b">Food</span></b></div>
+     <div class="cartcorpo">${a.img ? `<img class="cartfoto" src="${a.img}" alt="">` : foto(a, 96)}<div style="min-width:0"><div class="cartnome">${esc(a.nome)}</div><div class="sub">Turma ${esc(a.turma)}</div><div class="cartnum">Nº ${esc(a.carteirinha)}</div></div></div>
+     ${barras(a.carteirinha)}<div class="sub" style="text-align:center;letter-spacing:6px;font-weight:700;color:#2a2a22">${esc(a.carteirinha)}</div></div>`).join('')}</div>`;
 function achaCart(cod) { cod = String(cod).trim(); const n = /^\d{1,3}$/.test(cod) ? cod.padStart(3, '0') : cod; return DB.alunos.find(x => x.carteirinha === cod || x.carteirinha === n || x.matricula === cod); }
 function lerCarteirinha(cod) {
   cod = String(cod).trim(); if (!cod) return; const r = pdvRef || refAgora(); const h = hhmm();
@@ -755,7 +781,7 @@ function muralHTML(cheio) { const pr = estatPratos(30); const top = pr.slice(0,3
    <div class="card" style="background:#fff8e1;border:1px solid #f3dd9b;max-width:900px;margin:14px auto 0"><b style="color:#8a5a00">Vamos melhorar:</b> ${piores.map(x => `${esc(x.prato)} (${x.p}%)`).join(' • ')} <span class="sub">— a cozinha já está testando novas receitas.</span></div>
    <div style="text-align:center;margin-top:12px"><span class="sel s-b" style="font-size:${cheio?16:13}px;padding:7px 16px">💡 Sua opinião ajuda a melhorar a alimentação! Avalie no tablet.</span></div>`; }
 TELAS.mural = u => `<div class="row" style="margin-bottom:12px"><h2 style="margin:0">${ic('trophy')} Mural — ranking mensal</h2><button class="btn sm" style="margin-left:auto" onclick="abrirJanela('mural')">${ic('tv',16)} Abrir em tela cheia</button></div><div class="card">${muralHTML(false)}</div>`;
-function renderMuralCheio() { document.body.classList.add('modo'); $('#app').innerHTML = `<div class="tv"><div class="row" style="justify-content:space-between;margin-bottom:10px"><img src="logo_iema.png" style="height:56px"><div class="row">${ICON.replace('width="34" height="34"','width="50" height="50"')}<b style="font-size:30px"><span style="color:var(--b)">Eco</span><span style="color:var(--r)">Food</span></b></div><button class="btn sm out" onclick="telaCheia()">⛶ Tela cheia</button></div>${muralHTML(true)}</div>`; }
+function renderMuralCheio() { document.body.classList.add('modo'); $('#app').innerHTML = `<div class="tv"><div class="row" style="justify-content:space-between;margin-bottom:10px"><img src="logo_iema.png" style="height:56px"><div class="row">${ICON.replace('width="34" height="34"','width="50" height="50"')}<b style="font-size:30px"><span style="color:var(--b)">Eco</span><span style="color:var(--r)">Food</span></b></div>${btnCheia()}</div>${muralHTML(true)}</div>`; }
 
 // ====================== TOTEM ======================
 function renderTotem() {
@@ -764,7 +790,7 @@ function renderTotem() {
   const em = {'1º lanche':'🥐☕','Almoço':'🍛🥗','2º lanche':'🥤🍪'};
   $('#app').innerHTML = `<div class="totem"><div class="row" style="align-items:center"><div style="background:#fff;border-radius:12px;padding:6px 10px"><img src="logo_iema.png" style="height:46px;display:block"></div>
     <div style="margin-left:16px"><div style="font-size:34px;font-weight:800;letter-spacing:.5px">CARDÁPIO DE HOJE</div><div style="font-size:18px;opacity:.85">${DIASF[wd]}, ${hoje().getDate()} de ${MESF[hoje().getMonth()]}</div></div>
-    <div style="margin-left:auto;text-align:right"><div style="font-size:44px;font-weight:800" id="relogio">${hhmm()}</div><button class="btn sm" style="background:rgba(255,255,255,.15)" onclick="telaCheia()">⛶ Tela cheia</button></div></div>
+    <div style="margin-left:auto;text-align:right"><div style="font-size:44px;font-weight:800" id="relogio">${hhmm()}</div>${btnCheia().replace('class="tcb"','class="tcb escuro"')}</div></div>
    <div class="tt3">${REF.map(x => `<div class="tc ${x===r?'agora':''}"><div class="tag">${x.toUpperCase()} • ${HORA[x]}${x===r?' • AGORA':''}</div><div class="pn">${esc(c[x] || '—')}</div>${fotoP(c[x]) ? `<div class="tfoto" style="background-image:url(${fotoP(c[x])})"></div>` : `<div style="font-size:64px;text-align:center;margin-top:auto">${em[x]}</div>`}</div>`).join('')}</div>
    ${c.restricao ? `<div style="text-align:center;font-size:17px;margin:10px 0 0;opacity:.9">🥛 ${esc(c.restricao)}</div>` : ''}
    <div class="row" style="justify-content:center;gap:8px;margin-top:12px;flex-wrap:wrap"><b style="margin-right:6px">Semana ${w} de 4:</b>${[1,2,3,4,5].map(d => `<span class="tw ${d===wd?'on':''}">${DIASF[d].slice(0,3)} • ${esc((DB.cardapio[w+'-'+d]||{})['Almoço']||'')}</span>`).join('')}</div>
@@ -778,7 +804,7 @@ function renderTablet() {
   document.body.classList.add('modo'); const r = refAgora(); let corpo = '';
   if (tab.etapa === 'cart') corpo = `<div style="font-size:30px;font-weight:800">Como estava a refeição?</div><div class="sub" style="font-size:17px;margin:6px 0 24px">A avaliação é opcional • 1 vez por refeição</div>
      <div style="font-size:90px">💳</div><div style="font-size:22px;font-weight:700;margin:10px 0">Passe sua carteirinha para avaliar</div>
-     <input id="codTab" placeholder="número da carteirinha" onkeydown="if(event.key==='Enter')tabLer(this.value)" style="max-width:360px;margin:0 auto;display:block;text-align:center;font-size:18px">
+     <input id="codTab" placeholder="número da carteirinha" oninput="clearTimeout(_auto);const v=this.value.trim();if(v.length>=3&&achaCart(v))_auto=setTimeout(()=>{if(this.value.trim()===v)tabLer(v)},300)" onkeydown="if(event.key==='Enter'){clearTimeout(_auto);tabLer(this.value)}" style="max-width:360px;margin:0 auto;display:block;text-align:center;font-size:18px">
      ${DEMO() ? `<div class="row" style="justify-content:center;gap:10px;margin-top:16px;flex-wrap:wrap">${DB.alunos.filter(a => a.id[0] === 'g').map(a => `<div onclick="tabLer('${a.carteirinha}')" style="cursor:pointer;text-align:center;width:96px"><div style="display:flex;justify-content:center">${foto(a, 72)}</div><div class="sub" style="font-size:12px;margin-top:4px">${esc(a.carteirinha)} • ${esc(a.nome.split(' ')[0])}</div></div>`).join('')}</div>` : ''}
      <div class="row" style="justify-content:center;margin-top:12px"><button class="btn sm out" onclick="tabSimular()">Simular leitura</button></div>`;
   else if (tab.etapa === 'avaliar') { const a = aluno(tab.alunoId); const c = cardHoje();
@@ -792,7 +818,7 @@ function renderTablet() {
      <div><button class="btn sm out" style="margin-top:12px" onclick="tab={etapa:'cart'};renderTablet()">Cancelar</button></div>`; }
   else { const m = {ok:['💚','Obrigado!','Sua opinião ajuda a melhorar o cardápio.','#dcf3e4'], ja:['🙂','Você já avaliou esta refeição.','Cada aluno avalia 1 vez por refeição, até o fim do dia.','#e5f0e1'], nao:['🍽','Só avalia quem pegou a refeição.','Passe a carteirinha no PDV antes de avaliar.','#fff3cd'], desc:['❓','Carteirinha não encontrada.','Procure a secretaria.','#fde2e4']}[tab.etapa];
     corpo = `<div style="background:${m[3]};border-radius:24px;padding:40px 20px;max-width:640px;margin:30px auto"><div style="font-size:90px">${m[0]}</div><div style="font-size:30px;font-weight:800">${m[1]}</div><div class="sub" style="font-size:18px;margin-top:8px">${m[2]}</div></div>`; setTimeout(() => { tab = {etapa:'cart'}; renderTablet(); }, 3500); }
-  $('#app').innerHTML = `<div class="tablet"><div class="row" style="justify-content:space-between"><img src="logo_iema.png" style="height:42px"><div class="row">${ICON}<b style="font-size:22px"><span style="color:var(--b)">Eco</span><span style="color:var(--r)">Food</span></b></div><button class="btn sm out" onclick="telaCheia()">⛶ Tela cheia</button></div>
+  $('#app').innerHTML = `<div class="tablet"><div class="row" style="justify-content:space-between"><img src="logo_iema.png" style="height:42px"><div class="row">${ICON}<b style="font-size:22px"><span style="color:var(--b)">Eco</span><span style="color:var(--r)">Food</span></b></div>${btnCheia()}</div>
    <div style="text-align:center;flex:1;display:flex;flex-direction:column;justify-content:center">${corpo}</div></div>`;
   const i = $('#codTab'); if (i) i.focus();
 }
@@ -821,7 +847,8 @@ TELAS.ajustes = u => `${voltarBtn(ic('gear') + ' Ajustes')}<div class="card" sty
    <div style="max-width:640px"><button class="btn gray" onclick="sair()">${ic('swap',18)} Trocar usuário / sair</button>
    <button class="btn out" style="color:var(--r);border-color:var(--r)" onclick="confirmar('Restaurar dados de exemplo?','Tudo o que foi registrado neste computador será apagado e o programa volta ao início.',()=>{localStorage.removeItem(KEY);load();renderLogin();toast('Dados de exemplo restaurados.')},'Restaurar')">Restaurar dados de exemplo</button></div>
    <div class="card" style="max-width:640px"><label class="row" style="cursor:pointer;gap:10px"><input type="checkbox" style="width:22px;height:22px;flex:none" ${DEMO()?'checked':''} onchange="DB.config.demo=this.checked;save();toast(this.checked?'Modo apresentação ligado':'Modo apresentação desligado');render()"><div><div class="ttl">Modo apresentação</div><div class="sub">Ligado: a mesma carteirinha pode passar várias vezes no PDV e avaliar no tablet sem ter pegado a refeição, para mostrar todas as telas. Desligado: regras reais (não libera duas vezes e só avalia quem pegou).</div></div></label></div>
-   <div class="note">EcoFood • versão 1.8 para Windows • protótipo do TCC IEMA 2026 (Grupo 3)</div>`;
+   <div style="max-width:640px"><button class="btn out" style="color:#c8643b;border-color:#c8643b" onclick="zerarHoje()">↺ Zerar hoje (para passar as carteirinhas ao vivo)</button></div>
+   <div class="note">EcoFood • versão 1.9 para Windows • protótipo do TCC IEMA 2026 (Grupo 3)</div>`;
 
 // ====================== início ======================
 load(); render();
