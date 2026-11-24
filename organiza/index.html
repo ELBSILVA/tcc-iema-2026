@@ -238,13 +238,13 @@ function seed() {
   const disc = ['Português','Matemática','Filosofia','Redes de Computadores','Educação Física','Física','Sociologia','Química'];
   return {users, atividades, avisos, eventos, materiais, horario, disc,
           concluidas:{a1:['t6'], a2:['t1','t6','t3'], a3:['t1']}, notas:{a1:[{d:'Matemática',v:8.5},{d:'Português',v:9},{d:'Física',v:7},{d:'Filosofia',v:8},{d:'Redes de Computadores',v:9.5}]},
-          config:{}, notificados:{}, sessao:null};
+          config:{}, notificados:{}, lidos:{v1:['a2','a3']}, alteracoes:[], sessao:null};
 }
 let DB;
-function load() { try { DB = JSON.parse(localStorage.getItem(KEY)); } catch(e) { DB = null; } if (!DB || !DB.users) { DB = seed(); save(); } }
+function load() { try { DB = JSON.parse(localStorage.getItem(KEY)); } catch(e) { DB = null; } if (!DB || !DB.users) { DB = seed(); save(); } DB.lidos = DB.lidos || {}; DB.alteracoes = DB.alteracoes || []; }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(DB)); } catch(e) {} }
 const me = () => DB.users.find(u => u.id === DB.sessao);
-const cfg = id => DB.config[id] || (DB.config[id] = {lembretes:true});
+const cfg = id => { const c = DB.config[id] || (DB.config[id] = {lembretes:true}); if (!c.antes) c.antes = 3; return c; };
 
 // ====================== componentes ======================
 function toast(msg) { let c = document.getElementById('toasts'); if (!c) { c = document.createElement('div'); c.id = 'toasts'; document.body.appendChild(c); } const t = document.createElement('div'); t.className = 'toast'; t.innerHTML = msg; c.appendChild(t); setTimeout(() => { t.style.opacity = 0; setTimeout(() => t.remove(), 300); }, 3200); }
@@ -326,15 +326,15 @@ function verificarLembretes(u, forcar) {
   if (!cfg(u.id).lembretes && !forcar) return;
   let n = 0;
   minhasAtiv(u).filter(a => !feita(u,a)).forEach(a => {
-    const d = diasAte(a.prazo); if (![0,1,3].includes(d)) return;
+    const d = diasAte(a.prazo); const ant = cfg(u.id).antes; if (![0,1,ant].includes(d)) return;
     const k = u.id + '|' + a.id + '|' + iso(hoje());
     if (DB.notificados[k] && !forcar) return;
     DB.notificados[k] = 1; n++;
-    const t = d === 3 ? '⏰ Faltam 3 dias: ' + a.titulo : d === 1 ? '⚠ Vence amanhã: ' + a.titulo : '⚠ Vence hoje: ' + a.titulo;
+    const t = d === ant && d > 1 ? '⏰ Faltam ' + d + ' dias: ' + a.titulo : d === 1 ? '⚠ Vence amanhã: ' + a.titulo : '⚠ Vence hoje: ' + a.titulo;
     setTimeout(() => notificar(t, 'Prazo: ' + DIASF[parse(a.prazo).getDay()].toLowerCase() + ', ' + br(a.prazo) + ' • ' + a.disciplina), n * 900);
   });
   save();
-  if (forcar && !n) toast('Nenhuma atividade com prazo em 3 dias, amanhã ou hoje.');
+  if (forcar && !n) toast('Nenhuma atividade com prazo em ' + cfg(u.id).antes + ' dias, amanhã ou hoje.');
 }
 function itemAtiv(u, a, compacto) {
   const f = feita(u, a); const p = DB.users.find(x => x.id === a.profId);
@@ -342,7 +342,7 @@ function itemAtiv(u, a, compacto) {
   return `<div class="card" style="border-left:4px solid ${corSelo(a.prazo,f)}">
     <div class="row" style="justify-content:space-between"><span class="tag" style="color:${corSelo(a.prazo,f)}">${DIASF[parse(a.prazo).getDay()]} • ${br(a.prazo).slice(0,5)}</span>${selo(a.prazo,f)}</div>
     <div class="ttl" style="margin-top:4px" onclick="ir('ativ','${a.id}')">${esc(a.titulo)}</div>
-    <div class="sub">👤 ${esc(p ? p.nome : a.disciplina)} • ${esc(a.tipo)} • ⏱ Prazo: ${br(a.prazo)}</div>
+    <div class="sub">👤 ${esc(p ? p.nome : a.disciplina)} • ${esc(a.tipo)} • ⏱ Prazo: ${br(a.prazo)}${DB.alteracoes.some(x => x.ativ === a.id) ? ' <span class="sel s-y">data alterada</span>' : ''}</div>
     <button class="btn ${f?'out':''}" onclick="toggleFeita('${a.id}')">${f ? 'Desmarcar conclusão' : 'Marcar como concluída'}</button></div>`;
 }
 
@@ -354,10 +354,10 @@ const voltarBtn = t => `<h2><button class="back" onclick="voltar()">‹</button>
 TELAS.aluno.inicio = u => {
   const at = minhasAtiv(u).filter(a => !feita(u,a) && diasAte(a.prazo) >= 0);
   const sem = at.filter(a => diasAte(a.prazo) <= 7).length;
-  const nAv = avisosPara(u).filter(v => diasAte(v.data) >= -3).length;
-  return `<div class="car">
+  const nAv = avisosPara(u).filter(v => !lido(v, u)).length;
+  return `${cardProva(u)}${alteradas(u)}<div class="car">
      <div class="slide on" style="background:linear-gradient(130deg,#2b2563,#4a3fb0)">${ic('home',70).replace('class="ic"','class="ic big"')}<b>Olá, ${esc(u.nome.split(' ')[0])}! 👋</b><div>${DIASF[hoje().getDay()]}, ${br(iso(hoje()))} • você tem <b>${sem} prazo${sem===1?'':'s'}</b> nos próximos 7 dias</div></div>
-     <div class="slide" style="background:linear-gradient(130deg,#5a4bd6,#7b5cff)">${ic('bell',70).replace('class="ic"','class="ic big"')}<b>Lembrete 3 dias antes</b><div>Você recebe um aviso no celular 3 dias e 1 dia antes de cada prazo.</div></div>
+     <div class="slide" style="background:linear-gradient(130deg,#5a4bd6,#7b5cff)">${ic('bell',70).replace('class="ic"','class="ic big"')}<b>Lembrete antes do prazo</b><div>Você escolhe quantos dias antes quer o aviso (em Configurações) e recebe outro 1 dia antes.</div></div>
      <div class="slide" style="background:linear-gradient(130deg,#e8456a,#ff7a93)">${ic('share',70).replace('class="ic"','class="ic big"')}<b>Avisos no WhatsApp</b><div>Compartilhe avisos e trabalhos com o grupo da turma em um toque.</div></div>
    </div><div class="dots"><i class="on"></i><i></i><i></i></div>
    <div class="sec">Acesso rápido</div>
@@ -370,8 +370,30 @@ TELAS.aluno.inicio = u => {
     <div class="qa" onclick="ir('desempenho')">${ic('chart')}Meu desempenho</div></div>
    <div class="sec">Minhas atividades <a href="#" onclick="ir('trabalhos');return false">Ver todas ›</a></div>
    ${at.slice(0,4).map(a => itemAtiv(u,a,true)).join('') || '<div class="empty">Nenhuma atividade pendente. 🎉</div>'}
+   <div class="sec">Avisos recentes <a href="#" onclick="ir('avisos');return false">Ver todos ›</a></div>
+   ${avisosPara(u).slice(0,2).map(v => `<div class="card row" onclick="ir('avisos')" style="border-left:4px solid var(--r)"><div style="flex:1;min-width:0"><div class="row" style="gap:6px"><span class="sel ${tagCls(v.tipo)}">${esc(v.tipo.toUpperCase())}</span>${lido(v,u)?'':'<span class="sel s-r">NOVO</span>'}</div><div class="ttl" style="margin-top:4px">${esc(v.titulo)}</div><div class="sub">${br(v.data)} • ${esc(v.autor)}</div></div><span style="color:var(--b)">›</span></div>`).join('') || '<div class="empty">Sem avisos.</div>'}
    <div class="card" style="background:var(--g);color:#fff">💡 <b>IEMA</b> — construindo um futuro maior, juntos.</div>`;
 };
+function proxProva(u) {
+  const l = minhasAtiv(u).filter(a => a.tipo === 'Prova' && diasAte(a.prazo) >= 0).map(a => ({t:a.titulo, d:a.prazo, id:a.id}))
+    .concat(DB.eventos.filter(e => e.tag === 'Prova' && diasAte(e.data) >= 0).map(e => ({t:e.titulo, d:e.data})));
+  return l.sort((a,b) => a.d.localeCompare(b.d))[0];
+}
+function cardProva(u) {
+  const p = proxProva(u); if (!p) return '';
+  const n = diasAte(p.d); const cor = n <= 1 ? '#ff5d73' : n <= 3 ? '#ffb020' : '#6c5ce7';
+  return `<div class="card row" style="background:linear-gradient(120deg,#2b2563,#4a3fb0);color:#fff" onclick="${p.id ? `ir('ativ','${p.id}')` : `ir('eventos')`}">
+   <div style="min-width:74px;text-align:center;background:${cor};border-radius:14px;padding:8px 6px"><b style="font-size:28px;line-height:1">${n}</b><div style="font-size:11px">${n===1?'dia':'dias'}</div></div>
+   <div style="flex:1;min-width:0"><div style="font-size:11.5px;opacity:.8;letter-spacing:.5px">PRÓXIMA PROVA</div><div class="ttl" style="color:#fff">${esc(p.t)}</div><div style="font-size:12.5px;opacity:.85">${n===0?'É hoje!':n===1?'É amanhã!':'Faltam '+n+' dias'} • ${DIASF[parse(p.d).getDay()]}, ${br(p.d)}</div></div></div>`;
+}
+const lido = (v, u) => (DB.lidos[v.id] || []).includes(u.id);
+function alteradas(u) {
+  const l = DB.alteracoes.filter(x => diasAte(x.em) >= -7 && !(x.vistos || []).includes(u.id)).filter(x => { const a = DB.atividades.find(y => y.id === x.ativ); return a && a.turmas.includes(u.turma); });
+  return l.map(x => { const a = DB.atividades.find(y => y.id === x.ativ);
+    return `<div class="card" style="border:2px solid #ffb020;background:#fff8e6"><div class="row" style="justify-content:space-between"><b style="color:#8a5a00">📅 Data alterada pelo professor</b><button class="del" onclick="event.stopPropagation();vistoAlt('${x.id}')">OK, entendi</button></div>
+     <div class="ttl" style="margin-top:4px" onclick="ir('ativ','${a.id}')">${esc(a.titulo)}</div><div class="sub">Era <s>${br(x.de)}</s> → agora é <b>${br(x.para)}</b></div></div>`; }).join('');
+}
+function vistoAlt(id) { const x = DB.alteracoes.find(y => y.id === id); if (x) { (x.vistos = x.vistos || []).push(me().id); save(); render(); } }
 TELAS.aluno.horario = u => {
   const modo = (param && param.m) || 'semana'; let d0 = hoje().getDay(); if (d0 < 1 || d0 > 5) d0 = 1; const dia = (param && param.d) || d0;
   const aula = h => `<div class="card hr"><div class="h">${h[0]}<small>${h[1]}</small></div><div class="d"><div class="ttl">${esc(h[2])}</div><div class="sub">${esc(h[3])} • ${esc(h[4])}</div></div></div>`;
@@ -383,11 +405,14 @@ TELAS.aluno.horario = u => {
      dias.map((d,i) => `<div class="sec">${DIASF[i+1]}</div>${doDia(i+1)}`).join('')}
    <div class="note">Turma ${esc(u.turma)} • 4º período (horário de exemplo)</div>`;
 };
+let filtroDisc = '';
 TELAS.aluno.trabalhos = u => {
-  const aba = param || 'pend'; const at = minhasAtiv(u);
+  const aba = param || 'pend'; const todas = minhasAtiv(u); const discs = [...new Set(todas.map(a => a.disciplina))].sort();
+  const at = filtroDisc ? todas.filter(a => a.disciplina === filtroDisc) : todas;
   const pend = at.filter(a => !feita(u,a)), conc = at.filter(a => feita(u,a));
   const lista = aba === 'pend' ? pend : conc;
   return `${voltarBtn(ic('list')+' Trabalhos e atividades')}<div class="seg"><button class="${aba==='pend'?'on':''}" onclick="param='pend';render()">Pendentes (${pend.length})</button><button class="${aba==='conc'?'on':''}" onclick="param='conc';render()">Concluídos (${conc.length})</button></div>
+   <div class="sub" style="margin:2px 0 6px">Filtrar por disciplina</div><div class="chips" style="margin-bottom:12px;flex-wrap:nowrap;overflow-x:auto"><span class="chip ${!filtroDisc?'on':''}" onclick="filtroDisc='';render()">Todas</span>${discs.map(d => `<span class="chip ${filtroDisc===d?'on':''}" style="white-space:nowrap" onclick='filtroDisc=${JSON.stringify(d)};render()'>${esc(d)}</span>`).join('')}</div>
    ${lista.map(a => itemAtiv(u,a)).join('') || '<div class="empty">Nada por aqui.</div>'}
    <div class="note">🔴 vence amanhã/hoje/atrasada • 🟡 faltam 2–3 dias • 🔵 no prazo • 🟢 concluída</div>`;
 };
@@ -400,21 +425,26 @@ function telaAtividade(u) {
    <div class="ttl" style="font-size:17px;margin-top:8px">${esc(a.titulo)}</div><div class="sub">${esc(a.disciplina)} • ${esc(p?p.nome:'')}</div>
    <div style="margin:12px 0;font-size:14px;line-height:1.5">${esc(a.descricao || 'Sem descrição.')}</div>
    <div class="sub">📅 Prazo: <b>${DIASF[parse(a.prazo).getDay()]}, ${br(a.prazo)}</b><br>👥 Turmas: ${a.turmas.map(esc).join(', ')}</div>
+   ${(() => { const al = DB.alteracoes.filter(x => x.ativ === a.id).pop(); return al ? `<div class="sub" style="color:#8a5a00;margin-top:6px">📅 Data alterada em ${br(al.em)}: era ${br(al.de)}</div>` : ''; })()}
+   ${a.anexo ? `<button class="btn out" onclick='abrirLink(${JSON.stringify(a.anexo)})'>📎 Abrir arquivo anexo</button>` : ''}
    ${u.perfil!=='aluno' ? (() => { const al = DB.users.filter(x => x.perfil==='aluno' && a.turmas.includes(x.turma)); const c = al.filter(x => (DB.concluidas[x.id]||[]).includes(a.id)).length;
       return `<div class="card" style="background:#f5f8fa;margin:12px 0 0;box-shadow:none"><div class="row" style="justify-content:space-between"><b style="font-size:13.5px">Alunos que concluíram</b><b>${c} de ${al.length}</b></div><div class="prog"><i style="width:${al.length?Math.round(c/al.length*100):0}%"></i></div></div>`; })() : ''}
    ${u.perfil==='aluno' ? `<button class="btn ${f?'out':''}" onclick="toggleFeita('${a.id}')">${f?'Desmarcar conclusão':'Marcar como concluída'}</button>` : ''}
    <button class="btn wa" onclick='compartilhar(${JSON.stringify(txt)})'>↗ Compartilhar no WhatsApp</button>
-   ${u.perfil!=='aluno' && (u.id===a.profId || u.perfil==='coord') ? `<button class="btn out" onclick="ir('novaAtiv','${a.id}')">✎ Editar</button><button class="btn red" onclick="excluir('atividades','${a.id}')">Excluir</button>` : ''}</div>`;
+   ${u.perfil!=='aluno' && (u.id===a.profId || u.perfil==='coord') ? `<button class="btn out" onclick="ir('novaAtiv','${a.id}')">✎ Editar</button><button class="btn out" onclick="ir('novaAtiv','copia:${a.id}')">⧉ Copiar para outra turma</button><button class="btn red" onclick="excluir('atividades','${a.id}')">Excluir</button>` : ''}</div>`;
 }
 const avisosPara = u => DB.avisos.filter(v => v.turmas === 'todas' || !u.turma || (Array.isArray(v.turmas) && v.turmas.includes(u.turma))).sort((a,b) => b.data.localeCompare(a.data));
 function cardAviso(v, podeExcluir) {
+  const leit = (() => { const al = DB.users.filter(x => x.perfil === 'aluno' && (v.turmas === 'todas' || (Array.isArray(v.turmas) && v.turmas.includes(x.turma)))); const n = al.filter(x => (DB.lidos[v.id]||[]).includes(x.id)).length; return {n, t:al.length}; })();
   const txt = `📣 ${v.tipo.toUpperCase()}: ${v.titulo}\n${v.texto}\n— ${v.autor}\n\nVeja no IEMA Organiza.`;
   return `<div class="card" style="border-left:4px solid var(--r)"><div class="row" style="justify-content:space-between"><span class="sel ${tagCls(v.tipo)}">${esc(v.tipo.toUpperCase())}</span><span class="sub">${br(v.data)}</span></div>
    <div class="ttl" style="margin:6px 0 3px">${esc(v.titulo)}</div><div style="font-size:13.5px;color:#4a525a;line-height:1.45">${esc(v.texto)}</div>
    <div class="row" style="justify-content:space-between;margin-top:8px"><span class="sub">${esc(v.autor)}${Array.isArray(v.turmas)?' • turmas '+v.turmas.join(', '):''}</span>
-   <span>${podeExcluir?`<button class="del" onclick="excluir('avisos','${v.id}')">Excluir</button> `:''}<button class="btn sm wa" onclick='compartilhar(${JSON.stringify(txt)})'>↗ WhatsApp</button></span></div></div>`;
+   ${podeExcluir?`<button class="del" onclick="excluir('avisos','${v.id}')">Excluir</button>`:''}</div>
+   ${podeExcluir ? `<div style="margin-top:8px"><div class="row" style="justify-content:space-between;font-size:12.5px"><b>👁 Lido por ${leit.n} de ${leit.t} alunos</b><span>${leit.t?Math.round(leit.n/leit.t*100):0}%</span></div><div class="prog"><i style="width:${leit.t?Math.round(leit.n/leit.t*100):0}%"></i></div></div>` : ''}
+   <button class="btn wa" style="font-size:15px" onclick='compartilhar(${JSON.stringify(txt)})'>${ic('share',18)} Enviar no WhatsApp</button></div>`;
 }
-TELAS.aluno.avisos = u => voltarBtn(ic('mega')+' Avisos') + (avisosPara(u).map(v => cardAviso(v)).join('') || '<div class="empty">Sem avisos.</div>');
+TELAS.aluno.avisos = u => { const l = avisosPara(u); const html = voltarBtn(ic('mega')+' Avisos') + (l.map(v => (lido(v,u)?'':'<div class="sel s-r" style="margin:0 0 -6px 8px;position:relative;z-index:1;display:inline-block">NOVO</div>') + cardAviso(v)).join('') || '<div class="empty">Sem avisos.</div>'); l.forEach(v => { const r = DB.lidos[v.id] || (DB.lidos[v.id] = []); if (!r.includes(u.id)) r.push(u.id); }); save(); return html; };
 let mesCal = null;
 function calendario(u) {
   const base = mesCal || hoje(); const y = base.getFullYear(), m = base.getMonth();
@@ -469,12 +499,13 @@ function telaAjustes(u) {
    <label class="lbl">Curso</label><input id="ac" value="${esc(u.curso||'')}">` : u.perfil==='professor' ? `<label class="lbl">Disciplina</label><input id="ad" value="${esc(u.disciplina||'')}">` : ''}
    <label class="lbl">Nova senha (opcional)</label><input id="as" type="password" placeholder="deixe em branco para manter">
    <button class="btn" onclick="salvarDados()">Salvar alterações</button></div>
-   ${u.perfil==='aluno' ? `<div class="card row"><div style="flex:1"><div class="ttl">Lembretes de atividades</div><div class="sub">Aviso <b>3 dias antes</b>, <b>1 dia antes</b> e no dia do prazo</div></div><button class="sw ${c.lembretes?'on':''}" onclick="cfg(me().id).lembretes=!cfg(me().id).lembretes;save();render()"></button></div>
+   ${u.perfil==='aluno' ? `<div class="card row"><div style="flex:1"><div class="ttl">Lembretes de atividades</div><div class="sub">Aviso <b>${c.antes} dias antes</b>, <b>1 dia antes</b> e no dia do prazo</div></div><button class="sw ${c.lembretes?'on':''}" onclick="cfg(me().id).lembretes=!cfg(me().id).lembretes;save();render()"></button></div>
+   <div class="card"><div class="ttl">Quantos dias antes quer o 1º lembrete?</div><div class="chips" style="margin-top:8px">${[2,3,5,7].map(n => `<span class="chip ${c.antes===n?'on':''}" onclick="cfg(me().id).antes=${n};save();render();toast('Lembrete ${n} dias antes do prazo.')">${n} dias</span>`).join('')}</div></div>
    <button class="btn out" onclick="verificarLembretes(me(),true)">🔔 Testar lembretes agora</button>` : ''}
    <div class="card" style="margin-top:12px">🛡 <b>IEMA Pleno de Coroatá</b><div class="sub">Aplicativo de organização escolar. Seus dados ficam apenas neste aparelho (protótipo).</div></div>
    <button class="btn gray" onclick="sair()">↪ Sair da conta</button>
    <button class="btn out" style="color:var(--r);border-color:var(--r)" onclick="confirmar('Restaurar dados de exemplo?','Tudo o que foi cadastrado neste aparelho será apagado e o app volta ao início.',()=>{localStorage.removeItem(KEY);load();renderLogin();toast('Dados de exemplo restaurados.')},'Restaurar')">Restaurar dados de exemplo</button>
-   <div class="note">IEMA Organiza • versão 1.4 • protótipo do TCC IEMA 2026 (Grupo 1)</div>`;
+   <div class="note">IEMA Organiza • versão 1.5 • protótipo do TCC IEMA 2026 (Grupo 1)</div>`;
 }
 function confirmar(titulo, texto, sim, rotulo) {
   const m = document.createElement('div'); m.className = 'modal';
@@ -505,19 +536,22 @@ TELAS.professor.minhas = u => voltarBtn(ic('list')+' Minhas atividades') + (DB.a
 TELAS.professor.ativ = u => telaAtividade(u);
 let selTurmas = [];
 TELAS.professor.novaAtiv = u => {
-  const a = param ? DB.atividades.find(x => x.id === param) : null;
-  selTurmas = a ? [...a.turmas] : ['301'];
+  const copia = typeof param === 'string' && param.startsWith('copia:');
+  const a = param ? DB.atividades.find(x => x.id === (copia ? param.slice(6) : param)) : null;
+  selTurmas = copia ? [] : a ? [...a.turmas] : ['301'];
   const tipos = ['Trabalho','Prova','Seminário','Lista','Relatório'];
-  return `${voltarBtn(a ? ic('edit')+' Editar atividade' : ic('plus')+' Nova atividade')}<div class="card">
+  return `${voltarBtn(copia ? '⧉ Copiar atividade' : a ? ic('edit')+' Editar atividade' : ic('plus')+' Nova atividade')}<div class="card">
+   ${copia ? '<div class="sub" style="color:var(--b);margin-bottom:8px">Escolha a(s) nova(s) turma(s). Os outros dados já vêm preenchidos.</div>' : ''}
    <label class="lbl" style="margin-top:0">Turmas</label><div class="chips" id="tch">${turmasExist().map(t => `<span class="chip ${selTurmas.includes(t)?'on':''}" onclick="togTurma(this,'${t}')">${t}</span>`).join('')}</div>
    <label class="lbl">Disciplina</label><input id="fd" value="${esc(a ? a.disciplina : u.disciplina || '')}">
    <label class="lbl">Título</label><input id="ft" value="${esc(a ? a.titulo : '')}" placeholder="ex.: Trabalho de ${esc(u.disciplina||'')} — tema">
    <label class="lbl">Tipo</label><select id="fy">${tipos.map(t => `<option ${a&&a.tipo===t?'selected':''}>${t}</option>`).join('')}</select>
    <label class="lbl">Prazo de entrega</label><input id="fp" type="date" value="${a ? a.prazo : addD(7)}">
    <label class="lbl">Descrição (opcional)</label><textarea id="fx" placeholder="O que o aluno deve fazer">${esc(a ? a.descricao : '')}</textarea>
+   <label class="lbl">📎 Arquivo anexo (link do Drive, PDF ou site – opcional)</label><input id="fa" placeholder="https://" value="${esc(a && a.anexo || '')}">
    <div class="sub" style="margin-top:8px;color:var(--ok)">✔ Os alunos recebem o lembrete automático <b>3 dias antes</b> e <b>1 dia antes</b> do prazo.</div>
-   <button class="btn" onclick="salvarAtiv('${a?a.id:''}',false)">${a ? 'Salvar alterações' : 'Publicar para as turmas'}</button>
-   <button class="btn wa" onclick="salvarAtiv('${a?a.id:''}',true)">↗ Publicar e enviar no WhatsApp</button></div>`;
+   <button class="btn" onclick="salvarAtiv('${a&&!copia?a.id:''}',false)">${a&&!copia ? 'Salvar alterações' : 'Publicar para as turmas'}</button>
+   <button class="btn wa" onclick="salvarAtiv('${a&&!copia?a.id:''}',true)">↗ Publicar e enviar no WhatsApp</button></div>`;
 };
 const turmasExist = () => [...new Set(['101','102','103','104','201','202','203','204','301','302','303', ...DB.users.filter(u => u.turma).map(u => u.turma)])].sort();
 function togTurma(el, t) { const i = selTurmas.indexOf(t); if (i >= 0) selTurmas.splice(i,1); else selTurmas.push(t); el.classList.toggle('on'); }
@@ -526,7 +560,10 @@ function salvarAtiv(id, wa) {
   if (!t) return toast('Escreva o título da atividade.'); if (!p) return toast('Escolha o prazo.'); if (!selTurmas.length) return toast('Escolha pelo menos uma turma.');
   let a = id ? DB.atividades.find(x => x.id === id) : null;
   if (!a) { a = {id: uid(), profId: me().id}; DB.atividades.push(a); }
-  Object.assign(a, {titulo:t, disciplina:$('#fd').value.trim() || 'Geral', tipo:$('#fy').value, turmas:[...selTurmas].sort(), prazo:p, descricao:$('#fx').value.trim()});
+  const antes = a.prazo;
+  let anx = $('#fa').value.trim(); if (anx && !/^https?:\/\//.test(anx)) anx = 'https://' + anx;
+  Object.assign(a, {titulo:t, disciplina:$('#fd').value.trim() || 'Geral', tipo:$('#fy').value, turmas:[...selTurmas].sort(), prazo:p, descricao:$('#fx').value.trim(), anexo:anx});
+  if (antes && antes !== p) { DB.alteracoes.push({id:uid(), ativ:a.id, de:antes, para:p, em:iso(hoje()), vistos:[]}); setTimeout(() => toast('📅 Os alunos vão ver o aviso de <b>data alterada</b> na tela inicial.'), 600); }
   save(); toast('✔ Atividade publicada para as turmas ' + a.turmas.join(', ') + '!');
   if (wa) compartilhar(`📚 ${a.titulo}\n${a.disciplina} • ${a.tipo}\nPrazo: ${br(a.prazo)}\nTurmas: ${a.turmas.join(', ')}\n${a.descricao}\n\nVeja no IEMA Organiza.`);
   pilha = []; ir('minhas', null, true);

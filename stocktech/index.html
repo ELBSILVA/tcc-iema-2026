@@ -228,6 +228,13 @@ input:focus,select:focus,textarea:focus{border-color:#ff8a00}
 }
 
 /* ===== FIM DO TEMA ===== */
+.stp button{width:46px;height:46px;font-size:24px}.stp input{width:62px;font-size:16px}
+.btn.rapida{background:linear-gradient(90deg,#ff8a00,#ff6a00);color:#fff;font-size:17px;padding:16px;letter-spacing:.3px}
+.vchip{display:inline-block;font-size:11px;font-weight:700;padding:2px 7px;border-radius:3px;margin-left:6px;white-space:nowrap}
+.v-r{background:#e5484d;color:#fff}.v-y{background:#ffd27a;color:#5a3a00}
+.emo{font-size:20px;width:30px;text-align:center;flex:none}
+.info{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#ff8a00;color:#fff;font-size:11px;font-weight:800;cursor:pointer;margin-left:4px;vertical-align:middle}
+body.grande .main{zoom:1.2}body.grande .nav{zoom:1.1}
 </style>
 </head>
 <body>
@@ -317,8 +324,17 @@ function seed() {
   entradas.push({id:uid(), alimentoId:'f10', qtd:3, validade:addD(-2), data:addD(-40), fornecedor:'Doação (esquecido no fundo da despensa)', nota:'—', user:'k1', esquecido:true});
   return {users, alimentos, entradas, saidas, config:{diasAlerta:7}, notificados:{}, sessao:null};
 }
+const PRECO = {f1:5.5, f2:8, f3:4.5, f4:7.5, f5:9, f6:6.5, f7:4.8, f8:13, f9:3.2, f10:5, f11:15, f12:2.5};
+const EMO = {'Grãos':'🌾','Massas':'🍝','Carnes':'🍗','Laticínios':'🥛','Enlatados':'🥫','Óleos':'🧴','Mercearia':'🛒','Hortifrúti':'🥕','Limpeza':'🧽'};
+const emo = a => EMO[a.categoria] || '📦';
+const rs = n => 'R$ ' + (Math.round(n * 100) / 100).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+const valorEnt = e => e.valor != null ? e.valor : e.qtd * ((alim(e.alimentoId) || {}).preco || 0);
+function chipVal(a) { const l = lotes(a.id).filter(x => !x.esquecido || diasAte(x.validade) < 0)[0]; if (!l) return ''; const d = diasAte(l.validade);
+  if (d < 0) return `<span class="vchip v-r">VENCIDO</span>`; if (d <= DB.config.diasAlerta) return `<span class="vchip v-r">vence ${d===0?'hoje':br(l.validade).slice(0,5)}</span>`; if (d <= DB.config.diasAlerta * 2) return `<span class="vchip v-y">vence ${br(l.validade).slice(0,5)}</span>`; return ''; }
+const MINIMO_TXT = 'Estoque mínimo é a quantidade que nunca pode faltar na despensa. Quando o alimento fica abaixo dele, o StockTech avisa e coloca na lista de compras.';
+const infoMin = () => `<span class="info" onclick="event.stopPropagation();toast(MINIMO_TXT)">?</span>`;
 let DB;
-function load() { try { DB = JSON.parse(localStorage.getItem(KEY)); } catch(e) { DB = null; } if (!DB || !DB.users) { DB = seed(); save(); } }
+function load() { try { DB = JSON.parse(localStorage.getItem(KEY)); } catch(e) { DB = null; } if (!DB || !DB.users) { DB = seed(); save(); } DB.alimentos.forEach(a => { if (a.preco == null) a.preco = PRECO[a.id] || 0; }); document.body.classList.toggle('grande', !!DB.config.letra); }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(DB)); } catch(e) {} }
 const me = () => DB.users.find(u => u.id === DB.sessao);
 const alim = id => DB.alimentos.find(a => a.id === id);
@@ -437,11 +453,11 @@ TELAS.painel = u => {
     <div class="card k" style="background:#fdecee" onclick="ir('alertas','baixo')"><div class="sub">Estoque baixo</div><b style="color:var(--r)">${nb}</b></div>
     <div class="card k" style="background:#fff6dd" onclick="ir('alertas','validade')"><div class="sub">Vencem em ${DB.config.diasAlerta} dias</div><b style="color:#8a5a00">${nv}</b></div>
     <div class="card k"><div class="sub">Saídas hoje</div><b>${refs.length}</b><div class="sub" style="font-size:11px">${refs.join(', ') || 'nenhuma'}</div></div></div>
-   ${u.perfil==='cozinha' ? `<div class="row" style="margin:4px 0 6px"><button class="btn" style="flex:1" onclick="ir('entrada')">${ic('in',18)} ENTRADA</button><button class="btn out" style="flex:1" onclick="ir('saida')">${ic('out',18)} SAÍDA</button></div>` :
+   ${u.perfil==='cozinha' ? `<button class="btn rapida" onclick="saidaRapida()">⚡ SAÍDA RÁPIDA – ${refAgora().toUpperCase()}<div style="font-size:12px;font-weight:500;opacity:.9">preenche com a média de sempre; é só conferir e confirmar</div></button><div class="row" style="margin:4px 0 6px"><button class="btn" style="flex:1" onclick="ir('entrada')">${ic('in',18)} ENTRADA</button><button class="btn out" style="flex:1" onclick="ir('saida')">${ic('out',18)} SAÍDA</button></div>` :
      `<div class="row" style="margin:4px 0 6px"><button class="btn" style="flex:1" onclick="ir('compras')">${ic('cart',18)} Lista de compras</button><button class="btn out" style="flex:1" onclick="ir('relatorio')">${ic('chart',18)} Relatório</button></div>`}
    ${al.slice(0,3).map(cardAlerta).join('')}${al.length>3?`<div class="sub" style="text-align:right"><a href="#" onclick="ir('alertas');return false" style="color:var(--b);font-weight:700;text-decoration:none">Ver todos os ${al.length} alertas ›</a></div>`:''}
-   <div class="sec">Estoque atual</div>
-   <div class="card" style="padding:4px 10px">${lista.map(a => { const x = situacao(a); return `<div class="li" onclick="ir('alimento','${a.id}')"><div style="flex:1;min-width:0"><div class="ttl">${esc(a.nome)}</div><div class="sub">mínimo ${a.minimo} ${a.unidade}</div></div>
+   <div class="sec">Estoque atual <span class="sub" style="font-weight:500;text-transform:none;letter-spacing:0">• <span class="vchip v-r">vermelho</span> vence em até ${DB.config.diasAlerta} dias • mínimo ${infoMin()}</span></div>
+   <div class="card" style="padding:4px 10px">${lista.map(a => { const x = situacao(a); return `<div class="li" onclick="ir('alimento','${a.id}')"><span class="emo">${emo(a)}</span><div style="flex:1;min-width:0"><div class="ttl">${esc(a.nome)}${chipVal(a)}</div><div class="sub">mínimo ${a.minimo} ${a.unidade}</div></div>
      <div style="width:34%">${barra(a)}</div><b style="width:62px;text-align:right;color:${x.baixo?'var(--r)':'var(--tx)'}">${fmt(x.s)} <small style="font-weight:500;color:var(--mu)">${a.unidade}</small></b></div>`; }).join('')}</div>
    ${u.perfil==='cozinha' ? `<div class="grid" style="margin-top:6px"><div class="qa" onclick="ir('alimentos')">${ic('box')}Alimentos</div><div class="qa" onclick="ir('relatorio')">${ic('chart')}Relatório semanal</div><div class="qa" onclick="ir('compras')">${ic('cart')}Lista de compras</div><div class="qa" onclick="ir('historico')">${ic('list')}Histórico</div></div>` :
      `<div class="grid" style="margin-top:6px"><div class="qa" onclick="ir('alertas')">${ic('bell')}Alertas</div><div class="qa" onclick="ir('historico')">${ic('list')}Histórico</div></div>`}`;
@@ -479,18 +495,24 @@ TELAS.entrada = u => {
     <div id="cam"></div></div>
    ${a ? `<div class="card"><div class="ttl" style="margin-bottom:2px">2. Dados da entrega — ${esc(a.nome)}</div><div class="sub">Tem agora: <b>${fmt(s)} ${a.unidade}</b> • mínimo ${a.minimo} ${a.unidade}</div>
     <div class="row"><div style="flex:1"><label class="lbl">Quantidade (${a.unidade})</label><input id="eq" type="number" step="0.1" inputmode="decimal" oninput="prevEnt(${s},${a.minimo},'${a.unidade}')"></div>
-    <div style="flex:1"><label class="lbl">Validade</label><input id="ev" type="date" value="${addD(180)}"></div></div>
+    <div style="flex:1"><label class="lbl">Validade 📅</label><input id="ev" type="date" value="${addD(180)}" oninput="prevVal()"></div></div>
+    <div class="chips" style="margin-top:6px">${[[30,'+1 mês'],[90,'+3 meses'],[180,'+6 meses'],[365,'+1 ano']].map(([d,t]) => `<span class="chip" onclick="$('#ev').value='${addD(d)}';prevVal()">${t}</span>`).join('')}</div>
+    <div id="pval" class="sub" style="margin-top:4px">Vence em ${br(addD(180))} (daqui a 180 dias)</div>
+    <label class="lbl">Valor da entrega (R$)</label><input id="ex" type="number" step="0.01" inputmode="decimal" placeholder="calculado pelo preço: ${rs(a.preco||0)}/${a.unidade}">
     <div class="row"><div style="flex:1"><label class="lbl">Fornecedor</label><input id="ef" value="Entrega da Prefeitura"></div><div style="flex:1"><label class="lbl">Nota fiscal</label><input id="en" placeholder="ex.: NF 3321"></div></div>
     <div id="prev" class="sub" style="margin-top:8px"></div>
     <button class="btn" onclick="salvarEntrada()">Salvar entrada</button></div>` : ''}
    <div class="note">O leitor de código de barras USB funciona como teclado: é só bipar no campo do código.</div>`;
 };
+function prevVal() { const v = $('#ev').value; if (!v) return; const d = diasAte(v); $('#pval').innerHTML = d < 0 ? '<b style="color:var(--r)">⚠ Essa data já passou!</b>' : `Vence em <b>${br(v)}</b> (daqui a ${d} dias)`; }
 function prevEnt(s, m, un) { const q = parseFloat($('#eq').value) || 0; const f = s + q; $('#prev').innerHTML = q ? `Depois da entrada: <b style="color:${f>=m?'var(--ok)':'var(--r)'}">${fmt(f)} ${un}</b> (mínimo ${m} ${un}) ${f>=m?'✔':'⚠ ainda abaixo do mínimo'}` : ''; }
 function buscarCodigo(c) { const a = DB.alimentos.find(x => x.codigo && x.codigo === String(c).trim()); if (!a) return toast('Código não cadastrado. Cadastre o alimento em Alimentos.'); entAlim = a.id; toast('✔ ' + esc(a.nome)); render(); }
 function salvarEntrada() {
   const a = alim(entAlim); const q = parseFloat(String($('#eq').value).replace(',','.')); const v = $('#ev').value;
   if (!q || q <= 0) return toast('Digite a quantidade.'); if (!v) return toast('Informe a validade.');
-  DB.entradas.push({id:uid(), alimentoId:a.id, qtd:q, validade:v, data:iso(hoje()), fornecedor:$('#ef').value.trim(), nota:$('#en').value.trim(), user:DB.sessao});
+  if (diasAte(v) < 0) return toast('A validade informada já passou. Confira a data.');
+  const vx = parseFloat(String($('#ex').value).replace(',','.'));
+  DB.entradas.push({id:uid(), alimentoId:a.id, qtd:q, validade:v, data:iso(hoje()), fornecedor:$('#ef').value.trim(), nota:$('#en').value.trim(), user:DB.sessao, valor: isNaN(vx) ? q * (a.preco || 0) : vx});
   save(); toast(`✔ Entrada salva: ${fmt(q)} ${a.unidade} de ${esc(a.nome)}`); entAlim = null; pilha = []; ir('painel', null, true);
 }
 let stream = null;
@@ -508,16 +530,20 @@ async function lerCamera() {
 function pararCamera() { if (stream) stream.getTracks().forEach(t => t.stop()); stream = null; const b = $('#cam'); if (b) b.innerHTML = ''; }
 // ---------- SAÍDA ----------
 let saiRef = null, saiQtd = {};
+const refAgora = () => { const h = new Date().getHours(); return h < 10 ? REF[0] : h < 14 ? REF[1] : REF[2]; };
+function preencherMedia() { DB.alimentos.forEach(a => { const m = mediaRef(a.id); if (m) saiQtd[a.id] = Math.min(saldo(a.id), Math.round(m * 10) / 10); }); }
+function saidaRapida() { saiRef = refAgora(); saiQtd = {}; preencherMedia(); ir('saida'); toast('⚡ Quantidades da média do ' + saiRef.toLowerCase() + ' preenchidas. Confira e confirme.'); }
 TELAS.saida = u => {
-  const h = new Date().getHours(); if (!saiRef) saiRef = h < 10 ? REF[0] : h < 14 ? REF[1] : REF[2];
+  if (!saiRef) saiRef = refAgora();
   const lista = DB.alimentos.filter(a => saldo(a.id) > 0).sort((a,b) => (saiQtd[b.id]?1:0) - (saiQtd[a.id]?1:0) || mediaRef(b.id) - mediaRef(a.id));
   return `${voltarBtn(ic('out')+' Registrar saída')}
    <div class="seg">${REF.map(r => `<button class="${saiRef===r?'on':''}" onclick="saiRef='${r}';render()">${r}</button>`).join('')}</div>
+   <button class="btn rapida" style="margin:0 0 10px" onclick="saiQtd={};preencherMedia();render()">⚡ Preencher com a média do ${saiRef.toLowerCase()}</button>
    <div class="card" style="padding:4px 10px">${lista.map(a => { const s = saldo(a.id), q = saiQtd[a.id] || 0, f = s - q, md = mediaRef(a.id);
-     return `<div class="li"><div style="flex:1;min-width:0"><div class="ttl">${esc(a.nome)}</div><div class="sub">tem ${fmt(s)} ${a.unidade}${md ? ` • média ${fmt(md)} ${a.unidade}/${saiRef.toLowerCase()}` : ''}</div>
+     return `<div class="li"><span class="emo">${emo(a)}</span><div style="flex:1;min-width:0"><div class="ttl">${esc(a.nome)}${chipVal(a)}</div><div class="sub">tem ${fmt(s)} ${a.unidade}${md ? ` • média ${fmt(md)} ${a.unidade}/${saiRef.toLowerCase()}` : ''}</div>
        ${q ? `<div class="sub" style="color:${f < a.minimo ? 'var(--r)' : 'var(--ok)'};font-weight:700">fica ${fmt(f)} ${a.unidade}${f < a.minimo ? ' ⚠ abaixo do mínimo' : ''}</div>` : ''}</div>
        <div class="stp"><button onclick="qtdSai('${a.id}',-1)">−</button><input value="${q?fmt(q):''}" placeholder="0" inputmode="decimal" onchange="qtdSai('${a.id}',0,this.value)"><button onclick="qtdSai('${a.id}',1)">+</button></div></div>`; }).join('')}</div>
-   <button class="btn" onclick="salvarSaida()">Confirmar saída (${Object.values(saiQtd).filter(Boolean).length} item(ns))</button>
+   <button class="btn rapida" onclick="salvarSaida()">✔ CONFIRMAR SAÍDA (${Object.values(saiQtd).filter(Boolean).length} item(ns))</button>
    <div class="note">Os lotes que vencem primeiro saem primeiro do estoque.</div>`;
 };
 const mediaRef = id => { const l = DB.saidas.filter(s => s.alimentoId === id && s.refeicao === saiRef && diasAte(s.data) > -28); return l.length ? l.reduce((t,s) => t + s.qtd, 0) / l.length : 0; };
@@ -535,11 +561,11 @@ function salvarSaida() {
 // ---------- ALIMENTOS ----------
 TELAS.alimentos = u => { const q = (param || '').toLowerCase();
   return `${voltarBtn(ic('box')+' Alimentos')}<div class="row" style="margin-bottom:10px"><input placeholder="🔍 buscar alimento…" value="${esc(param||'')}" oninput="param=this.value;clearTimeout(window._b);window._b=setTimeout(()=>{render();const i=document.querySelector('.main input');i.focus();i.setSelectionRange(99,99)},350)" style="flex:1"><button class="btn sm" style="padding:11px 14px" onclick="ir('novoAlim')">${ic('plus',18)}</button></div>
-   ${DB.alimentos.filter(a => a.nome.toLowerCase().includes(q)).map(a => { const x = situacao(a); return `<div class="card" onclick="ir('alimento','${a.id}')"><div class="row"><div style="flex:1;min-width:0"><div class="ttl">${esc(a.nome)}</div><div class="sub">${esc(a.categoria)} • mínimo ${a.minimo} ${a.unidade} • cód. ${esc(a.codigo||'—')}</div></div><b style="color:${x.baixo?'var(--r)':'var(--tx)'}">${fmt(x.s)} ${a.unidade}</b></div>${barra(a)}</div>`; }).join('') || '<div class="empty">Nenhum alimento encontrado.</div>'}`; };
+   ${DB.alimentos.filter(a => a.nome.toLowerCase().includes(q)).map(a => { const x = situacao(a); return `<div class="card" onclick="ir('alimento','${a.id}')"><div class="row"><span class="emo" style="font-size:26px">${emo(a)}</span><div style="flex:1;min-width:0"><div class="ttl">${esc(a.nome)}${chipVal(a)}</div><div class="sub">${esc(a.categoria)} • mínimo ${a.minimo} ${a.unidade} • cód. ${esc(a.codigo||'—')}</div></div><b style="color:${x.baixo?'var(--r)':'var(--tx)'}">${fmt(x.s)} ${a.unidade}</b></div>${barra(a)}</div>`; }).join('') || '<div class="empty">Nenhum alimento encontrado.</div>'}`; };
 TELAS.alimento = u => { const a = alim(param); if (!a) return voltarBtn('Alimento'); const x = situacao(a); const md = mediaDia(a.id);
   const mov = [...DB.entradas.filter(e => e.alimentoId === a.id).map(e => ({...e, tipo:'e'})), ...DB.saidas.filter(s => s.alimentoId === a.id).map(s => ({...s, tipo:'s'}))].sort((p,q) => q.data.localeCompare(p.data)).slice(0, 10);
-  return `${voltarBtn(ic('box')+' '+esc(a.nome))}<div class="kpis" style="grid-template-columns:1fr 1fr 1fr"><div class="card k"><div class="sub">Tem agora</div><b style="color:${x.baixo?'var(--r)':'var(--tx)'}">${fmt(x.s)}</b><div class="sub">${a.unidade}</div></div>
-   <div class="card k"><div class="sub">Mínimo</div><b>${a.minimo}</b><div class="sub">${a.unidade}</div></div><div class="card k"><div class="sub">Média/dia</div><b>${fmt(md)}</b><div class="sub">${a.unidade}</div></div></div>
+  return `${voltarBtn(emo(a)+' '+esc(a.nome))}<div class="kpis" style="grid-template-columns:1fr 1fr 1fr"><div class="card k"><div class="sub">Tem agora</div><b style="color:${x.baixo?'var(--r)':'var(--tx)'}">${fmt(x.s)}</b><div class="sub">${a.unidade}</div></div>
+   <div class="card k"><div class="sub">Mínimo ${infoMin()}</div><b>${a.minimo}</b><div class="sub">${a.unidade}</div></div><div class="card k"><div class="sub">Média/dia</div><b>${fmt(md)}</b><div class="sub">${a.unidade}</div></div></div>
    ${md ? `<div class="card" style="background:${x.baixo?'#fdecee':'#eaf6ee'}">${x.baixo ? '⚠' : '✔'} Dá para uns <b>${Math.floor(x.s / md)} dia(s) letivo(s)</b> pela média de consumo.</div>` : ''}
    <div class="sec">Lotes no estoque (vence primeiro em cima)</div>
    ${x.ls.map(l => { const d = diasAte(l.validade); return `<div class="card row"><div style="flex:1"><div class="ttl">${fmt(l.resto)} ${a.unidade}</div><div class="sub">entrada ${br(l.data)} • ${esc(l.fornecedor||'')}</div></div><span class="sel ${d<0?'s-r':d<=DB.config.diasAlerta?'s-y':'s-ok'}">${d<0?'vencido':'vence '+br(l.validade)}</span></div>`; }).join('') || '<div class="empty">Sem estoque.</div>'}
@@ -549,21 +575,34 @@ TELAS.novoAlim = u => { const a = param ? alim(param) : null;
   return `${voltarBtn(ic(a?'edit':'plus')+(a?' Editar alimento':' Novo alimento'))}<div class="card">
    <label class="lbl" style="margin-top:0">Nome</label><input id="an" value="${esc(a?a.nome:'')}" placeholder="ex.: Açúcar cristal">
    <div class="row"><div style="flex:1"><label class="lbl">Unidade</label><select id="au">${['kg','g','L','pct','lata','un','cx'].map(x => `<option ${a&&a.unidade===x?'selected':''}>${x}</option>`).join('')}</select></div>
-   <div style="flex:1"><label class="lbl">Estoque mínimo</label><input id="am" type="number" inputmode="decimal" value="${a?a.minimo:''}" placeholder="ex.: 15"></div></div>
+   <div style="flex:1"><label class="lbl">Estoque mínimo ${infoMin()}</label><input id="am" type="number" inputmode="decimal" value="${a?a.minimo:''}" placeholder="ex.: 15"></div></div>
    <label class="lbl">Categoria</label><select id="ac">${['Grãos','Massas','Carnes','Laticínios','Enlatados','Óleos','Mercearia','Hortifrúti','Limpeza'].map(x => `<option ${a&&a.categoria===x?'selected':''}>${x}</option>`).join('')}</select>
+   <label class="lbl">Preço por ${a?a.unidade:'unidade'} (R$) – para calcular o gasto do mês</label><input id="ap" type="number" step="0.01" inputmode="decimal" value="${a&&a.preco!=null?a.preco:''}" placeholder="ex.: 5,50">
    <label class="lbl">Código de barras (opcional)</label><input id="ab" inputmode="numeric" value="${esc(a?a.codigo:'')}" placeholder="bipe o produto com o leitor">
-   <div class="sub" style="margin-top:8px">O <b>estoque mínimo</b> é a quantidade que nunca pode faltar. Abaixo dele, o StockTech avisa e põe na lista de compras.</div>
+   <div class="card" style="background:#fff4e5;box-shadow:none;margin:10px 0 0">💡 <b>O que é estoque mínimo?</b><div class="sub" style="margin-top:4px">É a quantidade que nunca pode faltar. <b>Exemplo:</b> se a cozinha usa 12 kg de arroz por dia, um mínimo de 50 kg garante uns 4 dias de almoço enquanto a compra chega. Abaixo dele, o StockTech avisa e põe na lista de compras.</div></div>
    <button class="btn" onclick="salvarAlim('${a?a.id:''}')">Salvar</button>
    ${a ? `<button class="btn out" style="color:var(--r);border-color:var(--r)" onclick="confirmar('Excluir alimento?','O alimento e todo o histórico dele serão apagados.',()=>{DB.alimentos=DB.alimentos.filter(x=>x.id!=='${a.id}');DB.entradas=DB.entradas.filter(x=>x.alimentoId!=='${a.id}');DB.saidas=DB.saidas.filter(x=>x.alimentoId!=='${a.id}');save();pilha=[];ir('alimentos',null,true)},'Excluir')">Excluir alimento</button>` : ''}</div>`; };
 function salvarAlim(id) { const n = $('#an').value.trim(), m = parseFloat(String($('#am').value).replace(',','.')); if (!n) return toast('Digite o nome.'); if (isNaN(m)) return toast('Digite o estoque mínimo.');
   let a = id ? alim(id) : null; if (!a) { a = {id:uid()}; DB.alimentos.push(a); }
-  Object.assign(a, {nome:n, unidade:$('#au').value, minimo:m, categoria:$('#ac').value, codigo:$('#ab').value.trim()}); save(); toast('✔ Alimento salvo!'); pilha = []; ir('alimento', a.id, true); }
+  Object.assign(a, {nome:n, unidade:$('#au').value, minimo:m, categoria:$('#ac').value, codigo:$('#ab').value.trim(), preco:parseFloat(String($('#ap').value).replace(',','.')) || 0}); save(); toast('✔ Alimento salvo!'); pilha = []; ir('alimento', a.id, true); }
 // ---------- COMPRAS ----------
 TELAS.compras = u => { const l = listaCompras();
   const txt = `🛒 LISTA DE COMPRAS — Cozinha IEMA Coroatá (${br(iso(hoje()))})\n` + l.map(x => `• ${x.a.nome}: ${x.q} ${x.a.unidade} (tem ${fmt(x.s)}; mínimo ${x.a.minimo})`).join('\n') + '\n\nGerado pelo StockTech.';
-  return `${voltarBtn(ic('cart')+' Lista de compras')}<div class="card" style="background:var(--g);color:#fff"><b>${l.length} item(ns) para comprar</b><div style="font-size:13px;opacity:.85;margin-top:4px">Quantidade = mínimo + consumo dos últimos 7 dias − o que tem.</div></div>
-   ${l.map(x => `<div class="card"><div class="row"><div style="flex:1"><div class="ttl">${esc(x.a.nome)}</div><div class="sub">tem ${fmt(x.s)} • mínimo ${x.a.minimo} • usou ${fmt(x.sem)} na semana</div></div><div style="text-align:right"><div class="sub">comprar</div><b style="font-size:20px;color:var(--b2)">${x.q} ${x.a.unidade}</b></div></div></div>`).join('') || '<div class="empty">Nada para comprar agora. ✔</div>'}
+  const tot = l.reduce((t,x) => t + x.q * (x.a.preco || 0), 0);
+  return `${voltarBtn(ic('cart')+' Lista de compras')}<div class="card" style="background:var(--g);color:#fff"><b>${l.length} item(ns) para comprar • custo estimado ${rs(tot)}</b><div style="font-size:13px;opacity:.85;margin-top:4px">Quantidade = mínimo + consumo dos últimos 7 dias − o que tem.</div></div>
+   ${l.map(x => `<div class="card"><div class="row"><div style="flex:1"><div class="ttl">${esc(x.a.nome)}</div><div class="sub">tem ${fmt(x.s)} • mínimo ${x.a.minimo} • usou ${fmt(x.sem)} na semana</div></div><div style="text-align:right"><div class="sub">comprar</div><b style="font-size:20px;color:var(--b2)">${x.q} ${x.a.unidade}</b><div class="sub">≈ ${rs(x.q * (x.a.preco||0))}</div></div></div></div>`).join('') || '<div class="empty">Nada para comprar agora. ✔</div>'}
+   ${l.length ? `<button class="btn" onclick="imprimirLista()">🖨 Imprimir lista de compras</button>` : ''}
    ${l.length ? `<button class="btn wa" onclick='compartilhar(${JSON.stringify(txt)})'>${ic('share',18)} Enviar lista no WhatsApp</button>` : ''}`; };
+function imprimirLista() {
+  const l = listaCompras(); const tot = l.reduce((t,x) => t + x.q * (x.a.preco || 0), 0);
+  const html = `<!doctype html><html><head><meta charset="utf-8"><title>Lista de compras</title><style>body{font-family:Arial,sans-serif;padding:24px;color:#111}h1{font-size:20px;margin:0}p{margin:4px 0 14px;color:#555}table{width:100%;border-collapse:collapse;font-size:13px}th,td{border:1px solid #999;padding:7px;text-align:left}th{background:#ffe0b3}td.n{text-align:right}tfoot td{font-weight:bold}.ass{margin-top:40px;display:flex;gap:40px}.ass div{flex:1;border-top:1px solid #333;text-align:center;padding-top:4px;font-size:12px}</style></head><body>
+   <h1>🛒 Lista de compras – Cozinha IEMA Pleno Coroatá</h1><p>Gerada pelo StockTech em ${br(iso(hoje()))}. Quantidade = mínimo + consumo dos últimos 7 dias − o que tem.</p>
+   <table><thead><tr><th>✔</th><th>Alimento</th><th>Tem</th><th>Mínimo</th><th>Comprar</th><th>Valor estimado</th></tr></thead><tbody>${l.map(x => `<tr><td>☐</td><td>${esc(x.a.nome)}</td><td class="n">${fmt(x.s)} ${x.a.unidade}</td><td class="n">${x.a.minimo} ${x.a.unidade}</td><td class="n"><b>${x.q} ${x.a.unidade}</b></td><td class="n">${rs(x.q*(x.a.preco||0))}</td></tr>`).join('')}</tbody>
+   <tfoot><tr><td colspan="5">Total estimado</td><td class="n">${rs(tot)}</td></tr></tfoot></table>
+   <div class="ass"><div>Responsável pela cozinha</div><div>Gestão escolar</div></div></body></html>`;
+  let f = document.getElementById('printf'); if (f) f.remove(); f = document.createElement('iframe'); f.id = 'printf'; f.style.cssText = 'position:fixed;width:0;height:0;border:0;right:0;bottom:0'; document.body.appendChild(f);
+  f.contentDocument.open(); f.contentDocument.write(html); f.contentDocument.close(); setTimeout(() => { try { f.contentWindow.focus(); f.contentWindow.print(); } catch(e) { toast('Não foi possível abrir a impressão.'); } }, 300);
+}
 // ---------- RELATÓRIO ----------
 TELAS.relatorio = u => {
   const sem = DB.saidas.filter(s => diasAte(s.data) > -7 && diasAte(s.data) <= 0);
@@ -574,10 +613,16 @@ TELAS.relatorio = u => {
   const porR = REF.map(r => [r, cons.filter(s => s.refeicao === r).length]);
   const ent = DB.entradas.filter(e => diasAte(e.data) > -7);
   const al = alertas();
-  const txt = `📊 RELATÓRIO SEMANAL — StockTech (${br(addD(-6))} a ${br(iso(hoje()))})\nConsumo (kg/L): ${fmt(kgCons)}\nPerdas registradas: ${perdas.length}\nEntradas: ${ent.length}\nEstoque baixo: ${al.filter(x=>x.t==='baixo').map(x=>x.a.nome).join(', ')||'nenhum'}\nVencendo: ${al.filter(x=>x.t==='validade').map(x=>x.a.nome).join(', ')||'nenhum'}`;
+  const ent30 = DB.entradas.filter(e => diasAte(e.data) > -30 && !e.esquecido); const gasto = ent30.reduce((t,e) => t + valorEnt(e), 0);
+  const porCat = {}; ent30.forEach(e => { const a = alim(e.alimentoId); if (a) porCat[a.categoria] = (porCat[a.categoria] || 0) + valorEnt(e); });
+  const cats = Object.entries(porCat).sort((a,b) => b[1] - a[1]); const mc = cats.length ? cats[0][1] : 1;
+  const perdaR = DB.saidas.filter(s => s.perda && diasAte(s.data) > -30).reduce((t,s) => t + s.qtd * ((alim(s.alimentoId)||{}).preco || 0), 0);
+  const txt = `📊 RELATÓRIO SEMANAL — StockTech (${br(addD(-6))} a ${br(iso(hoje()))})\nConsumo (kg/L): ${fmt(kgCons)}\nPerdas registradas: ${perdas.length}\nEntradas: ${ent.length}\nGasto nos últimos 30 dias: ${rs(gasto)}\nEstoque baixo: ${al.filter(x=>x.t==='baixo').map(x=>x.a.nome).join(', ')||'nenhum'}\nVencendo: ${al.filter(x=>x.t==='validade').map(x=>x.a.nome).join(', ')||'nenhum'}`;
   return `${voltarBtn(ic('chart')+' Relatório semanal')}<div class="sub" style="margin:-6px 0 10px">${br(addD(-6))} a ${br(iso(hoje()))}</div>
    <div class="kpis"><div class="card k"><div class="sub">Consumo (kg/L)</div><b>${fmt(kgCons)}</b></div><div class="card k" style="background:#fdecee"><div class="sub">Perdas</div><b style="color:var(--r)">${perdas.length}</b><div class="sub" style="font-size:11px">${perdas.map(p=>alim(p.alimentoId)?.nome).join(', ')||'nenhuma 🎉'}</div></div>
    <div class="card k"><div class="sub">Entradas</div><b>${ent.length}</b></div><div class="card k"><div class="sub">Itens a comprar</div><b>${listaCompras().length}</b></div></div>
+   <div class="card" style="border-left:5px solid #ff8a00"><div class="row" style="justify-content:space-between"><div><div class="sub">💰 Valor gasto no mês (últimos 30 dias)</div><b style="font-size:26px">${rs(gasto)}</b></div><div style="text-align:right"><div class="sub">Perdido com vencidos</div><b style="color:var(--r)">${rs(perdaR)}</b><div class="sub">Lista de compras ≈ ${rs(listaCompras().reduce((t,x) => t + x.q * (x.a.preco||0), 0))}</div></div></div>
+    <div style="margin-top:10px">${cats.map(([c,v]) => `<div class="row" style="margin-bottom:6px"><span style="width:38%;font-size:13px">${EMO[c]||'📦'} ${esc(c)}</span><div style="flex:1;height:12px;background:#e3e9ee;border-radius:6px"><div style="height:12px;border-radius:6px;background:#ff8a00;width:${Math.round(v/mc*100)}%"></div></div><b style="width:90px;text-align:right;font-size:13px">${rs(v)}</b></div>`).join('')}</div></div>
    <div class="card"><div class="ttl" style="margin-bottom:8px">Mais usados na semana</div>${top.map(([a,q]) => `<div class="row" style="margin-bottom:7px"><span style="width:38%;font-size:13px">${esc(a.nome)}</span><div style="flex:1;height:12px;background:#e3e9ee;border-radius:6px"><div style="height:12px;border-radius:6px;background:var(--b);width:${Math.round(q/mx*100)}%"></div></div><b style="width:64px;text-align:right;font-size:13px">${fmt(q)} ${a.unidade}</b></div>`).join('')}</div>
    <div class="card"><div class="ttl" style="margin-bottom:8px">Saídas por refeição</div>${porR.map(([r,n]) => `<div class="row" style="margin-bottom:6px"><span style="width:38%;font-size:13px">${r}</span><div style="flex:1;height:12px;background:#e3e9ee;border-radius:6px"><div style="height:12px;border-radius:6px;background:var(--r);width:${Math.round(n/Math.max(1,...porR.map(p=>p[1]))*100)}%"></div></div><b style="width:64px;text-align:right;font-size:13px">${n}</b></div>`).join('')}</div>
    <button class="btn" onclick="ir('compras')">${ic('cart',18)} Ver lista de compras</button><button class="btn wa" onclick='compartilhar(${JSON.stringify(txt)})'>${ic('share',18)} Enviar relatório para a gestão</button>`;
@@ -592,12 +637,13 @@ TELAS.ajustes = u => `${voltarBtn(ic('gear')+' Ajustes')}<div class="card"><div 
    <label class="lbl">Nova senha (opcional)</label><input id="us" type="password" placeholder="deixe em branco para manter"><button class="btn" onclick="salvarMeus()">Salvar</button></div>
    <div class="card"><div class="ttl">Alerta de validade</div><div class="sub">Quantos dias antes de vencer o StockTech avisa</div>
    <div class="chips" style="margin-top:8px">${[3,5,7,10,15].map(d => `<span class="chip ${DB.config.diasAlerta===d?'on':''}" onclick="DB.config.diasAlerta=${d};save();render()">${d} dias</span>`).join('')}</div></div>
+   <div class="card row"><div style="flex:1"><div class="ttl">🔠 Letra maior</div><div class="sub">Aumenta o tamanho dos textos e botões</div></div><button class="sw ${DB.config.letra?'on':''}" onclick="DB.config.letra=!DB.config.letra;save();document.body.classList.toggle('grande',!!DB.config.letra);render()"></button></div>
    <button class="btn out" onclick="avisarAlertas(true)">${ic('bell',18)} Testar notificações</button>
    ${u.perfil==='gestao' ? `<button class="btn out" onclick="ir('usuarios')">${ic('users',18)} Usuários (cozinha e gestão)</button>` : ''}
    <div class="card" style="margin-top:12px">🛡 <b>IEMA Pleno de Coroatá</b><div class="sub">Controle do estoque de alimentos da cozinha. Os dados ficam salvos neste computador (protótipo).</div></div>
    <button class="btn gray" onclick="sair()">↪ Sair da conta</button>
    <button class="btn out" style="color:var(--r);border-color:var(--r)" onclick="confirmar('Restaurar dados de exemplo?','Tudo o que foi registrado neste computador será apagado e o app volta ao início.',()=>{localStorage.removeItem(KEY);load();renderLogin();toast('Dados de exemplo restaurados.')},'Restaurar')">Restaurar dados de exemplo</button>
-   <div class="note">StockTech • versão 1.2 para Windows • protótipo do TCC IEMA 2026 (Grupo 2)</div>`;
+   <div class="note">StockTech • versão 1.3 para Windows • protótipo do TCC IEMA 2026 (Grupo 2)</div>`;
 function salvarMeus() { const u = me(); u.nome = $('#un').value.trim() || u.nome; u.cargo = $('#uc').value.trim(); if ($('#us').value.trim()) u.senha = $('#us').value.trim(); save(); toast('Dados salvos!'); render(); }
 TELAS.usuarios = u => `${voltarBtn(ic('users')+' Usuários')}${DB.users.map(x => `<div class="card row"><div class="av" style="margin:0;background:${x.perfil==='cozinha'?'var(--b)':'var(--r)'}">${esc(iniciais(x.nome))}</div><div style="flex:1"><div class="ttl">${esc(x.nome)}</div><div class="sub">${esc(x.cargo)} • login: ${esc(x.login)}</div></div>${x.id!==u.id?`<button class="del" onclick="confirmar('Excluir usuário?','${esc(x.nome)} não poderá mais entrar.',()=>{DB.users=DB.users.filter(y=>y.id!=='${x.id}');save();render()},'Excluir')">Excluir</button>`:''}</div>`).join('')}
    <div class="card"><div class="ttl">+ Cadastrar usuário</div><label class="lbl">Nome</label><input id="nn"><div class="row"><div style="flex:1"><label class="lbl">Perfil</label><select id="np"><option value="cozinha">Cozinha</option><option value="gestao">Gestão</option></select></div><div style="flex:1"><label class="lbl">Cargo</label><input id="nc" placeholder="ex.: Merendeira"></div></div>

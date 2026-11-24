@@ -419,6 +419,23 @@ input:focus,select:focus,textarea:focus{border-color:#2f7a49}
 @media (max-width:800px){.avgrid{grid-template-columns:1fr}.avnotas{grid-template-columns:1fr 1fr}.avbox{padding:14px;border-radius:20px}.avprato img{max-height:170px}}
 
 /* ===== FIM DO TEMA ===== */
+@media (min-width:900px){
+ .tt3{max-height:420px;gap:16px;margin-top:16px}
+ .tc .pn{font-size:34px}.tc .tag{font-size:16px}.pdesc{font-size:15px}
+ .tfoto{min-height:200px}
+ .tc.agora{transform:scale(1.02)}
+}
+.semgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:12px}
+.semd{background:rgba(255,253,248,.1);border:1px solid rgba(255,253,248,.15);border-radius:12px;padding:7px 10px;font-size:13px;line-height:1.3;min-width:0}
+.semd b{display:block;font-size:12px;letter-spacing:1px;opacity:.8}.semd .al{font-weight:700;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.semd .ln{opacity:.75;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.semd.on{background:#fffdf8;color:#23412f}.semd.on b{opacity:1;color:#c8643b}
+@media (max-width:899px){.semgrid{grid-template-columns:1fr 1fr}}
+#flashPdv{position:fixed;inset:0;z-index:9000;pointer-events:none;display:flex;align-items:center;justify-content:center;font:800 64px 'DM Sans',sans-serif;color:#fff;text-shadow:0 4px 20px rgba(0,0,0,.35);opacity:0;transition:opacity .25s}
+#flashPdv.on{opacity:.92}
+.kgbox{display:flex;align-items:center;flex:1;border:1.5px solid #d8cdb6;border-radius:10px;overflow:hidden;background:#fff}
+.kgbox input{border:0!important;flex:1;font-size:20px;font-weight:700;padding:11px 12px}.kgbox span{background:#2f7a49;color:#fff;font-weight:800;padding:13px 16px;font-size:18px}
+.sugbox{margin-top:12px;text-align:left}.sugbox input{width:100%;font-size:15px}
 </style>
 </head>
 <body>
@@ -525,7 +542,7 @@ function seed() {
 function semanaCiclo(card, dt, inicio) { const dias = Math.floor((parse(dt) - parse(inicio)) / 86400000); const w = ((Math.floor(dias / 7) % 4) + 4) % 4 + 1; return w; }
 function cardDia(card, dt, inicio) { const esp = DB && DB.especiais && DB.especiais[dt]; if (esp) return esp; const wd = parse(dt).getDay(); const ini = inicio || (DB && DB.config.inicioCiclo) || addD(-14); const w = semanaCiclo(card, dt, ini); return card[w + '-' + (wd >= 1 && wd <= 5 ? wd : 1)] || {}; }
 let DB = null;
-function load() { try { DB = JSON.parse(localStorage.getItem(KEY)); } catch(e) { DB = null; } if (!DB || !DB.users) { DB = seed(); save(); } if (!DB.fotos) DB.fotos = {}; if (!DB.especiais) DB.especiais = {}; if (!DB.pratos) DB.pratos = []; if (!DB.descr) DB.descr = {};
+function load() { try { DB = JSON.parse(localStorage.getItem(KEY)); } catch(e) { DB = null; } if (!DB || !DB.users) { DB = seed(); save(); } if (!DB.fotos) DB.fotos = {}; if (!DB.especiais) DB.especiais = {}; if (!DB.pratos) DB.pratos = []; if (!DB.descr) DB.descr = {}; if (!DB.sugestoes) DB.sugestoes = [{id:'s1', texto:'Cuscuz com carne de sol', data:addD(-3)}, {id:'s2', texto:'Lasanha', data:addD(-2)}, {id:'s3', texto:'Cuscuz com carne de sol', data:addD(-1)}, {id:'s4', texto:'Salada de frutas no lanche', data:addD(-1)}];
   if (DB.alunos.some(a => a.id[0] !== 'g')) { const ids = new Set(DB.alunos.filter(a => a.id[0] !== 'g').map(a => a.id)); DB.alunos = DB.alunos.filter(a => !ids.has(a.id)); DB.registros = DB.registros.filter(x => !ids.has(x.alunoId)); DB.avaliacoes = DB.avaliacoes.filter(x => !ids.has(x.alunoId)); DB.provisorias = DB.provisorias.filter(x => !ids.has(x.alunoId)); save(); }
   const faltam = GRUPO3.filter(g => !DB.alunos.some(a => a.id === g.id)); if (faltam.length) { DB.alunos.unshift(...faltam.map(a => ({...a}))); save(); }
   GRUPO3.forEach(g => { const a = DB.alunos.find(x => x.id === g.id); if (a) { a.img = g.img; if (!DB.config.turmasOk) a.turma = g.turma; } }); if (!DB.config.turmasOk) { DB.config.turmasOk = true; save(); } }
@@ -717,6 +734,15 @@ function lerCarteirinha(cod) {
   ultima = {tipo: prov ? 'prov' : 'ok', alunoId:a.id, hora:h, msg: prov ? `Carteirinha provisória ${prov.codigo} (válida só hoje). Refeição registrada.` : `Refeição registrada: ${cardHoje()[r] || r}.`};
   render();
 }
+let _audio = null;
+function bip(tipo) { if (DB.config.som === false) return; try { _audio = _audio || new (window.AudioContext || window.webkitAudioContext)(); const ctx = _audio; if (ctx.state === 'suspended') ctx.resume();
+  const notas = tipo === 'ok' || tipo === 'prov' ? [[880,0,.12],[1320,.13,.16]] : tipo === 'rep' ? [[988,0,.1],[988,.14,.1],[1320,.28,.14]] : [[220,0,.22],[180,.26,.3]];
+  notas.forEach(([f,t,d]) => { const o = ctx.createOscillator(), g = ctx.createGain(); o.type = tipo === 'ok' || tipo === 'prov' || tipo === 'rep' ? 'sine' : 'square'; o.frequency.value = f; g.gain.setValueAtTime(.0001, ctx.currentTime + t); g.gain.exponentialRampToValueAtTime(.25, ctx.currentTime + t + .02); g.gain.exponentialRampToValueAtTime(.0001, ctx.currentTime + t + d); o.connect(g); g.connect(ctx.destination); o.start(ctx.currentTime + t); o.stop(ctx.currentTime + t + d + .05); }); } catch(e) {} }
+function flash(tipo) { const C = {ok:['#1b8a4a','✔ LIBERADO'], prov:['#2b6cb0','🪪 PROVISÓRIA'], rep:['#d9962b','🔄 REPETIÇÃO'], ja:['#c62828','⚠ JÁ PEGOU'], nao:['#7a1020','❌ NÃO CADASTRADA']}[tipo]; if (!C) return;
+  let f = document.getElementById('flashPdv'); if (!f) { f = document.createElement('div'); f.id = 'flashPdv'; document.body.appendChild(f); }
+  f.style.background = C[0]; f.textContent = C[1]; f.classList.add('on'); clearTimeout(f._t); f._t = setTimeout(() => f.classList.remove('on'), 650); }
+const _lerOrig = lerCarteirinha;
+lerCarteirinha = function (cod) { const antes = ultima; _lerOrig(cod); if (ultima && ultima !== antes) { bip(ultima.tipo); flash(ultima.tipo); } };
 function simular() { const r = pdvRef || refAgora(); const livres = DB.alunos.filter(a => !regHoje(a.id, r).length); const lista = livres.length && Math.random() > .12 ? livres : DB.alunos; const a = lista[Math.floor(Math.random() * lista.length)]; lerCarteirinha(a.carteirinha); }
 document.addEventListener('keydown', e => { if (e.key === 'F8') { e.preventDefault(); if (DB.sessao || location.hash) encerrarSimulador(); } });
 document.addEventListener('keydown', e => { if (e.key === 'F2' && me() && NAVS[me().perfil].some(n => n[0]==='provisoria' || n[0]==='pdv')) { e.preventDefault(); ir('provisoria'); } });
@@ -763,14 +789,17 @@ TELAS.cozinha = u => {
    <div class="card" style="text-align:center;padding:22px">${lib ? `<div style="font-size:18px;font-weight:800;color:#8a5a00;margin-bottom:10px">🔄 Repetição LIBERADA desde ${DB.repeticao[repKey(dt,r)].hora}</div><button class="btn red" style="max-width:420px;margin:auto" onclick="liberar('${r}',false)">Encerrar repetição</button>` :
      `<button class="btn" style="max-width:460px;margin:auto;font-size:19px;padding:16px" onclick="liberar('${r}',true)">${ic('repeat',22)} LIBERAR REPETIÇÃO</button><div class="sub" style="margin-top:8px">Aperte quando as filas acabarem: o totem avisa e as carteirinhas podem passar de novo.</div>`}</div>
    <div class="pdv"><div class="card"><div class="ttl">${ic('scale',18)} Pesagem das sobras — ${esc(r)}</div>
-     <div class="row" style="margin-top:8px"><input id="kg" type="text" inputmode="decimal" placeholder="kg de sobras" value="${pes?pes.kg:''}" style="flex:1"><button class="btn sm" style="padding:11px 18px" onclick="salvarPeso('${r}')">Salvar</button></div>
-     <div class="sub" style="margin-top:6px">${pes ? '✔ Pesagem salva: ' + fmt(pes.kg) + ' kg' : 'Ainda não pesado.'}</div></div>
+     <div class="row" style="margin-top:8px"><div class="kgbox"><input id="kg" type="text" inputmode="decimal" placeholder="ex.: 3,5" value="${pes?String(pes.kg).replace('.',','):''}"><span>kg</span></div><button class="btn sm" style="padding:13px 18px" onclick="salvarPeso('${r}')">Salvar</button></div>
+     <div class="sub" style="margin-top:6px">⚖ Digite em <b>quilos (kg)</b>. Se a balança mostrar gramas, divida por 1000: <b>850 g = 0,85 kg</b>.</div>
+     <div class="sub" style="margin-top:4px">${pes ? '✔ Pesagem salva: <b>' + kg2(pes.kg) + ' kg</b>' : 'Ainda não pesado.'}</div></div>
     <div class="card"><div class="ttl">Cardápio de hoje</div>${REF.map(x => `<div class="li"><span class="sel ${x===r?'s-b':'s-g'}">${x}</span><div style="flex:1">${esc(cardHoje()[x] || '—')}</div></div>`).join('')}
      <div class="sub" style="margin-top:6px">Os alunos dizem no tablet se o cardápio foi seguido: ${av.length ? pct(av.filter(a => a.seguido).length, av.length) + '% disseram sim' : 'sem respostas ainda'}.</div></div></div>`;
 };
 function liberar(r, sim) { DB.repeticao[repKey(iso(hoje()), r)] = {liberada:sim, hora:hhmm()}; save(); toast(sim ? '🔄 Repetição liberada! O totem já está avisando.' : 'Repetição encerrada.'); render(); }
-function salvarPeso(r) { const v = parseFloat(String($('#kg').value).replace(',','.')); if (isNaN(v) || v < 0) return toast('Digite o peso em kg.'); const dt = iso(hoje());
-  const p = DB.pesagens.find(x => x.data === dt && x.refeicao === r); if (p) p.kg = v; else DB.pesagens.push({id:uid(), data:dt, refeicao:r, kg:v}); save(); toast('✔ Pesagem salva: ' + fmt(v) + ' kg'); render(); }
+function salvarPeso(r, conf) { const v = parseFloat(String($('#kg').value).replace(',','.')); if (isNaN(v) || v < 0) return toast('Digite o peso em kg.');
+  if (v > 60 && !conf) return confirmar('Esse peso está em gramas?', `${fmt(v)} kg de sobras é muito. Se a balança mostrou <b>${kg2(v)} g</b>, o certo é <b>${kg2(v/1000)} kg</b>.`, () => { $('#kg').value = String(v/1000).replace('.',','); salvarPeso(r, true); }, 'Converter para ' + kg2(v/1000) + ' kg');
+  const dt = iso(hoje());
+  const p = DB.pesagens.find(x => x.data === dt && x.refeicao === r); if (p) p.kg = v; else DB.pesagens.push({id:uid(), data:dt, refeicao:r, kg:v}); save(); toast('✔ Pesagem salva: ' + kg2(v) + ' kg'); render(); }
 TELAS.pesagem = u => { const dias = [...new Set(DB.pesagens.map(p => p.data))].sort().reverse().slice(0, 15); const mx = Math.max(...DB.pesagens.map(p => p.kg), 1);
   return `${voltarBtn(ic('scale') + ' Pesagem das sobras')}<div class="card" style="padding:6px 14px"><div class="li" style="font-weight:700;color:var(--mu);font-size:12px"><span style="width:120px">DIA</span>${REF.map(r => `<span style="flex:1">${r.toUpperCase()}</span>`).join('')}<span style="width:70px;text-align:right">TOTAL</span></div>
    ${dias.map(d => { const ps = REF.map(r => DB.pesagens.find(p => p.data === d && p.refeicao === r)); const tot = ps.reduce((t,p) => t + (p ? p.kg : 0), 0); const c = cardDia(DB.cardapio, d);
@@ -886,10 +915,24 @@ TELAS.relatorios = u => {
      <div class="ttl" style="margin:14px 0 8px;color:var(--r)">👎 Menos aceitos</div>${pr.slice(-4).reverse().map(x => barraP(x,'var(--r)')).join('')}</div>
     <div><div class="card"><div class="ttl">Sobras por dia (kg)</div><svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto"><polyline fill="none" stroke="#2f7a49" stroke-width="3" points="${pts}"/>${ult.map((v,i) => `<circle cx="${20 + i * (W - 30) / Math.max(1, ult.length - 1)}" cy="${H - 12 - v / mk * (H - 30)}" r="4" fill="${v > mKg * 1.25 ? '#c8643b' : '#2f7a49'}"/>`).join('')}</svg>
      <div class="sub">Pontos vermelhos: dias com sobra acima da média — confira o prato do dia na tela de pesagem.</div></div>
+     ${sobrasSemana()}
      <div class="card"><div class="ttl" style="margin-bottom:6px">Turmas que mais ficam sem comer</div>${porT.slice(0,4).map(([t,p]) => `<div class="row" style="margin-bottom:6px"><span style="width:60px;font-weight:700">${t}</span><div style="flex:1;height:12px;background:#e3e9ee;border-radius:6px"><div style="height:12px;border-radius:6px;background:${p>15?'var(--r)':'var(--y)'};width:${Math.min(100,p*3)}%"></div></div><b style="width:44px;text-align:right">${p}%</b></div>`).join('')}</div></div></div>
+   ${cardSugestoes()}
    <div class="card" style="background:var(--g);color:#fff">💡 <b>Insight:</b> ${pr.length ? `"${esc(pr[pr.length-1].prato)}" teve só ${pr[pr.length-1].p}% de aprovação. Sugestão: trocar ou mudar a receita e acompanhar a pesagem das sobras na semana seguinte.` : 'Ainda não há avaliações suficientes.'}</div>
    <div class="note">Dados simulados para demonstração. Os dados por aluno ficam visíveis só para a gestão.</div>`;
 };
+function sobrasSemana() {
+  const sem = [3,2,1,0].map(k => { const ini = -7 * k - 6, fim = -7 * k; const l = DB.pesagens.filter(p => { const d = Math.round((parse(p.data) - hoje()) / 86400000); return d >= ini && d <= fim; }); return {k, kg: l.reduce((t,p) => t + p.kg, 0), dias: new Set(l.map(p => p.data)).size, ini: addD(ini), fim: addD(fim)}; });
+  const mx = Math.max(...sem.map(x => x.kg), 1); const at = sem[3], an = sem[2]; const dif = an.kg ? Math.round((at.kg - an.kg) / an.kg * 100) : 0;
+  return `<div class="card"><div class="ttl">📊 Sobras por semana (kg)</div>
+   <div style="display:flex;align-items:flex-end;gap:14px;height:175px;margin:14px 4px 4px">${sem.map(x => `<div style="flex:1;text-align:center"><b style="font-size:13px">${fmt(x.kg)}</b><div style="height:${Math.max(4, Math.round(x.kg / mx * 100))}px;background:${x.k===0?'#c8643b':'#2f7a49'};border-radius:8px 8px 0 0;margin-top:4px"></div><div class="sub" style="font-size:11.5px;margin-top:4px">${x.k===0?'Esta semana':x.k===1?'Semana passada':'Há '+x.k+' semanas'}<br>${br(x.ini).slice(0,5)}–${br(x.fim).slice(0,5)}</div></div>`).join('')}</div>
+   <div style="margin-top:8px;padding:10px;border-radius:10px;background:${dif<=0?'#dcf3e4':'#fde2e4'};font-size:14px">${an.kg ? (dif <= 0 ? `✅ Esta semana sobrou <b>${Math.abs(dif)}% menos</b> que a semana passada (${fmt(at.kg)} kg × ${fmt(an.kg)} kg).` : `⚠ Esta semana sobrou <b>${dif}% mais</b> que a semana passada (${fmt(at.kg)} kg × ${fmt(an.kg)} kg).`) : 'Ainda não há pesagens da semana passada para comparar.'}</div></div>`;
+}
+function cardSugestoes() { const c = {}; (DB.sugestoes || []).filter(x => diasAte2(x.data) < 30).forEach(x => { const k = x.texto.trim(); const kk = k.toLowerCase(); (c[kk] = c[kk] || {t:k, n:0}).n++; });
+  const l = Object.values(c).sort((a,b) => b.n - a.n).slice(0, 6);
+  return `<div class="card"><div class="ttl">💡 Pratos sugeridos pelos alunos (tablet)</div>${l.map(x => `<div class="li"><div style="flex:1">${esc(x.t)}</div><span class="sel s-b">${x.n} pedido${x.n>1?'s':''}</span></div>`).join('') || '<div class="sub" style="margin-top:6px">Nenhuma sugestão ainda.</div>'}</div>`; }
+const kg2 = n => n.toLocaleString('pt-BR', {maximumFractionDigits:2});
+const diasAte2 = s => Math.round((hoje() - parse(s)) / 86400000);
 const barraP = (x, cor) => `<div class="row" style="margin-bottom:7px"><span style="width:46%;font-size:13px">${esc(x.prato)} <span class="sub">• ${x.ref}</span></span><div style="flex:1;height:12px;background:#e3e9ee;border-radius:6px"><div style="height:12px;border-radius:6px;background:${cor};width:${x.p}%"></div></div><b style="width:42px;text-align:right;font-size:13px">${x.p}%</b></div>`;
 function compartilhar(t) { window.open('https://wa.me/?text=' + encodeURIComponent(t), '_blank'); }
 
@@ -912,7 +955,8 @@ function renderTotem() {
     <div style="margin-left:auto;text-align:right"><div style="font-size:44px;font-weight:800" id="relogio">${hhmm()}</div><div class="row" style="justify-content:flex-end;gap:6px;margin-top:4px">${btnCheia().replace('class="tcb"','class="tcb escuro"')}</div></div></div>
    <div class="tt3">${REF.map(x => `<div class="tc ${x===r?'agora':''}"><div class="tag">${x.toUpperCase()} • ${HORA[x]}${x===r?' • AGORA':''}</div><div class="pn">${esc(c[x] || '—')}</div>${descP(c[x]) ? `<div class="pdesc">${esc(descP(c[x]))}</div>` : ''}${fotoP(c[x]) ? `<div class="tfoto" style="background-image:url(${fotoP(c[x])})"></div>` : `<div style="font-size:64px;text-align:center;margin-top:auto">${em[x]}</div>`}</div>`).join('')}</div>
    ${c.restricao ? `<div style="text-align:center;font-size:17px;margin:10px 0 0;opacity:.9">🥛 ${esc(c.restricao)}</div>` : ''}
-   <div class="row" style="justify-content:center;gap:8px;margin-top:12px;flex-wrap:wrap"><b style="margin-right:6px">Semana ${w} de 4:</b>${[1,2,3,4,5].map(d => `<span class="tw ${d===wd?'on':''}">${DIASF[d].slice(0,3)} • ${esc((DB.cardapio[w+'-'+d]||{})['Almoço']||'')}</span>`).join('')}</div>
+   <div class="semgrid">${[1,2,3,4,5].map(d => { const dt = (() => { const x = hoje(); x.setDate(x.getDate() + (d - (wd >= 1 && wd <= 5 ? wd : 1))); return iso(x); })(); const cc = cardDia(DB.cardapio, dt);
+     return `<div class="semd ${d===wd?'on':''}"><b>${DIASF[d].toUpperCase()}${d===wd?' • HOJE':''}</b><div class="al">🍛 ${esc(cc['Almoço']||'—')}</div><div class="ln">🥐 ${esc(cc['1º lanche']||'—')} • 🥤 ${esc(cc['2º lanche']||'—')}</div></div>`; }).join('')}</div>
    ${lib ? `<div class="faixa">🔄 REPETIÇÃO LIBERADA! Passe sua carteirinha no PDV</div>` : ''}
    <div style="text-align:center;margin-top:auto;font-size:14px;opacity:.75;padding-top:10px">EcoFood • Projeto Desperdício Zero • Avalie sua refeição no tablet ao lado ⭐</div></div>`;
 }
@@ -940,6 +984,7 @@ function renderTablet() {
        <div class="avnotas">${[1,2,3,4].map(n => `<button class="avnt ${tab.nota===n?'on':''}" style="--c:${NOTAS[n][2]}" onclick="tab.nota=${n};renderTablet()"><span class="avemo">${NOTAS[n][0]}</span><b>${NOTAS[n][1]}</b>${tab.nota===n?'<i>✔</i>':''}</button>`).join('')}</div>
        <div class="avq"><span class="avn">2</span> O cardápio do totem foi seguido?</div>
        <div class="avsn"><button class="${tab.seg===true?'on':''}" onclick="tab.seg=true;renderTablet()">✔ Sim</button><button class="${tab.seg===false?'on nao':''}" onclick="tab.seg=false;renderTablet()">✕ Não</button></div>
+       <div class="sugbox"><div class="avq" style="font-size:16px"><span class="avn" style="background:#c8643b">💡</span> Quer sugerir um prato? <span class="sub">(opcional)</span></div><input id="sugTab" maxlength="60" placeholder="ex.: cuscuz com ovo, salada de frutas…" value="${esc(tab.sug||'')}" oninput="tab.sug=this.value"></div>
        <button class="avenviar ${pronto?'':'off'}" onclick="tabEnviar()">➤ Enviar avaliação</button>
        <div class="sub" style="text-align:center;margin-top:6px">${pronto ? 'Tudo pronto! Toque em Enviar.' : 'Escolha uma carinha e responda Sim ou Não.'}</div>
        <button class="avcanc" onclick="tab={etapa:'cart'};renderTablet()">Cancelar</button>
@@ -961,7 +1006,7 @@ function tabSimular() { const hojeR = DB.registros.filter(x => x.data === iso(ho
   const l = cand.length && Math.random() > .15 ? cand : DB.alunos.map(a => ({alunoId:a.id})); const x = l[Math.floor(Math.random() * l.length)]; tabLer(aluno(x.alunoId).carteirinha); }
 function tabEnviar() { if (!tab.nota) return toast('Escolha uma das 4 carinhas.'); if (tab.seg === undefined) return toast('Responda se o cardápio foi seguido.');
   if (DEMO()) DB.avaliacoes = DB.avaliacoes.filter(v => !(v.alunoId === tab.alunoId && v.data === iso(hoje()) && v.refeicao === tab.ref));
-  DB.avaliacoes.push({id:uid(), alunoId:tab.alunoId, data:iso(hoje()), refeicao:tab.ref, prato:cardHoje()[tab.ref] || tab.ref, nota:tab.nota, seguido:tab.seg}); save(); tab = {etapa:'ok'}; renderTablet(); }
+  DB.avaliacoes.push({id:uid(), alunoId:tab.alunoId, data:iso(hoje()), refeicao:tab.ref, prato:cardHoje()[tab.ref] || tab.ref, nota:tab.nota, seguido:tab.seg}); if (tab.sug && tab.sug.trim().length >= 3) DB.sugestoes.push({id:uid(), texto:tab.sug.trim().slice(0,60), data:iso(hoje())}); save(); tab = {etapa:'ok'}; renderTablet(); }
 
 // ====================== JANELAS / AJUSTES ======================
 TELAS.janelas = u => `${voltarBtn(ic('tv') + ' Totem e tablet')}<div class="sub" style="margin-bottom:12px">Cada tela abre numa janela própria, ligada ao mesmo sistema. Use o botão ⛶ (ou F11) para tela cheia e ESC para sair.</div>
@@ -975,8 +1020,9 @@ TELAS.ajustes = u => `${voltarBtn(ic('gear') + ' Ajustes')}<div class="card" sty
    <div style="max-width:640px"><button class="btn gray" onclick="sair()">${ic('swap',18)} Trocar usuário / sair</button>
    <button class="btn out" style="color:var(--r);border-color:var(--r)" onclick="confirmar('Restaurar dados de exemplo?','Tudo o que foi registrado neste computador será apagado e o programa volta ao início.',()=>{localStorage.removeItem(KEY);load();renderLogin();toast('Dados de exemplo restaurados.')},'Restaurar')">Restaurar dados de exemplo</button></div>
    <div class="card" style="max-width:640px"><label class="row" style="cursor:pointer;gap:10px"><input type="checkbox" style="width:22px;height:22px;flex:none" ${DEMO()?'checked':''} onchange="DB.config.demo=this.checked;save();toast(this.checked?'Modo apresentação ligado':'Modo apresentação desligado');render()"><div><div class="ttl">Modo apresentação</div><div class="sub">Ligado: a mesma carteirinha pode passar várias vezes no PDV e avaliar no tablet sem ter pegado a refeição, para mostrar todas as telas. Desligado: regras reais (não libera duas vezes e só avalia quem pegou).</div></div></label></div>
+   <div class="card" style="max-width:640px"><label class="row" style="cursor:pointer;gap:10px"><input type="checkbox" style="width:22px;height:22px;flex:none" ${DB.config.som!==false?'checked':''} onchange="DB.config.som=this.checked;save();if(this.checked)bip('ok')"><div><div class="ttl">🔊 Som e cor no PDV</div><div class="sub">Bipe agudo + tela verde quando libera; bipe grave + tela vermelha quando a carteirinha não pode passar.</div></div></label></div>
    <div style="max-width:640px"><button class="btn out" style="color:#c8643b;border-color:#c8643b" onclick="zerarHoje()">↺ Zerar hoje (para passar as carteirinhas ao vivo)</button></div>
-   <div class="note">EcoFood • versão 2.2 para Windows • protótipo do TCC IEMA 2026 (Grupo 3)</div>`;
+   <div class="note">EcoFood • versão 2.3 para Windows • protótipo do TCC IEMA 2026 (Grupo 3)</div>`;
 
 // ====================== início ======================
 load(); render();
