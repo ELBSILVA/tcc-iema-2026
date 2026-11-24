@@ -1,0 +1,27 @@
+name: Baixar icones ODS
+on:
+  workflow_dispatch:
+  push:
+    paths: [".github/workflows/ods.yml"]
+permissions:
+  contents: write
+jobs:
+  ods:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Baixar icones (FIEP-PR / Nós Podemos Paraná)
+        run: |
+          mkdir -p ods
+          B="https://www.fiepr.org.br/nospodemosparana/uploadAddress"
+          UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36"
+          for p in "03:70240" "04:70241" "09:70246" "12:70249"; do i=${p%%:*}; id=${p##*:}
+            curl -fsSL -A "$UA" -o "ods/ods$i.png" "$B/E_SDG_Icons_NoText-$i%5B$id%5D.png"; done
+          ls -l ods; file ods/*
+      - name: Salvar no repositório
+        run: |
+          git config user.name "TCC IEMA 2026"
+          git config user.email "tcc-iema@users.noreply.github.com"
+          git add ods
+          git commit -m "Icones ODS 3, 4, 9 e 12" || echo "sem mudanças"
+          git push
