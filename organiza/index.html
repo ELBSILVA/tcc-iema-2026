@@ -156,6 +156,8 @@ input:focus,select:focus,textarea:focus{border-color:#6c5ce7}
 .tagm{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 7px;border-radius:6px;color:#fff;letter-spacing:.3px}
 .fotoav{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .filtro{display:flex;gap:6px;overflow-x:auto;margin:0 0 10px;padding-bottom:2px}.filtro .chip{white-space:nowrap}
+.carga{border-radius:12px;padding:10px 12px;margin:10px 0 2px;font-size:13px;line-height:1.45}.carga.v{background:#e7f7ee;border:1px solid #9fdcb8}.carga.a{background:#fff6dc;border:1px solid #f2d27a}.carga.r{background:#fde8ea;border:1px solid #f3a5ad}.carga b.t{display:block;margin-bottom:2px}.carga ul{margin:4px 0 0 16px;padding:0}.dia{display:flex;gap:10px;align-items:flex-start}.dia .n{width:46px;flex:none;text-align:center;border-radius:10px;padding:6px 0;font-weight:800;color:#fff}.dia .n small{display:block;font-size:10.5px;font-weight:600;opacity:.9}
+.filtros{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 12px}.filtros .full{grid-column:1/-1}.filtros label{display:block;font-size:11.5px;font-weight:700;color:var(--mu);margin:0 0 4px;letter-spacing:.3px}.filtros select{width:100%;margin:0;padding:10px 12px;font-size:14px}.minhaturma{font-size:12.5px;color:var(--mu);margin:-4px 0 10px}
 .lblf{font-size:11.5px;font-weight:700;color:var(--mu);margin:4px 0 5px;letter-spacing:.3px}
 </style>
 </head>
@@ -447,15 +449,23 @@ TELAS.aluno.horario = u => {
      dias.map((d,i) => `<div class="sec">${DIASF[i+1]}</div>${doDia(i+1)}`).join('')}
    <div class="note"><span style="color:#22a45d">■</span> aula de agora &nbsp; <span style="color:#e0a100">■</span> substituição<br>Turma ${esc(u.turma)} • ${periodoDe(iso(hoje()))}º período (horário de exemplo)</div>`;
 };
-let filtroDisc = '', filtroPer = 0;
+let filtroDisc = '', filtroPer = 0, filtroProf = '';
+const nomeProf = id => (DB.users.find(x => x.id === id) || {}).nome || '';
+function caixa(rot, val, opcoes, onch, todos, cls) {
+  return `<div class="${cls||''}"><label>${rot}</label><select onchange="${onch}">${`<option value="">${todos}</option>`}${opcoes.map(([v,t]) => `<option value="${esc(String(v))}" ${String(val)===String(v)?'selected':''}>${esc(t)}</option>`).join('')}</select></div>`;
+}
+const minhaTurma = u => `<div class="minhaturma">👥 Turma <b>${esc(u.turma)}</b>${u.curso ? ' • ' + esc(u.curso) : ''}</div>`;
 TELAS.aluno.trabalhos = u => {
   const aba = param || 'pend'; const todas = minhasAtiv(u); const discs = [...new Set(todas.map(a => a.disciplina))].sort();
-  const at = todas.filter(a => (!filtroDisc || a.disciplina === filtroDisc) && (!filtroPer || perA(a) === filtroPer));
+  const profs = [...new Set(todas.map(a => a.profId).filter(Boolean))].map(id => [id, nomeProf(id)]).filter(x => x[1]).sort((a,b) => a[1].localeCompare(b[1]));
+  if (filtroDisc && !discs.includes(filtroDisc)) filtroDisc = ''; if (filtroProf && !profs.some(x => x[0] === filtroProf)) filtroProf = '';
+  const at = todas.filter(a => (!filtroDisc || a.disciplina === filtroDisc) && (!filtroPer || perA(a) === filtroPer) && (!filtroProf || a.profId === filtroProf));
   const pend = at.filter(a => !feita(u,a)), conc = at.filter(a => feita(u,a));
   const lista = aba === 'pend' ? pend : conc;
   return `${voltarBtn(ic('list')+' Trabalhos e atividades')}<div class="seg"><button class="${aba==='pend'?'on':''}" onclick="param='pend';render()">Pendentes (${pend.length})</button><button class="${aba==='conc'?'on':''}" onclick="param='conc';render()">Concluídos (${conc.length})</button></div>
-   <div class="lblf">PERÍODO</div><div class="filtro"><span class="chip ${!filtroPer?'on':''}" onclick="filtroPer=0;render()">Todos</span>${PERIODOS.map(n => `<span class="chip ${filtroPer===n?'on':''}" onclick="filtroPer=${n};render()">${n}º período</span>`).join('')}</div>
-   <div class="lblf">DISCIPLINA</div><div class="filtro" style="margin-bottom:12px"><span class="chip ${!filtroDisc?'on':''}" onclick="filtroDisc='';render()">Todas</span>${discs.map(d => `<span class="chip ${filtroDisc===d?'on':''}" onclick='filtroDisc=${JSON.stringify(d)};render()'>${esc(d)}</span>`).join('')}</div>
+   ${minhaTurma(u)}<div class="filtros">${caixa('DISCIPLINA', filtroDisc, discs.map(d => [d,d]), 'filtroDisc=this.value;render()', 'Todas as disciplinas', 'full')}
+    ${caixa('PROFESSOR', filtroProf, profs, 'filtroProf=this.value;render()', 'Todos')}
+    ${caixa('PERÍODO', filtroPer||'', PERIODOS.map(n => [n, n+'º período']), 'filtroPer=+this.value;render()', 'Todos')}</div>
    ${lista.map(a => itemAtiv(u,a)).join('') || '<div class="empty">Nada por aqui.</div>'}
    <div class="note">🔴 vence amanhã/hoje/atrasada • 🟡 faltam 2–3 dias • 🔵 no prazo • 🟢 concluída</div>`;
 };
@@ -463,11 +473,11 @@ TELAS.aluno.ativ = u => telaAtividade(u);
 function telaAtividade(u) {
   const a = DB.atividades.find(x => x.id === param); if (!a) return voltarBtn('Atividade') + '<div class="empty">Atividade não encontrada.</div>';
   const p = DB.users.find(x => x.id === a.profId); const f = u.perfil === 'aluno' && feita(u,a);
-  const txt = `📚 ${a.titulo}\n${a.disciplina} • ${a.tipo}\nPrazo: ${br(a.prazo)}\nTurmas: ${a.turmas.join(', ')}\n${a.descricao||''}\n\n👉 Abrir no IEMA Organiza: ${linkDe('ativ', a.id)}`;
+  const txt = `📚 ${a.titulo}\n${a.disciplina} • ${a.tipo}\nPrazo: ${br(a.prazo)}\n${u.perfil === 'aluno' ? 'Turma: ' + u.turma : 'Turmas: ' + a.turmas.join(', ')}\n${a.descricao||''}\n\n👉 Abrir no IEMA Organiza: ${linkDe('ativ', a.id)}`;
   return `${voltarBtn('Atividade')}<div class="card"><div class="row" style="justify-content:space-between"><span class="sel ${tagCls('Prova')}">${esc(a.tipo)}</span>${selo(a.prazo,f)}</div>
    <div class="ttl" style="font-size:17px;margin-top:8px">${esc(a.titulo)}</div><div class="sub">${esc(a.disciplina)} • ${esc(p?p.nome:'')}</div>
    <div style="margin:12px 0;font-size:14px;line-height:1.5">${esc(a.descricao || 'Sem descrição.')}</div>
-   <div class="sub">📅 Prazo: <b>${DIASF[parse(a.prazo).getDay()]}, ${br(a.prazo)}</b><br>👥 Turmas: ${a.turmas.map(esc).join(', ')}</div>
+   <div class="sub">📅 Prazo: <b>${DIASF[parse(a.prazo).getDay()]}, ${br(a.prazo)}</b><br>👥 ${u.perfil === 'aluno' ? 'Turma: ' + esc(u.turma) : 'Turmas: ' + a.turmas.map(esc).join(', ')}</div>
    ${(() => { const al = DB.alteracoes.filter(x => x.ativ === a.id).pop(); return al ? `<div class="sub" style="color:#8a5a00;margin-top:6px">📅 Data alterada em ${br(al.em)}: era ${br(al.de)}</div>` : ''; })()}
    ${a.anexo ? `<button class="btn out" onclick='abrirLink(${JSON.stringify(a.anexo)})'>📎 Abrir arquivo anexo</button>` : ''}
    ${u.perfil!=='aluno' ? (() => { const al = DB.users.filter(x => x.perfil==='aluno' && a.turmas.includes(x.turma)); const c = al.filter(x => (DB.concluidas[x.id]||[]).includes(a.id)).length;
@@ -485,7 +495,7 @@ function cardAviso(v, podeExcluir) {
   const txt = `📣 ${v.tipo.toUpperCase()}: ${v.titulo}\n${v.texto}\n— ${v.autor}\n\n👉 Abrir no IEMA Organiza: ${linkDe('aviso', v.id)}`;
   return `<div class="card" id="av-${v.id}" style="border-left:4px solid var(--r)"><div class="row" style="justify-content:space-between"><span class="sel ${tagCls(v.tipo)}">${esc(v.tipo.toUpperCase())}</span><span class="sub">${br(v.data)}</span></div>
    <div class="ttl" style="margin:6px 0 3px">${esc(v.titulo)}</div><div style="font-size:13.5px;color:#4a525a;line-height:1.45">${esc(v.texto)}</div>
-   <div class="row" style="justify-content:space-between;margin-top:8px"><span class="sub">${esc(v.autor)}${Array.isArray(v.turmas)?' • turmas '+v.turmas.join(', '):''}</span>
+   <div class="row" style="justify-content:space-between;margin-top:8px"><span class="sub">${esc(v.autor)}${Array.isArray(v.turmas) && me() && me().perfil !== 'aluno' ? ' • turmas '+v.turmas.join(', ') : ''}</span>
    ${podeExcluir?`<button class="del" onclick="excluir('avisos','${v.id}')">Excluir</button>`:''}</div>
    ${podeExcluir ? `<div style="margin-top:8px"><div class="row" style="justify-content:space-between;font-size:12.5px"><b>👁 Lido por ${leit.n} de ${leit.t} alunos</b><span>${leit.t?Math.round(leit.n/leit.t*100):0}%</span></div><div class="prog"><i style="width:${leit.t?Math.round(leit.n/leit.t*100):0}%"></i></div></div>` : ''}
    <button class="btn wa" style="font-size:15px" onclick='compartilhar(${JSON.stringify(txt)})'>${ic('share',18)} Enviar no WhatsApp</button>
@@ -521,17 +531,21 @@ function cardMaterial(m, podeExcluir) {
    <div class="ttl" style="margin-top:3px">${esc(m.titulo)}</div><div class="sub">${esc(m.disciplina)} • ${esc(p ? p.nome : '—')}</div></div>
    ${podeExcluir?`<button class="del" onclick="event.stopPropagation();excluir('materiais','${m.id}')">Excluir</button>`:'<span style="color:var(--b)" title="abrir link">↗</span>'}</div>`;
 }
-let grupoMat = 'disciplina', perMat = 0;
+let grupoMat = 'disciplina', perMat = 0, discMat = '', profMat = '';
 function listaMateriais(lista, podeExcluir) {
-  const l = lista.filter(m => !perMat || m.periodo === perMat);
+  const dm = [...new Set(lista.map(m => m.disciplina))].sort(); const pm = [...new Set(lista.map(m => m.profId).filter(Boolean))].map(id => [id, nomeProf(id)]).filter(x => x[1]).sort((a,b) => a[1].localeCompare(b[1]));
+  if (discMat && !dm.includes(discMat)) discMat = ''; if (profMat && !pm.some(x => x[0] === profMat)) profMat = '';
+  const l = lista.filter(m => (!perMat || m.periodo === perMat) && (!discMat || m.disciplina === discMat) && (!profMat || m.profId === profMat));
   const chave = m => grupoMat === 'professor' ? ((DB.users.find(x => x.id === m.profId) || {}).nome || 'Sem professor') : grupoMat === 'periodo' ? m.periodo + 'º período' : m.disciplina;
   const grupos = {}; l.forEach(m => (grupos[chave(m)] = grupos[chave(m)] || []).push(m));
-  return `<div class="lblf">SEPARAR POR</div><div class="seg">${[['professor','Professor'],['disciplina','Disciplina'],['periodo','Período']].map(([k,t]) => `<button class="${grupoMat===k?'on':''}" onclick="grupoMat='${k}';render()">${t}</button>`).join('')}</div>
-   <div class="lblf">PERÍODO</div><div class="filtro"><span class="chip ${!perMat?'on':''}" onclick="perMat=0;render()">Todos</span>${PERIODOS.map(n => `<span class="chip ${perMat===n?'on':''}" onclick="perMat=${n};render()">${n}º</span>`).join('')}</div>
+  return `<div class="filtros">${caixa('DISCIPLINA', discMat, dm.map(d => [d,d]), 'discMat=this.value;render()', 'Todas as disciplinas', 'full')}
+    ${caixa('PROFESSOR', profMat, pm, 'profMat=this.value;render()', 'Todos')}
+    ${caixa('PERÍODO', perMat||'', PERIODOS.map(n => [n, n+'º período']), 'perMat=+this.value;render()', 'Todos')}
+    <div class="full"><label>SEPARAR POR</label><select onchange="grupoMat=this.value;render()">${[['disciplina','Disciplina'],['professor','Professor'],['periodo','Período']].map(([k,t]) => `<option value="${k}" ${grupoMat===k?'selected':''}>${t}</option>`).join('')}</select></div></div>
    ${Object.keys(grupos).sort().map(g => `<div class="sec">${esc(g)} <span class="sub" style="font-weight:500;margin-left:6px">• ${grupos[g].length} item(ns)</span></div>` + grupos[g].map(m => cardMaterial(m, podeExcluir)).join('')).join('') || '<div class="empty">Nenhum material neste filtro.</div>'}
    <div class="note">Os arquivos ficam no Drive, OneDrive, YouTube ou outro site. O app guarda só o link para abrir ou baixar.</div>`;
 }
-TELAS.aluno.material = u => voltarBtn(ic('book')+' Material de apoio') + listaMateriais(DB.materiais.filter(m => m.turmas.includes(u.turma)));
+TELAS.aluno.material = u => voltarBtn(ic('book')+' Material de apoio') + minhaTurma(u) + listaMateriais(DB.materiais.filter(m => m.turmas.includes(u.turma)));
 TELAS.aluno.desempenho = u => {
   const notas = DB.notas[u.id] || []; const media = notas.length ? (notas.reduce((s,n) => s + Number(n.v), 0) / notas.length) : 0;
   const at = minhasAtiv(u); const nc = at.filter(a => feita(u,a)).length;
@@ -542,7 +556,7 @@ TELAS.aluno.desempenho = u => {
    <div class="sec">Minhas notas</div>
    ${notas.map((n,i) => `<div class="card"><div class="row" style="justify-content:space-between"><span class="ttl">${esc(n.d)}</span><span><b style="color:${n.v>=6?'var(--ok)':'var(--r)'}">${String(n.v).replace('.',',')}</b> <button class="del" onclick="delNota(${i})">✕</button></span></div>
      <div style="height:10px;background:#e3e9ee;border-radius:5px;margin-top:6px"><div class="bar" style="width:${Math.min(100,n.v*10)}%;background:${n.v>=6?'var(--b)':'var(--r)'}"></div></div></div>`).join('') || '<div class="empty">Nenhuma nota lançada.</div>'}
-   <div class="card"><div class="ttl">+ Lançar nota</div><label class="lbl">Disciplina</label><select id="nd">${DB.disc.map(d => `<option>${esc(d)}</option>`).join('')}</select>
+   <div class="card"><div class="ttl">+ Lançar nota</div><label class="lbl">Disciplina</label><select id="nd">${(() => { const ds = [...new Set([...Object.values(DB.horario).flat().map(h => h[2]), ...minhasAtiv(u).map(a => a.disciplina)])].filter(Boolean).sort(); return (ds.length ? ds : DB.disc); })().map(d => `<option>${esc(d)}</option>`).join('')}</select>
    <label class="lbl">Nota (0 a 10)</label><input id="nv" type="number" min="0" max="10" step="0.1" placeholder="ex.: 8,5"><button class="btn" onclick="addNota()">Salvar nota</button></div>
    <div class="note">Média mínima da escola: 6,0. As notas são lançadas pelo próprio aluno, para acompanhar o desempenho.</div>`;
 };
@@ -567,7 +581,7 @@ function telaAjustes(u) {
    <div class="card" style="margin-top:12px">🛡 <b>IEMA Pleno de Coroatá</b><div class="sub">Aplicativo de organização escolar. Seus dados ficam apenas neste aparelho (protótipo).</div></div>
    <button class="btn gray" onclick="sair()">↪ Sair da conta</button>
    <button class="btn out" style="color:var(--r);border-color:var(--r)" onclick="confirmar('Restaurar dados de exemplo?','Tudo o que foi cadastrado neste aparelho será apagado e o app volta ao início.',()=>{localStorage.removeItem(KEY);load();renderLogin();toast('Dados de exemplo restaurados.')},'Restaurar')">Restaurar dados de exemplo</button>
-   <div class="note">IEMA Organiza • versão 1.6 • protótipo do TCC IEMA 2026 (Grupo 1)</div>`;
+   <div class="note">IEMA Organiza • versão 1.7 • protótipo do TCC IEMA 2026 (Grupo 1)</div>`;
 }
 function confirmar(titulo, texto, sim, rotulo) {
   const m = document.createElement('div'); m.className = 'modal';
@@ -594,17 +608,57 @@ TELAS.professor.inicio = u => {
    <div class="sec">O que você quer fazer?</div>
    <div class="grid"><div class="qa" onclick="ir('novaAtiv')">${ic('plus')}Nova atividade</div><div class="qa" onclick="ir('novoMat')">${ic('book')}Novo material</div>
    <div class="qa" onclick="ir('minhas')">${ic('list')}Minhas atividades</div><div class="qa" onclick="ir('avisos')">${ic('mega')}Avisos da escola</div>
-   <div class="qa" onclick="ir('usuarios','aluno')">${ic('users')}Meus alunos</div><div class="qa" onclick="ir('novoUser','aluno')">${ic('user')}Cadastrar aluno</div></div>
+   <div class="qa" onclick="ir('carga')">📊 Agenda das turmas</div><div class="qa" onclick="ir('usuarios','aluno')">${ic('users')}Meus alunos</div>
+   <div class="qa" onclick="ir('novoUser','aluno')">${ic('user')}Cadastrar aluno</div></div>
    <div class="sec">Próximos prazos</div>${prox.slice(0,4).map(a => `<div class="card row" onclick="ir('ativ','${a.id}')">${dataBox(a.prazo)}<div style="flex:1"><div class="ttl">${esc(a.titulo)}</div><div class="sub">Turmas ${a.turmas.join(', ')}</div></div>${selo(a.prazo)}</div>`).join('') || '<div class="empty">Nenhuma atividade com prazo aberto.</div>'}`;
 };
 TELAS.professor.minhas = u => voltarBtn(ic('list')+' Minhas atividades') + (DB.atividades.filter(a => a.profId === u.id).sort((a,b) => a.prazo.localeCompare(b.prazo)).map(a =>
    `<div class="card row" onclick="ir('ativ','${a.id}')">${dataBox(a.prazo)}<div style="flex:1;min-width:0"><div class="ttl">${esc(a.titulo)}</div><div class="sub">${esc(a.tipo)} • turmas ${a.turmas.join(', ')}</div></div>${selo(a.prazo)}</div>`).join('') || '<div class="empty">Você ainda não cadastrou atividades.</div>') + `<button class="fab" onclick="ir('novaAtiv')">+</button>`;
 TELAS.professor.ativ = u => telaAtividade(u);
 let selTurmas = [];
+// ---------- carga da turma (só professor e coordenação) ----------
+const semanaDe = d => { const x = parse(d); const w = x.getDay(); x.setDate(x.getDate() - (w === 0 ? 6 : w - 1)); return [0,1,2,3,4,5].map(i => { const y = new Date(x); y.setDate(x.getDate() + i); return iso(y); }); };
+const ativDaTurma = (t, ignorar) => DB.atividades.filter(a => a.turmas.includes(t) && a.id !== ignorar);
+function nivelCarga(nDia, nSem, provaDia) {
+  if (nDia >= 2 || nSem >= 5 || (provaDia && nDia >= 1)) return ['r', '🔴 Sobrecarregada'];
+  if (nDia === 1 || nSem >= 3) return ['a', '🟡 Atenção'];
+  return ['v', '🟢 Tranquila'];
+}
+function cargaTurma(t, d, ignorar) {
+  const sem = semanaDe(d); const at = ativDaTurma(t, ignorar);
+  const dia = at.filter(a => a.prazo === d), semana = at.filter(a => sem.includes(a.prazo));
+  return {dia, semana, nivel: nivelCarga(dia.length, semana.length, dia.some(a => a.tipo === 'Prova'))};
+}
+let editAtivId = '';
+function atualizaCarga() {
+  const box = $('#carga'), d = $('#fp') && $('#fp').value; if (!box) return;
+  if (!d || !selTurmas.length) { box.innerHTML = ''; return; }
+  box.innerHTML = `<label class="lbl">📊 O que a turma já tem (${DIASF[parse(d).getDay()]}, ${br(d).slice(0,5)} e na semana)</label>` + [...selTurmas].sort().map(t => {
+    const c = cargaTurma(t, d, editAtivId);
+    return `<div class="carga ${c.nivel[0]}"><b class="t">Turma ${esc(t)} • ${c.nivel[1]}</b>Neste dia: <b>${c.dia.length}</b> • Nesta semana: <b>${c.semana.length}</b>
+      ${c.semana.length ? `<ul>${c.semana.sort((a,b) => a.prazo.localeCompare(b.prazo)).map(a => `<li>${a.prazo === d ? '<b>' : ''}${DIASF[parse(a.prazo).getDay()].slice(0,3)} ${br(a.prazo).slice(0,5)} – ${esc(a.tipo)} de ${esc(a.disciplina)}${a.prazo === d ? '</b>' : ''}</li>`).join('')}</ul>` : ''}</div>`;
+  }).join('') + `<div class="sub" style="font-size:11.5px;margin-top:4px">Só professores e coordenação veem esta informação. 🔴 = 2 ou mais no mesmo dia, prova no dia ou 5 ou mais na semana.</div>`;
+}
+TELAS.professor.carga = u => {
+  const t = (param && param.t) || selCargaTurma || '301', ref = (param && param.d) || iso(hoje()); selCargaTurma = t;
+  const sem = semanaDe(ref), at = ativDaTurma(t); const tot = at.filter(a => sem.includes(a.prazo));
+  const prev = iso(new Date(parse(sem[0]).getTime() - 7 * 86400000)), next = iso(new Date(parse(sem[0]).getTime() + 7 * 86400000));
+  const nv = nivelCarga(0, tot.length, false);
+  return `${voltarBtn('📊 Agenda das turmas')}<div class="filtros"><div class="full"><label>TURMA</label><select onchange="param={t:this.value,d:'${ref}'};render()">${turmasExist().map(x => `<option ${x===t?'selected':''}>${x}</option>`).join('')}</select></div></div>
+   <div class="card"><div class="row" style="justify-content:space-between"><button class="back" onclick="param={t:'${t}',d:'${prev}'};render()">‹</button><b>Semana ${br(sem[0]).slice(0,5)} a ${br(sem[5]).slice(0,5)}</b><button class="back" onclick="param={t:'${t}',d:'${next}'};render()">›</button></div>
+   <div class="carga ${nv[0]}" style="margin-top:10px"><b class="t">Turma ${esc(t)} • ${nv[1]}</b>${tot.length} atividade(s), prova(s) ou trabalho(s) nesta semana.</div></div>
+   ${sem.map(d => { const l = at.filter(a => a.prazo === d); const n = nivelCarga(l.length, 0, l.some(a => a.tipo === 'Prova'));
+     const cor = {v:'#22a45d', a:'#e0a100', r:'#e5484d'}[n[0]];
+     return `<div class="card dia"><div class="n" style="background:${l.length ? cor : '#b9c2cc'}">${br(d).slice(0,2)}<small>${DIASF[parse(d).getDay()].slice(0,3)}</small></div><div style="flex:1;min-width:0">
+       ${l.length ? l.map(a => `<div style="margin-bottom:4px" onclick="ir('ativ','${a.id}')"><span class="sel ${tagCls(a.tipo)}">${esc(a.tipo)}</span> <b style="font-size:13.5px">${esc(a.disciplina)}</b><div class="sub">${esc(a.titulo)} • ${esc(nomeProf(a.profId))}</div></div>`).join('') : '<div class="sub" style="padding-top:8px">Livre – nada marcado</div>'}</div></div>`; }).join('')}
+   <div class="note">🟢 livre ou 1 atividade • 🟡 atenção • 🔴 2 ou mais no mesmo dia ou prova no dia. Use antes de marcar um trabalho ou prova para não sobrecarregar a turma.</div>`;
+};
+let selCargaTurma = '';
+TELAS.coord.carga = TELAS.professor.carga;
 TELAS.professor.novaAtiv = u => {
   const copia = typeof param === 'string' && param.startsWith('copia:');
   const a = param ? DB.atividades.find(x => x.id === (copia ? param.slice(6) : param)) : null;
-  selTurmas = copia ? [] : a ? [...a.turmas] : ['301'];
+  selTurmas = copia ? [] : a ? [...a.turmas] : ['301']; editAtivId = a && !copia ? a.id : ''; setTimeout(atualizaCarga, 0);
   const tipos = ['Trabalho','Prova','Seminário','Lista','Relatório'];
   return `${voltarBtn(copia ? '⧉ Copiar atividade' : a ? ic('edit')+' Editar atividade' : ic('plus')+' Nova atividade')}<div class="card">
    ${copia ? '<div class="sub" style="color:var(--b);margin-bottom:8px">Escolha a(s) nova(s) turma(s). Os outros dados já vêm preenchidos.</div>' : ''}
@@ -612,8 +666,9 @@ TELAS.professor.novaAtiv = u => {
    <label class="lbl">Disciplina</label><input id="fd" value="${esc(a ? a.disciplina : u.disciplina || '')}">
    <label class="lbl">Título</label><input id="ft" value="${esc(a ? a.titulo : '')}" placeholder="ex.: Trabalho de ${esc(u.disciplina||'')} — tema">
    <label class="lbl">Tipo</label><select id="fy">${tipos.map(t => `<option ${a&&a.tipo===t?'selected':''}>${t}</option>`).join('')}</select>
-   <div class="row"><div style="flex:1"><label class="lbl">Prazo de entrega</label><input id="fp" type="date" value="${a ? a.prazo : addD(7)}" onchange="$('#fpe').value=periodoDe(this.value)"></div>
+   <div class="row"><div style="flex:1"><label class="lbl">Prazo de entrega</label><input id="fp" type="date" value="${a ? a.prazo : addD(7)}" onchange="$('#fpe').value=periodoDe(this.value);atualizaCarga()"></div>
    <div style="flex:1"><label class="lbl">Período</label><select id="fpe">${PERIODOS.map(n => `<option value="${n}" ${(a ? perA(a) : periodoDe(addD(7)))===n?'selected':''}>${n}º período</option>`).join('')}</select></div></div>
+   <div id="carga"></div>
    <label class="lbl">Descrição (opcional)</label><textarea id="fx" placeholder="O que o aluno deve fazer">${esc(a ? a.descricao : '')}</textarea>
    <label class="lbl">📎 Link do arquivo (opcional)</label><input id="fa" placeholder="https://drive.google.com/..." value="${esc(a && a.anexo || '')}">
    <div class="sub" style="font-size:11.5px">O app não guarda arquivos: coloque o arquivo no Drive, OneDrive ou YouTube e cole aqui só o link.</div>
@@ -622,10 +677,13 @@ TELAS.professor.novaAtiv = u => {
    <button class="btn wa" onclick="salvarAtiv('${a&&!copia?a.id:''}',true)">↗ Publicar e enviar no WhatsApp</button></div>`;
 };
 const turmasExist = () => [...new Set(['101','102','103','104','201','202','203','204','301','302','303','304', ...DB.users.filter(u => u.turma).map(u => u.turma)])].sort();
-function togTurma(el, t) { const i = selTurmas.indexOf(t); if (i >= 0) selTurmas.splice(i,1); else selTurmas.push(t); el.classList.toggle('on'); }
+function togTurma(el, t) { const i = selTurmas.indexOf(t); if (i >= 0) selTurmas.splice(i,1); else selTurmas.push(t); el.classList.toggle('on'); atualizaCarga(); }
 function salvarAtiv(id, wa) {
   const t = $('#ft').value.trim(), p = $('#fp').value;
   if (!t) return toast('Escreva o título da atividade.'); if (!p) return toast('Escolha o prazo.'); if (!selTurmas.length) return toast('Escolha pelo menos uma turma.');
+  if (!salvarAtiv.ok) { const cheias = selTurmas.filter(x => cargaTurma(x, p, id).nivel[0] === 'r');
+    if (cheias.length) return confirmar('Turma sobrecarregada', `A(s) turma(s) ${cheias.join(', ')} já têm muitas atividades nesse dia ou nessa semana. Quer escolher outra data?`, () => { salvarAtiv.ok = true; salvarAtiv(id, wa); }, 'Publicar mesmo assim'); }
+  salvarAtiv.ok = false;
   let a = id ? DB.atividades.find(x => x.id === id) : null;
   if (!a) { a = {id: uid(), profId: me().id}; DB.atividades.push(a); }
   const antes = a.prazo;
@@ -662,7 +720,8 @@ TELAS.coord.inicio = u => {
    <div class="sec">O que você quer fazer?</div>
    <div class="grid"><div class="qa" onclick="ir('novoAviso')">${ic('mega')}Novo aviso</div><div class="qa" onclick="ir('novoEvento')">${ic('star')}Novo evento</div>
    <div class="qa" onclick="ir('novoUser')">${ic('user')}Cadastrar usuário</div><div class="qa" onclick="ir('todas')">${ic('list')}Todas as atividades</div>
-   <div class="qa" onclick="ir('subst')">🔁 Substituições</div><div class="qa" onclick="ir('usuarios')">${ic('users')}Usuários</div></div>`;
+   <div class="qa" onclick="ir('subst')">🔁 Substituições</div><div class="qa" onclick="ir('carga')">📊 Agenda das turmas</div>
+   <div class="qa" onclick="ir('usuarios')">${ic('users')}Usuários</div></div>`;
 };
 TELAS.coord.avisos = u => voltarBtn(ic('mega')+' Avisos') + `<button class="btn" style="margin:0 0 12px" onclick="ir('novoAviso')">+ Novo aviso</button>` + ordBar() + (ordenar(avisosPara({})).map(v => cardAviso(v, true)).join('') || '<div class="empty">Sem avisos.</div>');
 TELAS.coord.novoAviso = u => { selTurmas = []; return `${voltarBtn(ic('mega')+' Novo aviso')}<div class="card">
