@@ -336,14 +336,10 @@ function renderLogin() {
    <img class="logo" src="logo_iema.png" alt="IEMA">
    <div style="display:flex;justify-content:center;align-items:center;gap:8px;margin:10px 0 2px">${ICON}<b style="font-size:24px">IEMA <span style="color:var(--b)">Organiza</span></b></div>
    <div class="note" style="margin:0 0 16px">Sua rotina escolar mais organizada.</div>
-   <div class="card"><label class="lbl" style="margin-top:0">Usuário</label><input id="lu" autocomplete="off" placeholder="ex.: lucas">
-   <label class="lbl">Senha</label><input id="ls" type="password" placeholder="1234">
+   <div class="card"><label class="lbl" style="margin-top:0">Usuário</label><input id="lu" autocomplete="off" placeholder="Digite seu usuário">
+   <label class="lbl">Senha</label><input id="ls" type="password" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')entrar($('#lu').value,this.value)">
    <button class="btn" onclick="entrar($('#lu').value,$('#ls').value)">Entrar</button></div>
-   <div class="sec">Entrar com um usuário de exemplo</div>
-   ${grupos.map(([p,t]) => `<div style="font-size:12px;font-weight:700;color:var(--mu);margin:10px 0 6px">${t.toUpperCase()}</div>` +
-     DB.users.filter(u => u.perfil === p).map(u => `<div class="demo" onclick="entrar('${u.login}','${u.senha}')"><div class="av" style="background:${p==='aluno'?'var(--b)':p==='professor'?'var(--g)':'var(--r)'}">${avatarIn(u)}</div>
-       <div><div class="ttl">${esc(u.nome)}</div><div class="sub">${p==='aluno' ? 'Turma ' + esc(u.turma) : p==='professor' ? esc(u.disciplina) : 'Avisos, eventos e usuários'} • usuário: <b>${esc(u.login)}</b></div></div></div>`).join('')).join('')}
-   <div class="note">Não tem conta? Peça à <b>gestão</b> ou ao seu <b>professor</b> para cadastrar você.<br>Senha de todos os usuários de exemplo: <b>1234</b><br>Protótipo (MVP) — TCC IEMA 2026 • Grupo 1 • IEMA Pleno Coroatá</div></div>`;
+   <div class="note">Não tem conta? Peça à <b>gestão</b> ou ao seu <b>professor</b> para cadastrar você.<br>Protótipo (MVP) — TCC IEMA 2026 • Grupo 1 • IEMA Pleno Coroatá</div></div>`;
 }
 function entrar(l, s) {
   const u = DB.users.find(x => x.login.toLowerCase() === String(l).trim().toLowerCase() && x.senha === String(s).trim());

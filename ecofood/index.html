@@ -647,15 +647,13 @@ function renderLogin() {
     <ul><li><i>💳</i>PDV da carteirinha registra cada refeição</li><li><i>📺</i>Totem com o cardápio e tablet de avaliação</li><li><i>📊</i>Relatórios para reduzir o desperdício</li></ul>
     <div class="rod">Protótipo (MVP) — TCC IEMA 2026 • Grupo 3 • IEMA Pleno Coroatá</div></aside>
    <main class="lpc-b"><div class="cheia">${btnCheia()}</div><div class="lpc-box">
-    <h1>Entrar no sistema</h1><div class="sub">Use seu usuário e senha ou escolha um usuário de exemplo.</div>
-    <div class="lpc-form"><div><label>Usuário</label><input id="lu" autocomplete="off" placeholder="ex.: pdv"></div>
-     <div><label>Senha</label><input id="ls" type="password" placeholder="1234" onkeydown="if(event.key==='Enter')entrar($('#lu').value,this.value)"></div>
+    <h1>Entrar no sistema</h1><div class="sub">Digite seu usuário e sua senha.</div>
+    <div class="lpc-form"><div><label>Usuário</label><input id="lu" autocomplete="off" placeholder="Digite seu usuário"></div>
+     <div><label>Senha</label><input id="ls" type="password" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')entrar($('#lu').value,this.value)"></div>
      <button class="btn" onclick="entrar($('#lu').value,$('#ls').value)">Entrar</button></div>
-    ${grupos.map(([p,t,c]) => { const us = DB.users.filter(u => u.perfil === p); return us.length ? `<div class="lpc-grupo">${t}</div><div class="lpc-us">` + us.map(u => `<div class="demo" onclick="entrar('${u.login}','${u.senha}')"><div class="av" style="background:${c};color:#fff">${esc(iniciais(u.nome))}</div>
-      <div><div class="ttl">${esc(u.nome)}</div><div class="sub">${esc(u.cargo)} • usuário: <b>${esc(u.login)}</b></div></div></div>`).join('') + '</div>' : ''; }).join('')}
     <div class="lpc-grupo">Telas dos alunos (sem login)</div>
     <div class="lpc-extra"><div class="qa" onclick="abrirJanela('totem')">${ic('tv')}Totem do cardápio</div><div class="qa" onclick="abrirJanela('tablet')">${ic('tablet')}Tablet de avaliação</div></div>
-    <div class="note">Senha de todos os usuários de exemplo: <b>1234</b> • F8 encerra o simulador</div>
+    <div class="note">Não tem acesso? Peça à gestão da escola para cadastrar você. • F8 encerra o simulador</div>
    </div></main></div>`;
 }
 function entrar(l, s) { const u = DB.users.find(x => x.login.toLowerCase() === String(l).trim().toLowerCase() && x.senha === String(s).trim()); if (!u) return toast('Usuário ou senha incorretos.');
