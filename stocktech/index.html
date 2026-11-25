@@ -625,9 +625,11 @@ TELAS.novoAlim = u => { const a = param ? alim(param) : null; delete window._fot
     <div class="qun"><input id="amv" type="number" step="any" inputmode="decimal" placeholder="ex.: 500" value="${a&&a.medida&&a.medida.v ? (a.medida.v < 1 ? a.medida.v*1000 : a.medida.v) : ''}"><select id="amu">${['g','kg','mL','L'].map(x => `<option ${a&&a.medida&&((a.medida.v<1?(a.medida.u==='kg'?'g':'mL'):a.medida.u)===x)?'selected':''}>${x}</option>`).join('')}</select></div>
     <div class="sub">Assim dá para dar entrada ou saída também em kg/g ou L/mL.</div></div>
    <label class="lbl">Embalagem fechada (como chega da entrega)</label>
-   <div class="qun"><select id="aet"><option value="">Nenhuma (vem solto)</option>${EMB_TIPOS.map(x => `<option ${a&&a.emb&&a.emb.tipo===x?'selected':''}>${x}</option>`).join('')}</select>
-    <input id="aeq" type="number" step="any" inputmode="decimal" placeholder="quantos vêm" value="${a&&a.emb&&a.emb.qtd?a.emb.qtd:''}"></div>
-   <div class="sub">Quantas <b class="uref">${a?(UN_NOME[a.unidade]||a.unidade):'kg'}</b> vêm em 1 caixa/fardo. Ex.: fardo com 30 pacotes; caixa com 20 garrafas.</div>
+   <select id="aet" onchange="const v=this.value;$('#aebox').style.display=v?'':'none';$('#aenm').textContent=v.toLowerCase();if(v)setTimeout(()=>$('#aeq').focus(),50)"><option value="">Nenhuma (vem solto)</option>${EMB_TIPOS.map(x => `<option ${a&&a.emb&&a.emb.tipo===x?'selected':''}>${x}</option>`).join('')}</select>
+   <div id="aebox" style="${a&&a.emb&&a.emb.tipo?'':'display:none'};background:#fff4e5;border-radius:10px;padding:10px 12px;margin-top:8px">
+    <label class="lbl" style="margin-top:0">Quantas <b class="uref">${a?(UN_NOME[a.unidade]||a.unidade):'kg'}</b> vêm em 1 <b id="aenm">${a&&a.emb&&a.emb.tipo?a.emb.tipo.toLowerCase():'caixa'}</b>? (obrigatório, digite)</label>
+    <input id="aeq" type="number" step="any" min="0" inputmode="decimal" placeholder="ex.: 30" value="${a&&a.emb&&a.emb.qtd?a.emb.qtd:''}">
+    <div class="sub">Conte na embalagem e digite. Ex.: fardo com 30 pacotes → 30; caixa com 20 garrafas → 20; caixa de frango de 20 kg → 20.</div></div>
    <label class="lbl">Categoria</label><select id="ac">${['Grãos','Massas','Carnes','Laticínios','Enlatados','Óleos','Mercearia','Hortifrúti','Limpeza'].map(x => `<option ${a&&a.categoria===x?'selected':''}>${x}</option>`).join('')}</select>
    <label class="lbl">Preço por ${a?a.unidade:'unidade'} (R$) – para calcular o gasto do mês</label><input id="ap" type="number" step="0.01" inputmode="decimal" value="${a&&a.preco!=null?a.preco:''}" placeholder="ex.: 5,50">
    <label class="lbl">Código de barras (opcional)</label><input id="ab" inputmode="numeric" value="${esc(a?a.codigo:'')}" placeholder="bipe o produto com o leitor">
@@ -637,7 +639,7 @@ TELAS.novoAlim = u => { const a = param ? alim(param) : null; delete window._fot
 function salvarAlim(id) { const n = $('#an').value.trim(), m = parseFloat(String($('#am').value).replace(',','.')); if (!n) return toast('Digite o nome.'); if (isNaN(m)) return toast('Digite o estoque mínimo.');
   let a = id ? alim(id) : null; if (!a) { a = {id:uid()}; DB.alimentos.push(a); }
   const un = $('#au').value, mv = parseFloat(String($('#amv').value).replace(',','.')), mu = $('#amu').value, et = $('#aet').value, eq = parseFloat(String($('#aeq').value).replace(',','.'));
-  if (et && !(eq > 0)) return toast('Informe quantos vêm na ' + et.toLowerCase() + '.');
+  if (et && !(eq > 0)) { $('#aeq').focus(); return toast('Digite quantos vêm em 1 ' + et.toLowerCase() + '.'); }
   Object.assign(a, {nome:n, unidade:un, minimo:m, categoria:$('#ac').value, codigo:$('#ab').value.trim(), preco:parseFloat(String($('#ap').value).replace(',','.')) || 0,
     medida: !['kg','L'].includes(un) && mv > 0 ? {u: (mu === 'g' || mu === 'kg') ? 'kg' : 'L', v: (mu === 'g' || mu === 'mL') ? mv / 1000 : mv} : null,
     emb: et ? {tipo:et, qtd:eq} : null});
