@@ -149,6 +149,14 @@ input:focus,select:focus,textarea:focus{border-color:#6c5ce7}
 .modal .box{border-radius:24px}
 
 /* ===== FIM DO TEMA ===== */
+.foco{outline:3px solid #ffc83d;outline-offset:2px;animation:pisca 1s 2}
+@keyframes pisca{50%{outline-color:transparent}}
+.hr.agora{background:#e3f8ea!important;border:2px solid #22a45d}.hr.agora .h{color:#1b7f47}
+.hr.subst{background:#fff6d6!important;border:2px solid #f0b400}
+.tagm{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 7px;border-radius:6px;color:#fff;letter-spacing:.3px}
+.fotoav{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.filtro{display:flex;gap:6px;overflow-x:auto;margin:0 0 10px;padding-bottom:2px}.filtro .chip{white-space:nowrap}
+.lblf{font-size:11.5px;font-weight:700;color:var(--mu);margin:4px 0 5px;letter-spacing:.3px}
 </style>
 </head>
 <body>
@@ -192,6 +200,7 @@ const ic = (n, sz) => `<svg class="ic" viewBox="0 0 24 24" width="${sz||22}" hei
 
 // ====================== dados de exemplo ======================
 const KEY = 'iemaorganiza_v2';
+const ANO = String(new Date().getFullYear());
 function seed() {
   const users = [
     {id:'a1', nome:'Lucas Oliveira', login:'lucas', senha:'1234', perfil:'aluno', turma:'301', curso:'Manutenção e Suporte em Informática', email:'lucas.exemplo@email.com'},
@@ -209,6 +218,8 @@ function seed() {
     {id:'t3', titulo:'Relatório de Redes de Computadores', disciplina:'Redes de Computadores', tipo:'Relatório', turmas:['301'], prazo:addD(4), descricao:'Relatório da prática de crimpagem de cabos.', profId:'p3'},
     {id:'t4', titulo:'Seminário de Sociologia', disciplina:'Sociologia', tipo:'Seminário', turmas:['301','302','303'], prazo:addD(8), descricao:'Apresentação em grupo de até 10 minutos.', profId:'p1'},
     {id:'t5', titulo:'Prova de Física', disciplina:'Física', tipo:'Prova', turmas:['301','302','303'], prazo:addD(12), descricao:'Conteúdo: cinemática.', profId:'p2'},
+    {id:'t7', titulo:'Trabalho de Química — Tabela periódica', disciplina:'Química', tipo:'Trabalho', turmas:['301','302'], prazo:ANO+'-09-18', periodo:3, descricao:'Pesquisa sobre famílias da tabela periódica.', profId:'p2'},
+    {id:'t8', titulo:'Prova de Português — Interpretação', disciplina:'Português', tipo:'Prova', turmas:['301','302','303','304'], prazo:ANO+'-06-10', periodo:2, descricao:'Leitura e interpretação de textos.', profId:'p1'},
     {id:'t6', titulo:'Lista de exercícios — Porcentagem', disciplina:'Matemática', tipo:'Lista', turmas:['301'], prazo:addD(-2), descricao:'Entregue na aula passada.', profId:'p2'}
   ];
   const avisos = [
@@ -224,11 +235,15 @@ function seed() {
     {id:'e5', titulo:'Resultados finais', texto:'Divulgação dos resultados do ano letivo.', data:'2026-12-12', hora:'—', local:'Secretaria', tag:'Evento'}
   ];
   const materiais = [
-    {id:'m1', titulo:'Apostila de Redes de Computadores', disciplina:'Redes de Computadores', tipo:'PDF', link:'https://www.google.com/search?q=apostila+redes+de+computadores', turmas:['301']},
-    {id:'m2', titulo:'Lista de exercícios — Funções', disciplina:'Matemática', tipo:'PDF', link:'https://www.google.com/search?q=lista+exercicios+funcoes', turmas:['301','302']},
-    {id:'m3', titulo:'Resumo de Filosofia — Ética', disciplina:'Filosofia', tipo:'Resumo', link:'https://www.google.com/search?q=resumo+etica+filosofia', turmas:['301','303']},
-    {id:'m4', titulo:'Simulados do ENEM', disciplina:'Geral', tipo:'Link', link:'https://www.gov.br/inep/pt-br/areas-de-atuacao/avaliacao-e-exames-educacionais/enem/provas-e-gabaritos', turmas:['301','302','303']}
+    {id:'m1', titulo:'Apostila de Redes de Computadores', disciplina:'Redes de Computadores', tipo:'PDF', link:'https://www.google.com/search?q=apostila+redes+de+computadores', turmas:['301'], profId:'p3', periodo:4},
+    {id:'m2', titulo:'Lista de exercícios — Funções', disciplina:'Matemática', tipo:'Word', link:'https://www.google.com/search?q=lista+exercicios+funcoes', turmas:['301','302'], profId:'p2', periodo:4},
+    {id:'m3', titulo:'Resumo de Filosofia — Ética', disciplina:'Filosofia', tipo:'PDF', link:'https://www.google.com/search?q=resumo+etica+filosofia', turmas:['301','303'], profId:'p1', periodo:4},
+    {id:'m4', titulo:'Simulados do ENEM', disciplina:'Matemática', tipo:'Link', link:'https://www.gov.br/inep/pt-br/areas-de-atuacao/avaliacao-e-exames-educacionais/enem/provas-e-gabaritos', turmas:['301','302','303','304'], profId:'p2', periodo:4},
+    {id:'m5', titulo:'Slides — Endereçamento IP', disciplina:'Redes de Computadores', tipo:'Slides', link:'https://www.google.com/search?q=slides+enderecamento+ip', turmas:['301'], profId:'p3', periodo:3},
+    {id:'m6', titulo:'Videoaula — Ética e moral', disciplina:'Filosofia', tipo:'Vídeo', link:'https://www.youtube.com/results?search_query=etica+e+moral+filosofia', turmas:['301','303'], profId:'p1', periodo:3},
+    {id:'m7', titulo:'Planilha — Notas de laboratório', disciplina:'Redes de Computadores', tipo:'Planilha', link:'https://www.google.com/search?q=planilha+laboratorio+redes', turmas:['301'], profId:'p3', periodo:2}
   ];
+
   const P = {Port:['Português','Prof.ª Ana Cláudia','Sala 301'], Mat:['Matemática','Prof. Marcos Souza','Sala 301'], Fil:['Filosofia','Prof.ª Lívia Rocha','Sala 301'],
     Red:['Redes de Computadores','Prof. Carlos Mendes','Lab. Redes'], EF:['Educação Física','Prof. Bruno Alves','Quadra'], Fis:['Física','Prof. Marcos Souza','Sala 301'],
     Soc:['Sociologia','Prof.ª Lívia Rocha','Sala 301'], Qui:['Química','Prof.ª Helena Dias','Laboratório'], Man:['Manutenção de Computadores','Prof. Carlos Mendes','Lab. Informática'], Ing:['Inglês','Prof.ª Ana Cláudia','Sala 301']};
@@ -238,10 +253,29 @@ function seed() {
   const disc = ['Português','Matemática','Filosofia','Redes de Computadores','Educação Física','Física','Sociologia','Química'];
   return {users, atividades, avisos, eventos, materiais, horario, disc,
           concluidas:{a1:['t6'], a2:['t1','t6','t3'], a3:['t1']}, notas:{a1:[{d:'Matemática',v:8.5},{d:'Português',v:9},{d:'Física',v:7},{d:'Filosofia',v:8},{d:'Redes de Computadores',v:9.5}]},
-          config:{}, notificados:{}, lidos:{v1:['a2','a3']}, alteracoes:[], sessao:null};
+          config:{}, notificados:{}, lidos:{v1:['a2','a3']}, alteracoes:[], substituicoes:[{id:'s1', data:proxDiaUtil(), turma:'301', idx:4, disciplina:'Sociologia', prof:'Prof.ª Lívia Rocha', motivo:'Professor titular em formação'}], sessao:null};
 }
 let DB;
-function load() { try { DB = JSON.parse(localStorage.getItem(KEY)); } catch(e) { DB = null; } if (!DB || !DB.users) { DB = seed(); save(); } DB.lidos = DB.lidos || {}; DB.alteracoes = DB.alteracoes || []; }
+function load() { try { DB = JSON.parse(localStorage.getItem(KEY)); } catch(e) { DB = null; } if (!DB || !DB.users) { DB = seed(); save(); } DB.lidos = DB.lidos || {}; DB.alteracoes = DB.alteracoes || []; DB.substituicoes = DB.substituicoes || [];
+  DB.materiais.forEach(m => { if (!m.profId) { const p = DB.users.find(x => x.perfil === 'professor' && x.disciplina === m.disciplina); m.profId = p ? p.id : ''; } if (!m.periodo) m.periodo = 4; }); }
+function proxDiaUtil() { const d = hoje(); while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1); return iso(d); }
+const periodoDe = s => { const m = parse(s).getMonth() + 1; return m <= 4 ? 1 : m <= 7 ? 2 : m <= 9 ? 3 : 4; };
+const perA = a => a.periodo || periodoDe(a.prazo);
+const PERIODOS = [1,2,3,4];
+// ---------- link que abre o item compartilhado ----------
+const LINK_BASE = 'https://elbsilva.github.io/tcc-iema-2026/organiza/';
+const linkDe = (tipo, id) => LINK_BASE + '#' + tipo + '=' + id;
+let abrirDepois = null;
+function lerLink() { const m = /^#(ativ|aviso)=([\w-]+)/.exec(location.hash || ''); if (m) abrirDepois = {t:m[1], id:m[2]}; }
+function abrirLinkPendente() {
+  if (!abrirDepois || !me()) return false; const {t, id} = abrirDepois; abrirDepois = null;
+  try { history.replaceState(null, '', location.pathname + location.search); } catch(e) {}
+  if (t === 'ativ') { if (!DB.atividades.some(a => a.id === id)) { toast('Essa atividade não está neste aparelho (protótipo).'); return false; } pilha = [['inicio', null]]; tela = 'ativ'; param = id; render(); return true; }
+  if (t === 'aviso') { if (!DB.avisos.some(v => v.id === id)) { toast('Esse aviso não está neste aparelho (protótipo).'); return false; } pilha = [['inicio', null]]; tela = 'avisos'; param = {foco:id}; render();
+    setTimeout(() => { const el = document.getElementById('av-' + id); if (el) { el.scrollIntoView({block:'center'}); el.classList.add('foco'); } }, 120); return true; }
+  return false;
+}
+window.addEventListener('hashchange', () => { lerLink(); abrirLinkPendente(); });
 function save() { try { localStorage.setItem(KEY, JSON.stringify(DB)); } catch(e) {} }
 const me = () => DB.users.find(u => u.id === DB.sessao);
 const cfg = id => { const c = DB.config[id] || (DB.config[id] = {lembretes:true}); if (!c.antes) c.antes = 3; return c; };
@@ -259,6 +293,7 @@ function selo(prazo, feita) {
 }
 const corSelo = (prazo, feita) => feita ? 'var(--ok)' : (diasAte(prazo) <= 1 ? 'var(--r)' : diasAte(prazo) <= 3 ? 'var(--y)' : 'var(--b)');
 function dataBox(s, dark) { const d = parse(s); return `<div class="dt ${dark?'dark':''}"><small>${DIAS[d.getDay()]}</small><b>${String(d.getDate()).padStart(2,'0')}</b><small>${MESES[d.getMonth()]}</small></div>`; }
+const avatarIn = u => u.foto ? `<img class="fotoav" src="${u.foto}" alt="">` : esc(iniciais(u.nome));
 const iniciais = n => n.replace(/^Prof\.?ª?\s*/,'').split(' ').filter(Boolean).slice(0,2).map(x => x[0]).join('').toUpperCase();
 const tagCls = t => ({Prova:'s-b', Urgente:'s-r', Evento:'s-p', Aviso:'s-g', Letivo:'s-y'}[t] || 's-g');
 function compartilhar(texto) {
@@ -287,7 +322,7 @@ function render() {
   const pend = u.perfil === 'aluno' ? minhasAtiv(u).filter(a => !feita(u,a) && diasAte(a.prazo) <= 3 && diasAte(a.prazo) >= 0).length : 0;
   $('#app').innerHTML = `
    <div class="top"><div class="brand">${ICON}<div><b>IEMA <span>Organiza</span></b><small>ESTUDE. ORGANIZE. CONQUISTE.</small></div></div>
-   <div class="av ${pend ? 'dot' : ''}" onclick="ir('ajustes')">${esc(iniciais(u.nome))}</div></div>
+   <div class="av ${pend ? 'dot' : ''}" onclick="ir('ajustes')">${avatarIn(u)}</div></div>
    <div class="main">${(TELAS[u.perfil][tela] || TELAS[u.perfil].inicio)(u)}</div>
    <div class="nav">${nav.map(([k,i,l]) => `<button class="${(tela===k)?'on':''}" onclick="pilha=[];ir('${k}',null,true)">${ic(i)}${l}</button>`).join('')}</div>`;
 }
@@ -304,14 +339,14 @@ function renderLogin() {
    <button class="btn" onclick="entrar($('#lu').value,$('#ls').value)">Entrar</button></div>
    <div class="sec">Entrar com um usuário de exemplo</div>
    ${grupos.map(([p,t]) => `<div style="font-size:12px;font-weight:700;color:var(--mu);margin:10px 0 6px">${t.toUpperCase()}</div>` +
-     DB.users.filter(u => u.perfil === p).map(u => `<div class="demo" onclick="entrar('${u.login}','${u.senha}')"><div class="av" style="background:${p==='aluno'?'var(--b)':p==='professor'?'var(--g)':'var(--r)'}">${esc(iniciais(u.nome))}</div>
+     DB.users.filter(u => u.perfil === p).map(u => `<div class="demo" onclick="entrar('${u.login}','${u.senha}')"><div class="av" style="background:${p==='aluno'?'var(--b)':p==='professor'?'var(--g)':'var(--r)'}">${avatarIn(u)}</div>
        <div><div class="ttl">${esc(u.nome)}</div><div class="sub">${p==='aluno' ? 'Turma ' + esc(u.turma) : p==='professor' ? esc(u.disciplina) : 'Avisos, eventos e usuários'} • usuário: <b>${esc(u.login)}</b></div></div></div>`).join('')).join('')}
-   <div class="note">Senha de todos os usuários de exemplo: <b>1234</b><br>Protótipo (MVP) — TCC IEMA 2026 • Grupo 1 • IEMA Pleno Coroatá</div></div>`;
+   <div class="note">Não tem conta? Peça à <b>gestão</b> ou ao seu <b>professor</b> para cadastrar você.<br>Senha de todos os usuários de exemplo: <b>1234</b><br>Protótipo (MVP) — TCC IEMA 2026 • Grupo 1 • IEMA Pleno Coroatá</div></div>`;
 }
 function entrar(l, s) {
   const u = DB.users.find(x => x.login.toLowerCase() === String(l).trim().toLowerCase() && x.senha === String(s).trim());
   if (!u) return toast('Usuário ou senha incorretos.');
-  DB.sessao = u.id; save(); pilha = []; tela = 'inicio'; param = null; render();
+  DB.sessao = u.id; save(); pilha = []; tela = 'inicio'; param = null; render(); abrirLinkPendente();
   if (u.perfil === 'aluno') setTimeout(() => verificarLembretes(u, false), 600);
 }
 function sair() { DB.sessao = null; save(); renderLogin(); }
@@ -342,7 +377,7 @@ function itemAtiv(u, a, compacto) {
   return `<div class="card" style="border-left:4px solid ${corSelo(a.prazo,f)}">
     <div class="row" style="justify-content:space-between"><span class="tag" style="color:${corSelo(a.prazo,f)}">${DIASF[parse(a.prazo).getDay()]} • ${br(a.prazo).slice(0,5)}</span>${selo(a.prazo,f)}</div>
     <div class="ttl" style="margin-top:4px" onclick="ir('ativ','${a.id}')">${esc(a.titulo)}</div>
-    <div class="sub">👤 ${esc(p ? p.nome : a.disciplina)} • ${esc(a.tipo)} • ⏱ Prazo: ${br(a.prazo)}${DB.alteracoes.some(x => x.ativ === a.id) ? ' <span class="sel s-y">data alterada</span>' : ''}</div>
+    <div class="sub">👤 ${esc(p ? p.nome : a.disciplina)} • ${esc(a.tipo)} • ${perA(a)}º período • ⏱ Prazo: ${br(a.prazo)}${DB.alteracoes.some(x => x.ativ === a.id) ? ' <span class="sel s-y">data alterada</span>' : ''}</div>
     <button class="btn ${f?'out':''}" onclick="toggleFeita('${a.id}')">${f ? 'Desmarcar conclusão' : 'Marcar como concluída'}</button></div>`;
 }
 
@@ -396,23 +431,31 @@ function alteradas(u) {
 function vistoAlt(id) { const x = DB.alteracoes.find(y => y.id === id); if (x) { (x.vistos = x.vistos || []).push(me().id); save(); render(); } }
 TELAS.aluno.horario = u => {
   const modo = (param && param.m) || 'semana'; let d0 = hoje().getDay(); if (d0 < 1 || d0 > 5) d0 = 1; const dia = (param && param.d) || d0;
-  const aula = h => `<div class="card hr"><div class="h">${h[0]}<small>${h[1]}</small></div><div class="d"><div class="ttl">${esc(h[2])}</div><div class="sub">${esc(h[3])} • ${esc(h[4])}</div></div></div>`;
+  const dataDoDia = d => { const x = hoje(); x.setDate(x.getDate() + (d - (x.getDay() || 7))); return iso(x); };
+  const agoraMin = (() => { const n = new Date(); return n.getHours() * 60 + n.getMinutes(); })(); const mins = t => +t.slice(0,2) * 60 + +t.slice(3);
+  const aula = (h, i, d) => { const sub = DB.substituicoes.find(x => x.data === dataDoDia(d) && x.turma === u.turma && x.idx === i);
+    const agora = d === (hoje().getDay()) && agoraMin >= mins(h[0]) && agoraMin < mins(h[1]);
+    return `<div class="card hr ${agora ? 'agora' : ''} ${sub ? 'subst' : ''}"><div class="h">${h[0]}<small>${h[1]}</small></div><div class="d">
+     <div class="row" style="gap:6px;flex-wrap:wrap">${agora ? '<span class="tagm" style="background:#22a45d">● AGORA</span>' : ''}${sub ? '<span class="tagm" style="background:#e0a100">SUBSTITUIÇÃO</span>' : ''}</div>
+     ${sub ? `<div class="ttl">${esc(sub.disciplina)}</div><div class="sub">${esc(sub.prof)} no lugar de ${esc(h[3])} (${esc(h[2])})${sub.motivo ? ' • ' + esc(sub.motivo) : ''}</div>`
+           : `<div class="ttl">${esc(h[2])}</div><div class="sub">${esc(h[3])} • ${esc(h[4])}</div>`}</div></div>`; };
   const intv = `<div style="text-align:center;font-size:12.5px;color:#8a5a00;background:#fff3cd;border-radius:10px;padding:6px;margin-bottom:10px">☕ Intervalo 09:30 – 09:50</div>`;
-  const doDia = d => { const hs = (DB.horario[d] || []); return hs.slice(0,3).map(aula).join('') + intv + hs.slice(3).map(aula).join(''); };
+  const doDia = d => { const hs = (DB.horario[d] || []); return hs.slice(0,3).map((h,i) => aula(h,i,d)).join('') + intv + hs.slice(3).map((h,i) => aula(h,i+3,d)).join(''); };
   const dias = ['Seg','Ter','Qua','Qui','Sex'];
   return `${voltarBtn(ic('cal')+' Horário de aulas')}<div class="seg"><button class="${modo==='semana'?'on':''}" onclick="param={m:'semana',d:${dia}};render()">Semana</button><button class="${modo==='lista'?'on':''}" onclick="param={m:'lista'};render()">Lista</button></div>
    ${modo==='semana' ? `<div class="chips" style="margin-bottom:12px">${dias.map((d,i) => `<span class="chip ${dia===i+1?'on':''}" onclick="param={m:'semana',d:${i+1}};render()">${d}</span>`).join('')}</div>${doDia(dia)}` :
      dias.map((d,i) => `<div class="sec">${DIASF[i+1]}</div>${doDia(i+1)}`).join('')}
-   <div class="note">Turma ${esc(u.turma)} • 4º período (horário de exemplo)</div>`;
+   <div class="note"><span style="color:#22a45d">■</span> aula de agora &nbsp; <span style="color:#e0a100">■</span> substituição<br>Turma ${esc(u.turma)} • ${periodoDe(iso(hoje()))}º período (horário de exemplo)</div>`;
 };
-let filtroDisc = '';
+let filtroDisc = '', filtroPer = 0;
 TELAS.aluno.trabalhos = u => {
   const aba = param || 'pend'; const todas = minhasAtiv(u); const discs = [...new Set(todas.map(a => a.disciplina))].sort();
-  const at = filtroDisc ? todas.filter(a => a.disciplina === filtroDisc) : todas;
+  const at = todas.filter(a => (!filtroDisc || a.disciplina === filtroDisc) && (!filtroPer || perA(a) === filtroPer));
   const pend = at.filter(a => !feita(u,a)), conc = at.filter(a => feita(u,a));
   const lista = aba === 'pend' ? pend : conc;
   return `${voltarBtn(ic('list')+' Trabalhos e atividades')}<div class="seg"><button class="${aba==='pend'?'on':''}" onclick="param='pend';render()">Pendentes (${pend.length})</button><button class="${aba==='conc'?'on':''}" onclick="param='conc';render()">Concluídos (${conc.length})</button></div>
-   <div class="sub" style="margin:2px 0 6px">Filtrar por disciplina</div><div class="chips" style="margin-bottom:12px;flex-wrap:nowrap;overflow-x:auto"><span class="chip ${!filtroDisc?'on':''}" onclick="filtroDisc='';render()">Todas</span>${discs.map(d => `<span class="chip ${filtroDisc===d?'on':''}" style="white-space:nowrap" onclick='filtroDisc=${JSON.stringify(d)};render()'>${esc(d)}</span>`).join('')}</div>
+   <div class="lblf">PERÍODO</div><div class="filtro"><span class="chip ${!filtroPer?'on':''}" onclick="filtroPer=0;render()">Todos</span>${PERIODOS.map(n => `<span class="chip ${filtroPer===n?'on':''}" onclick="filtroPer=${n};render()">${n}º período</span>`).join('')}</div>
+   <div class="lblf">DISCIPLINA</div><div class="filtro" style="margin-bottom:12px"><span class="chip ${!filtroDisc?'on':''}" onclick="filtroDisc='';render()">Todas</span>${discs.map(d => `<span class="chip ${filtroDisc===d?'on':''}" onclick='filtroDisc=${JSON.stringify(d)};render()'>${esc(d)}</span>`).join('')}</div>
    ${lista.map(a => itemAtiv(u,a)).join('') || '<div class="empty">Nada por aqui.</div>'}
    <div class="note">🔴 vence amanhã/hoje/atrasada • 🟡 faltam 2–3 dias • 🔵 no prazo • 🟢 concluída</div>`;
 };
@@ -420,7 +463,7 @@ TELAS.aluno.ativ = u => telaAtividade(u);
 function telaAtividade(u) {
   const a = DB.atividades.find(x => x.id === param); if (!a) return voltarBtn('Atividade') + '<div class="empty">Atividade não encontrada.</div>';
   const p = DB.users.find(x => x.id === a.profId); const f = u.perfil === 'aluno' && feita(u,a);
-  const txt = `📚 ${a.titulo}\n${a.disciplina} • ${a.tipo}\nPrazo: ${br(a.prazo)}\nTurmas: ${a.turmas.join(', ')}\n${a.descricao||''}\n\nVeja no IEMA Organiza.`;
+  const txt = `📚 ${a.titulo}\n${a.disciplina} • ${a.tipo}\nPrazo: ${br(a.prazo)}\nTurmas: ${a.turmas.join(', ')}\n${a.descricao||''}\n\n👉 Abrir no IEMA Organiza: ${linkDe('ativ', a.id)}`;
   return `${voltarBtn('Atividade')}<div class="card"><div class="row" style="justify-content:space-between"><span class="sel ${tagCls('Prova')}">${esc(a.tipo)}</span>${selo(a.prazo,f)}</div>
    <div class="ttl" style="font-size:17px;margin-top:8px">${esc(a.titulo)}</div><div class="sub">${esc(a.disciplina)} • ${esc(p?p.nome:'')}</div>
    <div style="margin:12px 0;font-size:14px;line-height:1.5">${esc(a.descricao || 'Sem descrição.')}</div>
@@ -433,18 +476,22 @@ function telaAtividade(u) {
    <button class="btn wa" onclick='compartilhar(${JSON.stringify(txt)})'>↗ Compartilhar no WhatsApp</button>
    ${u.perfil!=='aluno' && (u.id===a.profId || u.perfil==='coord') ? `<button class="btn out" onclick="ir('novaAtiv','${a.id}')">✎ Editar</button><button class="btn out" onclick="ir('novaAtiv','copia:${a.id}')">⧉ Copiar para outra turma</button><button class="btn red" onclick="excluir('atividades','${a.id}')">Excluir</button>` : ''}</div>`;
 }
+let ordAv = 'novos';
+const ordBar = () => `<div class="lblf">ORDENAR AVISOS</div><div class="filtro">${[['novos','⬇ Mais novos primeiro'],['antigos','⬆ Mais antigos primeiro']].map(([k,l]) => `<span class="chip ${ordAv===k?'on':''}" onclick="ordAv='${k}';render()">${l}</span>`).join('')}</div>`;
+const ordenar = l => ordAv === 'antigos' ? [...l].reverse() : l;
 const avisosPara = u => DB.avisos.filter(v => v.turmas === 'todas' || !u.turma || (Array.isArray(v.turmas) && v.turmas.includes(u.turma))).sort((a,b) => b.data.localeCompare(a.data));
 function cardAviso(v, podeExcluir) {
   const leit = (() => { const al = DB.users.filter(x => x.perfil === 'aluno' && (v.turmas === 'todas' || (Array.isArray(v.turmas) && v.turmas.includes(x.turma)))); const n = al.filter(x => (DB.lidos[v.id]||[]).includes(x.id)).length; return {n, t:al.length}; })();
-  const txt = `📣 ${v.tipo.toUpperCase()}: ${v.titulo}\n${v.texto}\n— ${v.autor}\n\nVeja no IEMA Organiza.`;
-  return `<div class="card" style="border-left:4px solid var(--r)"><div class="row" style="justify-content:space-between"><span class="sel ${tagCls(v.tipo)}">${esc(v.tipo.toUpperCase())}</span><span class="sub">${br(v.data)}</span></div>
+  const txt = `📣 ${v.tipo.toUpperCase()}: ${v.titulo}\n${v.texto}\n— ${v.autor}\n\n👉 Abrir no IEMA Organiza: ${linkDe('aviso', v.id)}`;
+  return `<div class="card" id="av-${v.id}" style="border-left:4px solid var(--r)"><div class="row" style="justify-content:space-between"><span class="sel ${tagCls(v.tipo)}">${esc(v.tipo.toUpperCase())}</span><span class="sub">${br(v.data)}</span></div>
    <div class="ttl" style="margin:6px 0 3px">${esc(v.titulo)}</div><div style="font-size:13.5px;color:#4a525a;line-height:1.45">${esc(v.texto)}</div>
    <div class="row" style="justify-content:space-between;margin-top:8px"><span class="sub">${esc(v.autor)}${Array.isArray(v.turmas)?' • turmas '+v.turmas.join(', '):''}</span>
    ${podeExcluir?`<button class="del" onclick="excluir('avisos','${v.id}')">Excluir</button>`:''}</div>
    ${podeExcluir ? `<div style="margin-top:8px"><div class="row" style="justify-content:space-between;font-size:12.5px"><b>👁 Lido por ${leit.n} de ${leit.t} alunos</b><span>${leit.t?Math.round(leit.n/leit.t*100):0}%</span></div><div class="prog"><i style="width:${leit.t?Math.round(leit.n/leit.t*100):0}%"></i></div></div>` : ''}
-   <button class="btn wa" style="font-size:15px" onclick='compartilhar(${JSON.stringify(txt)})'>${ic('share',18)} Enviar no WhatsApp</button></div>`;
+   <button class="btn wa" style="font-size:15px" onclick='compartilhar(${JSON.stringify(txt)})'>${ic('share',18)} Enviar no WhatsApp</button>
+   <div class="sub" style="margin-top:4px;font-size:11.5px">🔗 A mensagem leva o link que abre este aviso no app.</div></div>`;
 }
-TELAS.aluno.avisos = u => { const l = avisosPara(u); const html = voltarBtn(ic('mega')+' Avisos') + (l.map(v => (lido(v,u)?'':'<div class="sel s-r" style="margin:0 0 -6px 8px;position:relative;z-index:1;display:inline-block">NOVO</div>') + cardAviso(v)).join('') || '<div class="empty">Sem avisos.</div>'); l.forEach(v => { const r = DB.lidos[v.id] || (DB.lidos[v.id] = []); if (!r.includes(u.id)) r.push(u.id); }); save(); return html; };
+TELAS.aluno.avisos = u => { const l = ordenar(avisosPara(u)); const html = voltarBtn(ic('mega')+' Avisos') + ordBar() + (l.map(v => (lido(v,u)?'':'<div class="sel s-r" style="margin:0 0 -6px 8px;position:relative;z-index:1;display:inline-block">NOVO</div>') + cardAviso(v)).join('') || '<div class="empty">Sem avisos.</div>'); l.forEach(v => { const r = DB.lidos[v.id] || (DB.lidos[v.id] = []); if (!r.includes(u.id)) r.push(u.id); }); save(); return html; };
 let mesCal = null;
 function calendario(u) {
   const base = mesCal || hoje(); const y = base.getFullYear(), m = base.getMonth();
@@ -466,13 +513,25 @@ function cardEvento(e, podeExcluir) {
    ${podeExcluir?`<button class="del" style="margin-top:6px" onclick="excluir('eventos','${e.id}')">Excluir</button>`:''}</div></div>`;
 }
 TELAS.aluno.eventos = u => voltarBtn(ic('star')+' Calendário e eventos') + calendario(u) + '<div class="sec">Próximos eventos</div>' + ([...DB.eventos].sort((a,b) => a.data.localeCompare(b.data)).map(e => cardEvento(e)).join('') || '<div class="empty">Sem eventos.</div>');
+const TIPOS_MAT = {PDF:['#e5484d','file'], Word:['#2b579a','edit'], Slides:['#d24726','chart'], Planilha:['#1e7145','list'], Vídeo:['#c4302b','play'], Link:['#6c5ce7','link'], Imagem:['#0e9f9a','file']};
 function cardMaterial(m, podeExcluir) {
-  const icm = ic({PDF:'file', Link:'link', Vídeo:'play', Resumo:'edit'}[m.tipo] || 'file');
-  return `<div class="card row" onclick="abrirLink('${esc(m.link)}')"><div style="width:42px;height:42px;border-radius:10px;background:var(--lb);display:flex;align-items:center;justify-content:center;color:var(--b);flex:none">${icm}</div>
-   <div style="flex:1;min-width:0"><div class="ttl">${esc(m.titulo)}</div><div class="sub">${esc(m.disciplina)} • ${esc(m.tipo)}</div></div>
-   ${podeExcluir?`<button class="del" onclick="event.stopPropagation();excluir('materiais','${m.id}')">Excluir</button>`:'<span style="color:var(--b)">↗</span>'}</div>`;
+  const [cor, icn] = TIPOS_MAT[m.tipo] || ['#6c5ce7','file']; const p = DB.users.find(x => x.id === m.profId);
+  return `<div class="card row" onclick="abrirLink('${esc(m.link)}')"><div style="width:44px;height:44px;border-radius:10px;background:${cor};display:flex;align-items:center;justify-content:center;color:#fff;flex:none">${ic(icn)}</div>
+   <div style="flex:1;min-width:0"><div class="row" style="gap:6px"><span class="tagm" style="background:${cor}">${esc(m.tipo.toUpperCase())}</span><span class="sub">${m.periodo}º período</span></div>
+   <div class="ttl" style="margin-top:3px">${esc(m.titulo)}</div><div class="sub">${esc(m.disciplina)} • ${esc(p ? p.nome : '—')}</div></div>
+   ${podeExcluir?`<button class="del" onclick="event.stopPropagation();excluir('materiais','${m.id}')">Excluir</button>`:'<span style="color:var(--b)" title="abrir link">↗</span>'}</div>`;
 }
-TELAS.aluno.material = u => voltarBtn(ic('book')+' Material de apoio') + (DB.materiais.filter(m => m.turmas.includes(u.turma)).map(m => cardMaterial(m)).join('') || '<div class="empty">Sem materiais.</div>');
+let grupoMat = 'disciplina', perMat = 0;
+function listaMateriais(lista, podeExcluir) {
+  const l = lista.filter(m => !perMat || m.periodo === perMat);
+  const chave = m => grupoMat === 'professor' ? ((DB.users.find(x => x.id === m.profId) || {}).nome || 'Sem professor') : grupoMat === 'periodo' ? m.periodo + 'º período' : m.disciplina;
+  const grupos = {}; l.forEach(m => (grupos[chave(m)] = grupos[chave(m)] || []).push(m));
+  return `<div class="lblf">SEPARAR POR</div><div class="seg">${[['professor','Professor'],['disciplina','Disciplina'],['periodo','Período']].map(([k,t]) => `<button class="${grupoMat===k?'on':''}" onclick="grupoMat='${k}';render()">${t}</button>`).join('')}</div>
+   <div class="lblf">PERÍODO</div><div class="filtro"><span class="chip ${!perMat?'on':''}" onclick="perMat=0;render()">Todos</span>${PERIODOS.map(n => `<span class="chip ${perMat===n?'on':''}" onclick="perMat=${n};render()">${n}º</span>`).join('')}</div>
+   ${Object.keys(grupos).sort().map(g => `<div class="sec">${esc(g)} <span class="sub" style="font-weight:500;margin-left:6px">• ${grupos[g].length} item(ns)</span></div>` + grupos[g].map(m => cardMaterial(m, podeExcluir)).join('')).join('') || '<div class="empty">Nenhum material neste filtro.</div>'}
+   <div class="note">Os arquivos ficam no Drive, OneDrive, YouTube ou outro site. O app guarda só o link para abrir ou baixar.</div>`;
+}
+TELAS.aluno.material = u => voltarBtn(ic('book')+' Material de apoio') + listaMateriais(DB.materiais.filter(m => m.turmas.includes(u.turma)));
 TELAS.aluno.desempenho = u => {
   const notas = DB.notas[u.id] || []; const media = notas.length ? (notas.reduce((s,n) => s + Number(n.v), 0) / notas.length) : 0;
   const at = minhasAtiv(u); const nc = at.filter(a => feita(u,a)).length;
@@ -492,11 +551,14 @@ function delNota(i) { const u = me(); DB.notas[u.id].splice(i,1); save(); render
 
 function telaAjustes(u) {
   const c = cfg(u.id);
-  return `${voltarBtn(ic('gear')+' Configurações')}<div class="card"><div class="ttl">Meus dados</div>
+  return `${voltarBtn(ic('gear')+' Configurações')}<div class="card"><div class="ttl">Meu perfil</div>
+   <div class="row" style="margin:10px 0 4px;gap:14px"><div class="av" style="margin:0;width:72px;height:72px;font-size:24px;background:var(--b)">${avatarIn(u)}</div>
+    <div><label class="btn out" style="display:inline-block;width:auto;padding:9px 14px;margin:0;cursor:pointer">📷 Trocar foto<input type="file" accept="image/*" style="display:none" onchange="trocarFoto(this)"></label>
+    ${u.foto ? `<button class="del" style="margin-left:6px" onclick="me().foto='';save();render()">Remover</button>` : ''}<div class="sub" style="margin-top:4px">A foto fica só no seu perfil.</div></div></div>
    <label class="lbl">Nome completo</label><input id="an" value="${esc(u.nome)}">
    <label class="lbl">E-mail</label><input id="ae" value="${esc(u.email||'')}">
-   ${u.perfil==='aluno' ? `<div class="row"><div style="flex:1"><label class="lbl">Turma</label><input id="at" value="${esc(u.turma)}"></div><div style="flex:1"><label class="lbl">Período</label><select><option>4º período</option></select></div></div>
-   <label class="lbl">Curso</label><input id="ac" value="${esc(u.curso||'')}">` : u.perfil==='professor' ? `<label class="lbl">Disciplina</label><input id="ad" value="${esc(u.disciplina||'')}">` : ''}
+   ${u.perfil==='aluno' ? `<div class="row"><div style="flex:1"><label class="lbl">Turma</label><input value="${esc(u.turma)}" disabled></div><div style="flex:1"><label class="lbl">Período</label><input value="${periodoDe(iso(hoje()))}º período" disabled></div></div>
+   <label class="lbl">Curso</label><input value="${esc(u.curso||'')}" disabled><div class="sub" style="font-size:11.5px">Turma e curso são definidos pela gestão ou pelo professor.</div>` : u.perfil==='professor' ? `<label class="lbl">Disciplina</label><input id="ad" value="${esc(u.disciplina||'')}">` : ''}
    <label class="lbl">Nova senha (opcional)</label><input id="as" type="password" placeholder="deixe em branco para manter">
    <button class="btn" onclick="salvarDados()">Salvar alterações</button></div>
    ${u.perfil==='aluno' ? `<div class="card row"><div style="flex:1"><div class="ttl">Lembretes de atividades</div><div class="sub">Aviso <b>${c.antes} dias antes</b>, <b>1 dia antes</b> e no dia do prazo</div></div><button class="sw ${c.lembretes?'on':''}" onclick="cfg(me().id).lembretes=!cfg(me().id).lembretes;save();render()"></button></div>
@@ -505,7 +567,7 @@ function telaAjustes(u) {
    <div class="card" style="margin-top:12px">🛡 <b>IEMA Pleno de Coroatá</b><div class="sub">Aplicativo de organização escolar. Seus dados ficam apenas neste aparelho (protótipo).</div></div>
    <button class="btn gray" onclick="sair()">↪ Sair da conta</button>
    <button class="btn out" style="color:var(--r);border-color:var(--r)" onclick="confirmar('Restaurar dados de exemplo?','Tudo o que foi cadastrado neste aparelho será apagado e o app volta ao início.',()=>{localStorage.removeItem(KEY);load();renderLogin();toast('Dados de exemplo restaurados.')},'Restaurar')">Restaurar dados de exemplo</button>
-   <div class="note">IEMA Organiza • versão 1.5 • protótipo do TCC IEMA 2026 (Grupo 1)</div>`;
+   <div class="note">IEMA Organiza • versão 1.6 • protótipo do TCC IEMA 2026 (Grupo 1)</div>`;
 }
 function confirmar(titulo, texto, sim, rotulo) {
   const m = document.createElement('div'); m.className = 'modal';
@@ -513,6 +575,9 @@ function confirmar(titulo, texto, sim, rotulo) {
   document.body.appendChild(m); const [nao, ok] = m.querySelectorAll('button');
   nao.onclick = () => m.remove(); m.onclick = e => { if (e.target === m) m.remove(); }; ok.onclick = () => { m.remove(); sim(); };
 }
+function trocarFoto(inp) { const f = inp.files && inp.files[0]; if (!f) return; const r = new FileReader();
+  r.onload = () => { const im = new Image(); im.onload = () => { const c = document.createElement('canvas'), S = 240, k = Math.min(im.width, im.height); c.width = c.height = S;
+    c.getContext('2d').drawImage(im, (im.width - k) / 2, (im.height - k) / 2, k, k, 0, 0, S, S); me().foto = c.toDataURL('image/jpeg', .82); save(); toast('📷 Foto atualizada!'); render(); }; im.src = r.result; }; r.readAsDataURL(f); }
 function salvarDados() {
   const u = me(); u.nome = $('#an').value.trim() || u.nome; u.email = $('#ae').value.trim();
   if ($('#at')) u.turma = $('#at').value.trim() || u.turma; if ($('#ac')) u.curso = $('#ac').value.trim(); if ($('#ad')) u.disciplina = $('#ad').value.trim();
@@ -528,7 +593,8 @@ TELAS.professor.inicio = u => {
   return `<div class="hero"><b>Olá, ${esc(u.nome)}! 👋</b><div>${esc(u.disciplina)} • ${prox.length} atividade(s) com prazo aberto</div></div>
    <div class="sec">O que você quer fazer?</div>
    <div class="grid"><div class="qa" onclick="ir('novaAtiv')">${ic('plus')}Nova atividade</div><div class="qa" onclick="ir('novoMat')">${ic('book')}Novo material</div>
-   <div class="qa" onclick="ir('minhas')">${ic('list')}Minhas atividades</div><div class="qa" onclick="ir('avisos')">${ic('mega')}Avisos da escola</div></div>
+   <div class="qa" onclick="ir('minhas')">${ic('list')}Minhas atividades</div><div class="qa" onclick="ir('avisos')">${ic('mega')}Avisos da escola</div>
+   <div class="qa" onclick="ir('usuarios','aluno')">${ic('users')}Meus alunos</div><div class="qa" onclick="ir('novoUser','aluno')">${ic('user')}Cadastrar aluno</div></div>
    <div class="sec">Próximos prazos</div>${prox.slice(0,4).map(a => `<div class="card row" onclick="ir('ativ','${a.id}')">${dataBox(a.prazo)}<div style="flex:1"><div class="ttl">${esc(a.titulo)}</div><div class="sub">Turmas ${a.turmas.join(', ')}</div></div>${selo(a.prazo)}</div>`).join('') || '<div class="empty">Nenhuma atividade com prazo aberto.</div>'}`;
 };
 TELAS.professor.minhas = u => voltarBtn(ic('list')+' Minhas atividades') + (DB.atividades.filter(a => a.profId === u.id).sort((a,b) => a.prazo.localeCompare(b.prazo)).map(a =>
@@ -546,14 +612,16 @@ TELAS.professor.novaAtiv = u => {
    <label class="lbl">Disciplina</label><input id="fd" value="${esc(a ? a.disciplina : u.disciplina || '')}">
    <label class="lbl">Título</label><input id="ft" value="${esc(a ? a.titulo : '')}" placeholder="ex.: Trabalho de ${esc(u.disciplina||'')} — tema">
    <label class="lbl">Tipo</label><select id="fy">${tipos.map(t => `<option ${a&&a.tipo===t?'selected':''}>${t}</option>`).join('')}</select>
-   <label class="lbl">Prazo de entrega</label><input id="fp" type="date" value="${a ? a.prazo : addD(7)}">
+   <div class="row"><div style="flex:1"><label class="lbl">Prazo de entrega</label><input id="fp" type="date" value="${a ? a.prazo : addD(7)}" onchange="$('#fpe').value=periodoDe(this.value)"></div>
+   <div style="flex:1"><label class="lbl">Período</label><select id="fpe">${PERIODOS.map(n => `<option value="${n}" ${(a ? perA(a) : periodoDe(addD(7)))===n?'selected':''}>${n}º período</option>`).join('')}</select></div></div>
    <label class="lbl">Descrição (opcional)</label><textarea id="fx" placeholder="O que o aluno deve fazer">${esc(a ? a.descricao : '')}</textarea>
-   <label class="lbl">📎 Arquivo anexo (link do Drive, PDF ou site – opcional)</label><input id="fa" placeholder="https://" value="${esc(a && a.anexo || '')}">
+   <label class="lbl">📎 Link do arquivo (opcional)</label><input id="fa" placeholder="https://drive.google.com/..." value="${esc(a && a.anexo || '')}">
+   <div class="sub" style="font-size:11.5px">O app não guarda arquivos: coloque o arquivo no Drive, OneDrive ou YouTube e cole aqui só o link.</div>
    <div class="sub" style="margin-top:8px;color:var(--ok)">✔ Os alunos recebem o lembrete automático <b>3 dias antes</b> e <b>1 dia antes</b> do prazo.</div>
    <button class="btn" onclick="salvarAtiv('${a&&!copia?a.id:''}',false)">${a&&!copia ? 'Salvar alterações' : 'Publicar para as turmas'}</button>
    <button class="btn wa" onclick="salvarAtiv('${a&&!copia?a.id:''}',true)">↗ Publicar e enviar no WhatsApp</button></div>`;
 };
-const turmasExist = () => [...new Set(['101','102','103','104','201','202','203','204','301','302','303', ...DB.users.filter(u => u.turma).map(u => u.turma)])].sort();
+const turmasExist = () => [...new Set(['101','102','103','104','201','202','203','204','301','302','303','304', ...DB.users.filter(u => u.turma).map(u => u.turma)])].sort();
 function togTurma(el, t) { const i = selTurmas.indexOf(t); if (i >= 0) selTurmas.splice(i,1); else selTurmas.push(t); el.classList.toggle('on'); }
 function salvarAtiv(id, wa) {
   const t = $('#ft').value.trim(), p = $('#fp').value;
@@ -562,23 +630,25 @@ function salvarAtiv(id, wa) {
   if (!a) { a = {id: uid(), profId: me().id}; DB.atividades.push(a); }
   const antes = a.prazo;
   let anx = $('#fa').value.trim(); if (anx && !/^https?:\/\//.test(anx)) anx = 'https://' + anx;
-  Object.assign(a, {titulo:t, disciplina:$('#fd').value.trim() || 'Geral', tipo:$('#fy').value, turmas:[...selTurmas].sort(), prazo:p, descricao:$('#fx').value.trim(), anexo:anx});
+  Object.assign(a, {titulo:t, disciplina:$('#fd').value.trim() || 'Geral', tipo:$('#fy').value, turmas:[...selTurmas].sort(), prazo:p, descricao:$('#fx').value.trim(), anexo:anx, periodo:+$('#fpe').value});
   if (antes && antes !== p) { DB.alteracoes.push({id:uid(), ativ:a.id, de:antes, para:p, em:iso(hoje()), vistos:[]}); setTimeout(() => toast('📅 Os alunos vão ver o aviso de <b>data alterada</b> na tela inicial.'), 600); }
   save(); toast('✔ Atividade publicada para as turmas ' + a.turmas.join(', ') + '!');
-  if (wa) compartilhar(`📚 ${a.titulo}\n${a.disciplina} • ${a.tipo}\nPrazo: ${br(a.prazo)}\nTurmas: ${a.turmas.join(', ')}\n${a.descricao}\n\nVeja no IEMA Organiza.`);
+  if (wa) compartilhar(`📚 ${a.titulo}\n${a.disciplina} • ${a.tipo}\nPrazo: ${br(a.prazo)}\nTurmas: ${a.turmas.join(', ')}\n${a.descricao}\n\n👉 Abrir no IEMA Organiza: ${linkDe('ativ', a.id)}`);
   pilha = []; ir('minhas', null, true);
 }
-TELAS.professor.material = u => voltarBtn(ic('book')+' Material de apoio') + `<button class="btn" style="margin:0 0 12px" onclick="ir('novoMat')">+ Adicionar material</button>` + (DB.materiais.map(m => cardMaterial(m, true)).join('') || '<div class="empty">Sem materiais.</div>');
+TELAS.professor.material = u => voltarBtn(ic('book')+' Material de apoio') + `<button class="btn" style="margin:0 0 12px" onclick="ir('novoMat')">+ Adicionar link de material</button>` + listaMateriais(DB.materiais, true);
 TELAS.professor.novoMat = u => { selTurmas = ['301']; return `${voltarBtn(ic('book')+' Novo material')}<div class="card">
    <label class="lbl" style="margin-top:0">Turmas</label><div class="chips">${turmasExist().map(t => `<span class="chip ${selTurmas.includes(t)?'on':''}" onclick="togTurma(this,'${t}')">${t}</span>`).join('')}</div>
    <label class="lbl">Título</label><input id="mt" placeholder="ex.: Resumo da aula 5">
    <label class="lbl">Disciplina</label><input id="md" value="${esc(u.disciplina||'')}">
-   <label class="lbl">Tipo</label><select id="my"><option>PDF</option><option>Link</option><option>Vídeo</option><option>Resumo</option></select>
-   <label class="lbl">Link (Drive, YouTube, site)</label><input id="ml" placeholder="https://">
+   <div class="row"><div style="flex:1"><label class="lbl">Tipo do arquivo</label><select id="my">${Object.keys(TIPOS_MAT).map(t => `<option>${t}</option>`).join('')}</select></div>
+   <div style="flex:1"><label class="lbl">Período</label><select id="mpe">${PERIODOS.map(n => `<option value="${n}" ${n===periodoDe(iso(hoje()))?'selected':''}>${n}º período</option>`).join('')}</select></div></div>
+   <label class="lbl">Link para abrir ou baixar</label><input id="ml" placeholder="https://drive.google.com/...">
+   <div class="sub" style="font-size:11.5px">O app não guarda arquivos: suba o PDF, Word, slides ou vídeo no Drive, OneDrive ou YouTube e cole aqui o link.</div>
    <button class="btn" onclick="salvarMat()">Salvar material</button></div>`; };
 function salvarMat() { const t = $('#mt').value.trim(), l = $('#ml').value.trim(); if (!t || !l) return toast('Preencha o título e o link.'); if (!selTurmas.length) return toast('Escolha uma turma.');
-  DB.materiais.unshift({id:uid(), titulo:t, disciplina:$('#md').value.trim() || 'Geral', tipo:$('#my').value, link:/^https?:\/\//.test(l) ? l : 'https://' + l, turmas:[...selTurmas]}); save(); toast('Material salvo!'); pilha = []; ir('material', null, true); }
-TELAS.professor.avisos = u => voltarBtn(ic('mega')+' Avisos da escola') + (avisosPara({}).map(v => cardAviso(v)).join('') || '<div class="empty">Sem avisos.</div>');
+  DB.materiais.unshift({id:uid(), titulo:t, disciplina:$('#md').value.trim() || 'Geral', tipo:$('#my').value, link:/^https?:\/\//.test(l) ? l : 'https://' + l, turmas:[...selTurmas], profId:me().perfil === 'professor' ? me().id : '', periodo:+$('#mpe').value}); save(); toast('Material salvo!'); pilha = []; ir('material', null, true); }
+TELAS.professor.avisos = u => voltarBtn(ic('mega')+' Avisos da escola') + ordBar() + (ordenar(avisosPara({})).map(v => cardAviso(v)).join('') || '<div class="empty">Sem avisos.</div>');
 TELAS.professor.eventos = TELAS.aluno.eventos;
 
 // ---------- COORDENAÇÃO ----------
@@ -591,9 +661,10 @@ TELAS.coord.inicio = u => {
     <div class="card" style="margin:0"><div class="sub">Atividades abertas</div><b style="font-size:26px">${abertas}</b></div><div class="card" style="margin:0"><div class="sub">Avisos publicados</div><b style="font-size:26px">${DB.avisos.length}</b></div></div>
    <div class="sec">O que você quer fazer?</div>
    <div class="grid"><div class="qa" onclick="ir('novoAviso')">${ic('mega')}Novo aviso</div><div class="qa" onclick="ir('novoEvento')">${ic('star')}Novo evento</div>
-   <div class="qa" onclick="ir('novoUser')">${ic('user')}Cadastrar usuário</div><div class="qa" onclick="ir('todas')">${ic('list')}Todas as atividades</div></div>`;
+   <div class="qa" onclick="ir('novoUser')">${ic('user')}Cadastrar usuário</div><div class="qa" onclick="ir('todas')">${ic('list')}Todas as atividades</div>
+   <div class="qa" onclick="ir('subst')">🔁 Substituições</div><div class="qa" onclick="ir('usuarios')">${ic('users')}Usuários</div></div>`;
 };
-TELAS.coord.avisos = u => voltarBtn(ic('mega')+' Avisos') + `<button class="btn" style="margin:0 0 12px" onclick="ir('novoAviso')">+ Novo aviso</button>` + (avisosPara({}).map(v => cardAviso(v, true)).join('') || '<div class="empty">Sem avisos.</div>');
+TELAS.coord.avisos = u => voltarBtn(ic('mega')+' Avisos') + `<button class="btn" style="margin:0 0 12px" onclick="ir('novoAviso')">+ Novo aviso</button>` + ordBar() + (ordenar(avisosPara({})).map(v => cardAviso(v, true)).join('') || '<div class="empty">Sem avisos.</div>');
 TELAS.coord.novoAviso = u => { selTurmas = []; return `${voltarBtn(ic('mega')+' Novo aviso')}<div class="card">
    <label class="lbl" style="margin-top:0">Tipo</label><select id="vy"><option>Aviso</option><option>Prova</option><option>Urgente</option><option>Evento</option></select>
    <label class="lbl">Título</label><input id="vt" placeholder="ex.: Reunião de pais">
@@ -608,7 +679,7 @@ function salvarAviso(wa) {
   DB.avisos.unshift(v);
   if ($('#ve').value && $('#vd').value) DB.eventos.push({id:uid(), titulo:t, texto:x.slice(0,80), data:$('#vd').value, hora:'—', local:'IEMA', tag:v.tipo === 'Prova' ? 'Prova' : 'Evento'});
   save(); toast('✔ Aviso publicado!');
-  if (wa) compartilhar(`📣 ${v.tipo.toUpperCase()}: ${v.titulo}\n${v.texto}\n— ${v.autor}\n\nVeja no IEMA Organiza.`);
+  if (wa) compartilhar(`📣 ${v.tipo.toUpperCase()}: ${v.titulo}\n${v.texto}\n— ${v.autor}\n\n👉 Abrir no IEMA Organiza: ${linkDe('aviso', v.id)}`);
   pilha = []; ir('avisos', null, true);
 }
 TELAS.coord.eventos = u => voltarBtn(ic('star')+' Calendário e eventos') + calendario(u) + `<button class="btn" style="margin:0 0 12px" onclick="ir('novoEvento')">+ Novo evento</button>` + ([...DB.eventos].sort((a,b) => a.data.localeCompare(b.data)).map(e => cardEvento(e, true)).join('') || '<div class="empty">Sem eventos.</div>');
@@ -621,15 +692,16 @@ TELAS.coord.novoEvento = u => `${voltarBtn(ic('star')+' Novo evento')}<div class
    <button class="btn" onclick="salvarEvento()">Salvar evento</button></div>`;
 function salvarEvento() { const t = $('#et').value.trim(), d = $('#ed').value; if (!t || !d) return toast('Preencha o título e a data.');
   DB.eventos.push({id:uid(), titulo:t, texto:$('#ex').value.trim(), data:d, hora:$('#eh').value || '—', local:$('#el').value.trim() || 'IEMA', tag:$('#eg').value}); save(); toast('✔ Evento salvo!'); pilha = []; ir('eventos', null, true); }
-TELAS.coord.usuarios = u => { const f = param || 'aluno'; return `${voltarBtn(ic('users')+' Usuários')}<div class="seg">${[['aluno','Alunos'],['professor','Professores'],['coord','Coordenação']].map(([k,l]) => `<button class="${f===k?'on':''}" onclick="param='${k}';render()">${l}</button>`).join('')}</div>
+TELAS.coord.usuarios = u => { const prof = u.perfil === 'professor'; const f = prof ? 'aluno' : (param || 'aluno'); return `${voltarBtn(ic('users')+(prof?' Meus alunos':' Usuários'))}<div class="seg" style="${prof?'display:none':''}">${[['aluno','Alunos'],['professor','Professores'],['coord','Coordenação']].map(([k,l]) => `<button class="${f===k?'on':''}" onclick="param='${k}';render()">${l}</button>`).join('')}</div>
    <button class="btn" style="margin:0 0 12px" onclick="ir('novoUser','${f}')">+ Cadastrar ${f==='aluno'?'aluno':f==='professor'?'professor':'coordenador'}</button>
-   ${DB.users.filter(x => x.perfil === f).map(x => `<div class="card row"><div class="av" style="margin:0;background:${f==='aluno'?'var(--b)':f==='professor'?'var(--g)':'var(--r)'}">${esc(iniciais(x.nome))}</div>
+   ${DB.users.filter(x => x.perfil === f).map(x => `<div class="card row"><div class="av" style="margin:0;background:${f==='aluno'?'var(--b)':f==='professor'?'var(--g)':'var(--r)'}">${avatarIn(x)}</div>
      <div style="flex:1;min-width:0"><div class="ttl">${esc(x.nome)}</div><div class="sub">${f==='aluno'?'Turma '+esc(x.turma):f==='professor'?esc(x.disciplina):'Coordenação'} • login: ${esc(x.login)}</div></div>
-     ${x.id !== me().id ? `<button class="del" onclick="excluir('users','${x.id}')">Excluir</button>` : ''}</div>`).join('')}`; };
-TELAS.coord.novoUser = u => { const f = param || 'aluno'; return `${voltarBtn(ic('user')+' Cadastrar usuário')}<div class="card">
-   <label class="lbl" style="margin-top:0">Perfil</label><select id="up" onchange="param=this.value;render()"><option value="aluno" ${f==='aluno'?'selected':''}>Aluno</option><option value="professor" ${f==='professor'?'selected':''}>Professor</option><option value="coord" ${f==='coord'?'selected':''}>Coordenação</option></select>
+     ${x.id !== me().id ? `<button class="del" onclick="excluir('users','${x.id}')">Excluir</button>` : ''}</div>`).join('')}
+   <div class="note">Novos usuários só são cadastrados pela gestão ou pelo professor. Depois, cada um pode mudar a própria foto e os dados em Configurações.</div>`; };
+TELAS.coord.novoUser = u => { const prof = u.perfil === 'professor'; const f = prof ? 'aluno' : (param || 'aluno'); return `${voltarBtn(ic('user')+(prof?' Cadastrar aluno':' Cadastrar usuário'))}<div class="card">
+   <label class="lbl" style="margin-top:0;${prof?'display:none':''}">Perfil</label><select style="${prof?'display:none':''}" id="up" onchange="param=this.value;render()"><option value="aluno" ${f==='aluno'?'selected':''}>Aluno</option><option value="professor" ${f==='professor'?'selected':''}>Professor</option><option value="coord" ${f==='coord'?'selected':''}>Coordenação</option></select>
    <label class="lbl">Nome completo</label><input id="un">
-   ${f==='aluno' ? `<label class="lbl">Turma</label><input id="ut" placeholder="ex.: 301"><label class="lbl">Curso</label><input id="uc" placeholder="ex.: Manutenção e Suporte em Informática">` : f==='professor' ? `<label class="lbl">Disciplina</label><input id="ud">` : ''}
+   ${f==='aluno' ? `<label class="lbl">Turma</label><select id="ut">${turmasExist().map(t => `<option ${t==='301'?'selected':''}>${t}</option>`).join('')}</select><label class="lbl">Curso</label><input id="uc" placeholder="ex.: Manutenção e Suporte em Informática">` : f==='professor' ? `<label class="lbl">Disciplina</label><input id="ud">` : ''}
    <label class="lbl">Usuário (login)</label><input id="ul" autocomplete="off" placeholder="ex.: maria.silva">
    <label class="lbl">Senha</label><input id="us" value="1234">
    <button class="btn" onclick="salvarUser('${f}')">Cadastrar</button></div>`; };
@@ -638,8 +710,24 @@ function salvarUser(f) {
   if (!n || !l || !s) return toast('Preencha nome, usuário e senha.'); if (DB.users.some(x => x.login === l)) return toast('Esse usuário já existe.');
   const x = {id:uid(), nome:n, login:l, senha:s, perfil:f, email:''};
   if (f === 'aluno') { x.turma = $('#ut').value.trim() || '301'; x.curso = $('#uc').value.trim(); } if (f === 'professor') x.disciplina = $('#ud').value.trim() || 'Geral';
-  DB.users.push(x); save(); toast('✔ Usuário cadastrado! Login: ' + l); pilha = []; tela = 'usuarios'; param = f; render();
+  DB.users.push(x); save(); toast('✔ Usuário cadastrado! Login: ' + l + ' • senha: ' + s); pilha = []; tela = 'usuarios'; param = f; render();
 }
+TELAS.coord.subst = u => voltarBtn('🔁 Substituições') + `<button class="btn" style="margin:0 0 12px" onclick="ir('novaSubst')">+ Registrar substituição</button>` +
+  ([...DB.substituicoes].sort((a,b) => b.data.localeCompare(a.data)).map(x => `<div class="card hr subst"><div class="h">${br(x.data).slice(0,5)}<small>${(DB.horario[parse(x.data).getDay()]||[])[x.idx] ? DB.horario[parse(x.data).getDay()][x.idx][0] : ''}</small></div><div class="d" style="flex:1"><div class="ttl">Turma ${esc(x.turma)} • ${x.idx+1}ª aula</div><div class="sub">${esc(x.prof)} (${esc(x.disciplina)})${x.motivo?' • '+esc(x.motivo):''}</div><button class="del" style="margin-top:6px" onclick="excluir('substituicoes','${x.id}')">Excluir</button></div></div>`).join('') || '<div class="empty">Nenhuma substituição registrada.</div>') +
+  '<div class="note">A aula substituída aparece em amarelo no horário dos alunos da turma.</div>';
+TELAS.coord.novaSubst = u => `${voltarBtn('🔁 Registrar substituição')}<div class="card">
+   <div class="row"><div style="flex:1"><label class="lbl" style="margin-top:0">Turma</label><select id="st">${turmasExist().map(t => `<option ${t==='301'?'selected':''}>${t}</option>`).join('')}</select></div>
+   <div style="flex:1"><label class="lbl" style="margin-top:0">Data</label><input id="sd" type="date" value="${proxDiaUtil()}"></div></div>
+   <label class="lbl">Aula</label><select id="si">${[0,1,2,3,4].map(i => `<option value="${i}">${i+1}ª aula (${['07:00','07:50','08:40','09:50','10:40'][i]})</option>`).join('')}</select>
+   <label class="lbl">Professor substituto</label><select id="sp">${DB.users.filter(x => x.perfil === 'professor').map(x => `<option>${esc(x.nome)}</option>`).join('')}</select>
+   <label class="lbl">Disciplina da substituição</label><input id="sdi" placeholder="ex.: Matemática">
+   <label class="lbl">Motivo (opcional)</label><input id="sm" placeholder="ex.: professor em formação">
+   <button class="btn" onclick="salvarSubst()">Salvar substituição</button></div>`;
+function salvarSubst() { const d = $('#sd').value; if (!d) return toast('Escolha a data.'); const prof = $('#sp').value; const pu = DB.users.find(x => x.nome === prof);
+  DB.substituicoes.push({id:uid(), data:d, turma:$('#st').value, idx:+$('#si').value, prof, disciplina:$('#sdi').value.trim() || (pu && pu.disciplina) || 'Aula', motivo:$('#sm').value.trim()});
+  save(); toast('✔ Substituição registrada. Os alunos veem em amarelo no horário.'); pilha = []; ir('subst', null, true); }
+TELAS.professor.usuarios = u => TELAS.coord.usuarios(u);
+TELAS.professor.novoUser = u => TELAS.coord.novoUser(u);
 TELAS.coord.todas = u => voltarBtn(ic('list')+' Todas as atividades') + ([...DB.atividades].sort((a,b) => a.prazo.localeCompare(b.prazo)).map(a => { const p = DB.users.find(x => x.id === a.profId);
   return `<div class="card row" onclick="ir('ativ','${a.id}')">${dataBox(a.prazo)}<div style="flex:1;min-width:0"><div class="ttl">${esc(a.titulo)}</div><div class="sub">${esc(p?p.nome:'')} • turmas ${a.turmas.join(', ')}</div></div>${selo(a.prazo)}</div>`; }).join('') || '<div class="empty">Sem atividades.</div>');
 TELAS.coord.ativ = u => telaAtividade(u);
@@ -653,7 +741,7 @@ function excluirJa(col, id) {
   render();
 }
 
-load(); render();
+load(); lerLink(); render(); abrirLinkPendente();
 (function splash(){ const s = document.createElement('div'); s.id = 'splash';
   s.innerHTML = '<img src="logo_iema.png" alt="IEMA"><div class="ap">' + ICON.replace('width="34" height="34"','width="44" height="44"') + '<div>IEMA <span>Organiza</span></div></div><div class="ld"><i></i></div><div style="font-size:11px;letter-spacing:2px;color:#8a84b5;font-weight:600">ESTUDE. ORGANIZE. CONQUISTE.</div>';
   document.body.appendChild(s); setTimeout(() => { s.style.opacity = 0; setTimeout(() => s.remove(), 450); }, 1500); })();
