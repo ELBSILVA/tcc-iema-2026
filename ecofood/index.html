@@ -506,7 +506,7 @@ function seed() {
   const R = rnd(42);
   const users = [
     {id:'u1', nome:'Operador do PDV', login:'pdv', senha:'1234', perfil:'pdv', cargo:'PDV do refeitório'},
-    {id:'u2', nome:'Lenilda Ferreira', login:'cozinha', senha:'1234', perfil:'cozinha', cargo:'Cozinha'},
+    {id:'u2', nome:'Zézé Ferreira', login:'cozinha', senha:'1234', perfil:'cozinha', cargo:'Cozinha'},
     {id:'u3', nome:'Gestão Escolar', login:'gestao', senha:'1234', perfil:'gestao', cargo:'Gestão'}
   ];
   const alunos = GRUPO3.map(a => ({...a})); let n = 0;
@@ -542,7 +542,7 @@ function seed() {
 function semanaCiclo(card, dt, inicio) { const dias = Math.floor((parse(dt) - parse(inicio)) / 86400000); const w = ((Math.floor(dias / 7) % 4) + 4) % 4 + 1; return w; }
 function cardDia(card, dt, inicio) { const esp = DB && DB.especiais && DB.especiais[dt]; if (esp) return esp; const wd = parse(dt).getDay(); const ini = inicio || (DB && DB.config.inicioCiclo) || addD(-14); const w = semanaCiclo(card, dt, ini); return card[w + '-' + (wd >= 1 && wd <= 5 ? wd : 1)] || {}; }
 let DB = null;
-function load() { try { DB = JSON.parse(localStorage.getItem(KEY)); } catch(e) { DB = null; } if (!DB || !DB.users) { DB = seed(); save(); } if (!DB.fotos) DB.fotos = {}; if (!DB.especiais) DB.especiais = {}; if (!DB.pratos) DB.pratos = []; if (!DB.descr) DB.descr = {}; if (!DB.sugestoes) DB.sugestoes = [{id:'s1', texto:'Cuscuz com carne de sol', data:addD(-3)}, {id:'s2', texto:'Lasanha', data:addD(-2)}, {id:'s3', texto:'Cuscuz com carne de sol', data:addD(-1)}, {id:'s4', texto:'Salada de frutas no lanche', data:addD(-1)}];
+function load() { try { DB = JSON.parse(localStorage.getItem(KEY)); } catch(e) { DB = null; } if (!DB || !DB.users) { DB = seed(); save(); } DB.users.forEach(u => { if (u.nome === 'Lenilda Ferreira') u.nome = 'Zézé Ferreira'; }); if (!DB.fotos) DB.fotos = {}; if (!DB.especiais) DB.especiais = {}; if (!DB.pratos) DB.pratos = []; if (!DB.descr) DB.descr = {}; if (!DB.sugestoes) DB.sugestoes = [{id:'s1', texto:'Cuscuz com carne de sol', data:addD(-3)}, {id:'s2', texto:'Lasanha', data:addD(-2)}, {id:'s3', texto:'Cuscuz com carne de sol', data:addD(-1)}, {id:'s4', texto:'Salada de frutas no lanche', data:addD(-1)}];
   if (DB.alunos.some(a => a.id[0] !== 'g')) { const ids = new Set(DB.alunos.filter(a => a.id[0] !== 'g').map(a => a.id)); DB.alunos = DB.alunos.filter(a => !ids.has(a.id)); DB.registros = DB.registros.filter(x => !ids.has(x.alunoId)); DB.avaliacoes = DB.avaliacoes.filter(x => !ids.has(x.alunoId)); DB.provisorias = DB.provisorias.filter(x => !ids.has(x.alunoId)); save(); }
   const faltam = GRUPO3.filter(g => !DB.alunos.some(a => a.id === g.id)); if (faltam.length) { DB.alunos.unshift(...faltam.map(a => ({...a}))); save(); }
   GRUPO3.forEach(g => { const a = DB.alunos.find(x => x.id === g.id); if (a) { a.img = g.img; if (!DB.config.turmasOk) a.turma = g.turma; } }); if (!DB.config.turmasOk) { DB.config.turmasOk = true; save(); } }

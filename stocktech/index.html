@@ -285,7 +285,7 @@ const KEY = 'stocktech_v1';
 const REF = ['1º lanche','Almoço','2º lanche'];
 function seed() {
   const users = [
-    {id:'k1', nome:'Lenilda Ferreira', login:'lenilda', senha:'1234', perfil:'cozinha', cargo:'Cozinheira'},
+    {id:'k1', nome:'Zézé Ferreira', login:'zeze', senha:'1234', perfil:'cozinha', cargo:'Cozinheira'},
     {id:'k2', nome:'Rosa Almeida', login:'rosa', senha:'1234', perfil:'cozinha', cargo:'Auxiliar de cozinha'},
     {id:'g1', nome:'Gestão Escolar', login:'gestao', senha:'1234', perfil:'gestao', cargo:'Gestão'}
   ];
@@ -370,7 +370,7 @@ function chipVal(a) { const l = lotes(a.id).filter(x => !x.esquecido || diasAte(
 const MINIMO_TXT = 'Estoque mínimo é a quantidade que nunca pode faltar na despensa. Quando o alimento fica abaixo dele, o StockTech avisa e coloca na lista de compras.';
 const infoMin = () => `<span class="info" onclick="event.stopPropagation();toast(MINIMO_TXT)">?</span>`;
 let DB;
-function load() { try { DB = JSON.parse(localStorage.getItem(KEY)); } catch(e) { DB = null; } if (!DB || !DB.users) { DB = seed(); save(); } DB.alimentos.forEach(a => { if (a.preco == null) a.preco = PRECO[a.id] || 0; if (a.emb === undefined && EMB_PADRAO[a.id]) Object.assign(a, JSON.parse(JSON.stringify(EMB_PADRAO[a.id]))); if (a.emb === undefined) a.emb = null; }); document.body.classList.toggle('grande', !!DB.config.letra); }
+function load() { try { DB = JSON.parse(localStorage.getItem(KEY)); } catch(e) { DB = null; } if (!DB || !DB.users) { DB = seed(); save(); } DB.users.forEach(u => { if (u.login === 'lenilda') { u.login = 'zeze'; u.nome = 'Zézé Ferreira'; } }); DB.alimentos.forEach(a => { if (a.preco == null) a.preco = PRECO[a.id] || 0; if (a.emb === undefined && EMB_PADRAO[a.id]) Object.assign(a, JSON.parse(JSON.stringify(EMB_PADRAO[a.id]))); if (a.emb === undefined) a.emb = null; }); document.body.classList.toggle('grande', !!DB.config.letra); }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(DB)); } catch(e) {} }
 const me = () => DB.users.find(u => u.id === DB.sessao);
 const alim = id => DB.alimentos.find(a => a.id === id);
