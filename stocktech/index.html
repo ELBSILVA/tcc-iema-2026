@@ -233,6 +233,9 @@ input:focus,select:focus,textarea:focus{border-color:#ff8a00}
 .vchip{display:inline-block;font-size:11px;font-weight:700;padding:2px 7px;border-radius:3px;margin-left:6px;white-space:nowrap}
 .v-r{background:#e5484d;color:#fff}.v-y{background:#ffd27a;color:#5a3a00}
 .emo{font-size:20px;width:30px;text-align:center;flex:none}
+.foto{width:38px;height:38px;border-radius:8px;object-fit:cover;flex:none;background:#f1f1f1;border:1px solid var(--ln)}.foto.g{width:46px;height:46px}.foto.xl{width:120px;height:120px;border-radius:12px}
+.qun{display:flex;gap:6px}.qun input{flex:1;min-width:0}.qun select{width:auto;min-width:110px}.conv{font-size:12.5px;color:var(--ok);font-weight:700;margin-top:3px}
+.sun{font-size:12px;padding:3px 4px;border-radius:6px;border:1px solid var(--ln);background:#fff;margin-left:4px;max-width:92px}
 .info{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#ff8a00;color:#fff;font-size:11px;font-weight:800;cursor:pointer;margin-left:4px;vertical-align:middle}
 body.grande .main{zoom:1.2}body.grande .nav{zoom:1.1}
 </style>
@@ -324,6 +327,39 @@ function seed() {
   entradas.push({id:uid(), alimentoId:'f10', qtd:3, validade:addD(-2), data:addD(-40), fornecedor:'Doação (esquecido no fundo da despensa)', nota:'—', user:'k1', esquecido:true});
   return {users, alimentos, entradas, saidas, config:{diasAlerta:7}, notificados:{}, sessao:null};
 }
+// embalagem e peso de cada item: medida = quanto pesa/mede 1 unidade de controle; emb = embalagem fechada (quantas unidades de controle vêm)
+const EMB_PADRAO = {
+  f1:{emb:{tipo:'Fardo', qtd:30}, desc:'fardo com 30 pacotes de 1 kg'}, f2:{emb:{tipo:'Fardo', qtd:30}, desc:'fardo com 30 pacotes de 1 kg'},
+  f3:{medida:{u:'kg', v:0.5}, emb:{tipo:'Fardo', qtd:20}}, f4:{medida:null, emb:{tipo:'Caixa', qtd:18}, desc:'caixa com 20 garrafas de 900 mL'},
+  f5:{medida:{u:'kg', v:1}, emb:{tipo:'Fardo', qtd:10}}, f6:{medida:{u:'kg', v:0.125}, emb:{tipo:'Caixa', qtd:50}},
+  f7:{emb:{tipo:'Fardo', qtd:30}, desc:'fardo com 30 pacotes de 1 kg'}, f8:{emb:{tipo:'Caixa', qtd:20}}, f9:{medida:{u:'kg', v:0.5}, emb:{tipo:'Fardo', qtd:20}},
+  f10:{medida:{u:'kg', v:0.4}, emb:{tipo:'Caixa', qtd:20}}, f11:{medida:{u:'kg', v:0.25}, emb:{tipo:'Caixa', qtd:20}}, f12:{emb:{tipo:'Fardo', qtd:30}, desc:'fardo com 30 pacotes de 1 kg'}
+};
+const UN_NOME = {kg:'kg', g:'g', L:'L', mL:'mL', un:'unidade', pct:'pacote', sc:'saco', lata:'lata', cx:'caixa', gf:'garrafa'};
+const UN_CONTROLE = [['un','Unidade'],['pct','Pacote'],['sc','Saco'],['kg','Quilo (kg)'],['L','Litro (L)'],['lata','Lata'],['gf','Garrafa'],['cx','Caixa']];
+const EMB_TIPOS = ['Fardo','Caixa','Saco','Pacote','Bandeja'];
+// opções de unidade para digitar a quantidade: [chave, nome, fator] (fator = quantas unidades de controle valem 1 desta)
+function opcoesUn(a) {
+  const o = [[a.unidade, UN_NOME[a.unidade] || a.unidade, 1]];
+  if (a.unidade === 'kg') o.push(['g', 'g', 0.001]);
+  if (a.unidade === 'L') o.push(['mL', 'mL', 0.001]);
+  if (a.medida && a.medida.v > 0 && !['kg','L'].includes(a.unidade)) {
+    const u = a.medida.u; o.push([u, u, 1 / a.medida.v]); o.push([u === 'kg' ? 'g' : 'mL', u === 'kg' ? 'g' : 'mL', 0.001 / a.medida.v]);
+  }
+  if (a.emb && a.emb.tipo && a.emb.qtd > 0) o.push(['emb', a.emb.tipo.toLowerCase(), a.emb.qtd]);
+  return o;
+}
+const fatorUn = (a, k) => (opcoesUn(a).find(x => x[0] === k) || [0,0,1])[2];
+const descEmb = a => { const p = []; const un = UN_NOME[a.unidade] || a.unidade;
+  if (a.medida && a.medida.v > 0 && !['kg','L'].includes(a.unidade)) p.push(`1 ${un} = ${a.medida.u === 'kg' ? (a.medida.v < 1 ? fmt(a.medida.v * 1000) + ' g' : fmt(a.medida.v) + ' kg') : (a.medida.v < 1 ? fmt(a.medida.v * 1000) + ' mL' : fmt(a.medida.v) + ' L')}`);
+  if (a.emb && a.emb.tipo && a.emb.qtd > 0) p.push(`${a.emb.tipo.toLowerCase()} com ${fmt(a.emb.qtd)} ${a.unidade}${a.desc ? ' (' + a.desc.replace(/^\w+ com /, '') + ')' : ''}`);
+  return p.join(' • '); };
+const emEmb = (a, q) => a.emb && a.emb.qtd > 0 && q >= a.emb.qtd ? ` ≈ ${fmt(q / a.emb.qtd)} ${a.emb.tipo.toLowerCase()}${q / a.emb.qtd >= 2 ? 's' : ''}` : '';
+const imgAl = (a, cls) => a.foto ? `<img class="foto ${cls||''}" src="${a.foto}" alt="">` : `<span class="emo"${cls==='g'?' style="font-size:26px"':''}>${emo(a)}</span>`;
+function fotoAlim(inp) { const f = inp.files && inp.files[0]; if (!f) return; const r = new FileReader();
+  r.onload = () => { const im = new Image(); im.onload = () => { const c = document.createElement('canvas'), m = 320, k = Math.min(1, m / Math.max(im.width, im.height));
+    c.width = Math.round(im.width * k); c.height = Math.round(im.height * k); c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+    window._fotoNova = c.toDataURL('image/jpeg', 0.8); const pv = $('#afp'); if (pv) pv.innerHTML = `<img class="foto xl" src="${window._fotoNova}">`; }; im.src = r.result; }; r.readAsDataURL(f); }
 const PRECO = {f1:5.5, f2:8, f3:4.5, f4:7.5, f5:9, f6:6.5, f7:4.8, f8:13, f9:3.2, f10:5, f11:15, f12:2.5};
 const EMO = {'Grãos':'🌾','Massas':'🍝','Carnes':'🍗','Laticínios':'🥛','Enlatados':'🥫','Óleos':'🧴','Mercearia':'🛒','Hortifrúti':'🥕','Limpeza':'🧽'};
 const emo = a => EMO[a.categoria] || '📦';
@@ -334,7 +370,7 @@ function chipVal(a) { const l = lotes(a.id).filter(x => !x.esquecido || diasAte(
 const MINIMO_TXT = 'Estoque mínimo é a quantidade que nunca pode faltar na despensa. Quando o alimento fica abaixo dele, o StockTech avisa e coloca na lista de compras.';
 const infoMin = () => `<span class="info" onclick="event.stopPropagation();toast(MINIMO_TXT)">?</span>`;
 let DB;
-function load() { try { DB = JSON.parse(localStorage.getItem(KEY)); } catch(e) { DB = null; } if (!DB || !DB.users) { DB = seed(); save(); } DB.alimentos.forEach(a => { if (a.preco == null) a.preco = PRECO[a.id] || 0; }); document.body.classList.toggle('grande', !!DB.config.letra); }
+function load() { try { DB = JSON.parse(localStorage.getItem(KEY)); } catch(e) { DB = null; } if (!DB || !DB.users) { DB = seed(); save(); } DB.alimentos.forEach(a => { if (a.preco == null) a.preco = PRECO[a.id] || 0; if (a.emb === undefined && EMB_PADRAO[a.id]) Object.assign(a, JSON.parse(JSON.stringify(EMB_PADRAO[a.id]))); if (a.emb === undefined) a.emb = null; }); document.body.classList.toggle('grande', !!DB.config.letra); }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(DB)); } catch(e) {} }
 const me = () => DB.users.find(u => u.id === DB.sessao);
 const alim = id => DB.alimentos.find(a => a.id === id);
@@ -455,8 +491,8 @@ TELAS.painel = u => {
      `<div class="row" style="margin:4px 0 6px"><button class="btn" style="flex:1" onclick="ir('compras')">${ic('cart',18)} Lista de compras</button><button class="btn out" style="flex:1" onclick="ir('relatorio')">${ic('chart',18)} Relatório</button></div>`}
    ${al.slice(0,3).map(cardAlerta).join('')}${al.length>3?`<div class="sub" style="text-align:right"><a href="#" onclick="ir('alertas');return false" style="color:var(--b);font-weight:700;text-decoration:none">Ver todos os ${al.length} alertas ›</a></div>`:''}
    <div class="sec">Estoque atual <span class="sub" style="font-weight:500;text-transform:none;letter-spacing:0">• <span class="vchip v-r">vermelho</span> vence em até ${DB.config.diasAlerta} dias • mínimo ${infoMin()}</span></div>
-   <div class="card" style="padding:4px 10px">${lista.map(a => { const x = situacao(a); return `<div class="li" onclick="ir('alimento','${a.id}')"><span class="emo">${emo(a)}</span><div style="flex:1;min-width:0"><div class="ttl">${esc(a.nome)}${chipVal(a)}</div><div class="sub">mínimo ${a.minimo} ${a.unidade}</div></div>
-     <div style="width:34%">${barra(a)}</div><b style="width:62px;text-align:right;color:${x.baixo?'var(--r)':'var(--tx)'}">${fmt(x.s)} <small style="font-weight:500;color:var(--mu)">${a.unidade}</small></b></div>`; }).join('')}</div>
+   <div class="card" style="padding:4px 10px">${lista.map(a => { const x = situacao(a); return `<div class="li" onclick="ir('alimento','${a.id}')">${imgAl(a)}<div style="flex:1;min-width:0"><div class="ttl">${esc(a.nome)}${chipVal(a)}</div><div class="sub">mínimo ${a.minimo} ${a.unidade}</div></div>
+     <div style="width:34%">${barra(a)}</div><b style="width:72px;text-align:right;color:${x.baixo?'var(--r)':'var(--tx)'}">${fmt(x.s)} <small style="font-weight:500;color:var(--mu)">${a.unidade}</small></b></div>`; }).join('')}</div>
    ${u.perfil==='cozinha' ? `<div class="grid" style="margin-top:6px"><div class="qa" onclick="ir('alimentos')">${ic('box')}Alimentos</div><div class="qa" onclick="ir('relatorio')">${ic('chart')}Relatório semanal</div><div class="qa" onclick="ir('compras')">${ic('cart')}Lista de compras</div><div class="qa" onclick="ir('historico')">${ic('list')}Histórico</div></div>` :
      `<div class="grid" style="margin-top:6px"><div class="qa" onclick="ir('alertas')">${ic('bell')}Alertas</div><div class="qa" onclick="ir('historico')">${ic('list')}Histórico</div></div>`}`;
 };
@@ -489,10 +525,10 @@ TELAS.entrada = u => {
     <div class="row"><input id="cod" inputmode="numeric" autofocus placeholder="Código de barras: bipe com o leitor ou digite e tecle Enter" onkeydown="if(event.key==='Enter')buscarCodigo(this.value)" style="flex:1">
     ${'BarcodeDetector' in window ? `<button class="btn sm" style="padding:10px 12px" onclick="lerCamera()">${ic('scan',20)}</button>` : ''}</div>
     <div class="sub" style="margin:6px 0">ou escolha na lista:</div>
-    <select id="ea" onchange="entAlim=this.value;render()"><option value="">— escolher alimento —</option>${DB.alimentos.map(x => `<option value="${x.id}" ${entAlim===x.id?'selected':''}>${esc(x.nome)} (${x.unidade})</option>`).join('')}</select>
+    <select id="ea" onchange="entAlim=this.value;render()"><option value="">— escolher alimento —</option>${DB.alimentos.map(x => `<option value="${x.id}" ${entAlim===x.id?'selected':''}>${esc(x.nome)} (${UN_NOME[x.unidade]||x.unidade}${x.emb&&x.emb.tipo?' • '+x.emb.tipo.toLowerCase()+' com '+fmt(x.emb.qtd):''})</option>`).join('')}</select>
     <div id="cam"></div></div>
-   ${a ? `<div class="card"><div class="ttl" style="margin-bottom:2px">2. Dados da entrega — ${esc(a.nome)}</div><div class="sub">Tem agora: <b>${fmt(s)} ${a.unidade}</b> • mínimo ${a.minimo} ${a.unidade}</div>
-    <div class="row"><div style="flex:1"><label class="lbl">Quantidade (${a.unidade})</label><input id="eq" type="number" step="0.1" inputmode="decimal" oninput="prevEnt(${s},${a.minimo},'${a.unidade}')"></div>
+   ${a ? `<div class="card"><div class="row" style="gap:10px;margin-bottom:4px">${imgAl(a,'g')}<div style="flex:1"><div class="ttl" style="margin-bottom:2px">2. Dados da entrega — ${esc(a.nome)}</div><div class="sub">Tem agora: <b>${fmt(s)} ${a.unidade}</b> • mínimo ${a.minimo} ${a.unidade}${descEmb(a) ? '<br>📦 ' + esc(descEmb(a)) : ''}</div></div></div>
+    <div class="row"><div style="flex:1.4"><label class="lbl">Quantidade que chegou</label><div class="qun"><input id="eq" type="number" step="any" inputmode="decimal" placeholder="ex.: 2" oninput="prevEnt(${s},${a.minimo},'${a.unidade}')"><select id="eu" onchange="prevEnt(${s},${a.minimo},'${a.unidade}')">${opcoesUn(a).map(([k,t]) => `<option value="${k}" ${k==='emb'?'selected':''}>${t}</option>`).join('')}</select></div><div id="econv" class="conv"></div></div>
     <div style="flex:1"><label class="lbl">Validade 📅</label><input id="ev" type="date" value="${addD(180)}" oninput="prevVal()"></div></div>
     <div class="chips" style="margin-top:6px">${[[30,'+1 mês'],[90,'+3 meses'],[180,'+6 meses'],[365,'+1 ano']].map(([d,t]) => `<span class="chip" onclick="$('#ev').value='${addD(d)}';prevVal()">${t}</span>`).join('')}</div>
     <div id="pval" class="sub" style="margin-top:4px">Vence em ${br(addD(180))} (daqui a 180 dias)</div>
@@ -503,15 +539,17 @@ TELAS.entrada = u => {
    <div class="note">O leitor de código de barras USB funciona como teclado: é só bipar no campo do código.</div>`;
 };
 function prevVal() { const v = $('#ev').value; if (!v) return; const d = diasAte(v); $('#pval').innerHTML = d < 0 ? '<b style="color:var(--r)">⚠ Essa data já passou!</b>' : `Vence em <b>${br(v)}</b> (daqui a ${d} dias)`; }
-function prevEnt(s, m, un) { const q = parseFloat($('#eq').value) || 0; const f = s + q; $('#prev').innerHTML = q ? `Depois da entrada: <b style="color:${f>=m?'var(--ok)':'var(--r)'}">${fmt(f)} ${un}</b> (mínimo ${m} ${un}) ${f>=m?'✔':'⚠ ainda abaixo do mínimo'}` : ''; }
+function prevEnt(s, m, un) { const a = alim(entAlim); const k = $('#eu') ? $('#eu').value : un; const q = (parseFloat(String($('#eq').value).replace(',','.')) || 0) * fatorUn(a, k); const f = s + q;
+  $('#econv').innerHTML = q && k !== a.unidade ? `= ${fmt(q)} ${un} no estoque` : ''; $('#prev').innerHTML = q ? `Depois da entrada: <b style="color:${f>=m?'var(--ok)':'var(--r)'}">${fmt(f)} ${un}</b> (mínimo ${m} ${un}) ${f>=m?'✔':'⚠ ainda abaixo do mínimo'}` : ''; }
 function buscarCodigo(c) { const a = DB.alimentos.find(x => x.codigo && x.codigo === String(c).trim()); if (!a) return toast('Código não cadastrado. Cadastre o alimento em Alimentos.'); entAlim = a.id; toast('✔ ' + esc(a.nome)); render(); }
 function salvarEntrada() {
-  const a = alim(entAlim); const q = parseFloat(String($('#eq').value).replace(',','.')); const v = $('#ev').value;
+  const a = alim(entAlim); const k = $('#eu') ? $('#eu').value : a.unidade; const dig = parseFloat(String($('#eq').value).replace(',','.')); const q = dig * fatorUn(a, k); const v = $('#ev').value;
   if (!q || q <= 0) return toast('Digite a quantidade.'); if (!v) return toast('Informe a validade.');
   if (diasAte(v) < 0) return toast('A validade informada já passou. Confira a data.');
   const vx = parseFloat(String($('#ex').value).replace(',','.'));
-  DB.entradas.push({id:uid(), alimentoId:a.id, qtd:q, validade:v, data:iso(hoje()), fornecedor:$('#ef').value.trim(), nota:$('#en').value.trim(), user:DB.sessao, valor: isNaN(vx) ? q * (a.preco || 0) : vx});
-  save(); toast(`✔ Entrada salva: ${fmt(q)} ${a.unidade} de ${esc(a.nome)}`); entAlim = null; pilha = []; ir('painel', null, true);
+  const comoDig = k === a.unidade ? '' : `${fmt(dig)} ${(opcoesUn(a).find(x => x[0] === k) || [0,k])[1]}`;
+  DB.entradas.push({id:uid(), alimentoId:a.id, qtd:Math.round(q * 1000) / 1000, digitado:comoDig, validade:v, data:iso(hoje()), fornecedor:$('#ef').value.trim(), nota:$('#en').value.trim(), user:DB.sessao, valor: isNaN(vx) ? q * (a.preco || 0) : vx});
+  save(); toast(`✔ Entrada salva: ${comoDig ? comoDig + ' = ' : ''}${fmt(q)} ${a.unidade} de ${esc(a.nome)}`); entAlim = null; pilha = []; ir('painel', null, true);
 }
 let stream = null;
 async function lerCamera() {
@@ -527,7 +565,7 @@ async function lerCamera() {
 }
 function pararCamera() { if (stream) stream.getTracks().forEach(t => t.stop()); stream = null; const b = $('#cam'); if (b) b.innerHTML = ''; }
 // ---------- SAÍDA ----------
-let saiRef = null, saiQtd = {};
+let saiRef = null, saiQtd = {}, saiUn = {};
 const refAgora = () => { const h = new Date().getHours(); return h < 10 ? REF[0] : h < 14 ? REF[1] : REF[2]; };
 function preencherMedia() { DB.alimentos.forEach(a => { const m = mediaRef(a.id); if (m) saiQtd[a.id] = Math.min(saldo(a.id), Math.round(m * 10) / 10); }); }
 function saidaRapida() { saiRef = refAgora(); saiQtd = {}; preencherMedia(); ir('saida'); toast('⚡ Quantidades da média do ' + saiRef.toLowerCase() + ' preenchidas. Confira e confirme.'); }
@@ -538,16 +576,22 @@ TELAS.saida = u => {
    <div class="seg">${REF.map(r => `<button class="${saiRef===r?'on':''}" onclick="saiRef='${r}';render()">${r}</button>`).join('')}</div>
    <button class="btn rapida" style="margin:0 0 10px" onclick="saiQtd={};preencherMedia();render()">⚡ Preencher com a média do ${saiRef.toLowerCase()}</button>
    <div class="card" style="padding:4px 10px">${lista.map(a => { const s = saldo(a.id), q = saiQtd[a.id] || 0, f = s - q, md = mediaRef(a.id);
-     return `<div class="li"><span class="emo">${emo(a)}</span><div style="flex:1;min-width:0"><div class="ttl">${esc(a.nome)}${chipVal(a)}</div><div class="sub">tem ${fmt(s)} ${a.unidade}${md ? ` • média ${fmt(md)} ${a.unidade}/${saiRef.toLowerCase()}` : ''}</div>
+     const un = saiUn[a.id] || a.unidade, fu = fatorUn(a, un), ops = opcoesUn(a);
+     return `<div class="li">${imgAl(a)}<div style="flex:1;min-width:0"><div class="ttl">${esc(a.nome)}${chipVal(a)}</div><div class="sub">tem ${fmt(s)} ${a.unidade}${md ? ` • média ${fmt(md)} ${a.unidade}/${saiRef.toLowerCase()}` : ''}</div>
        ${q ? `<div class="sub" style="color:${f < a.minimo ? 'var(--r)' : 'var(--ok)'};font-weight:700">fica ${fmt(f)} ${a.unidade}${f < a.minimo ? ' ⚠ abaixo do mínimo' : ''}</div>` : ''}</div>
-       <div class="stp"><button onclick="qtdSai('${a.id}',-1)">−</button><input value="${q?fmt(q):''}" placeholder="0" inputmode="decimal" onchange="qtdSai('${a.id}',0,this.value)"><button onclick="qtdSai('${a.id}',1)">+</button></div></div>`; }).join('')}</div>
+       <div style="text-align:right"><div class="stp"><button onclick="qtdSai('${a.id}',-1)">−</button><input value="${q?fmt(q/fu):''}" placeholder="0" inputmode="decimal" onchange="qtdSai('${a.id}',0,this.value)"><button onclick="qtdSai('${a.id}',1)">+</button></div>
+       ${ops.length > 1 ? `<select class="sun" onchange="saiUn['${a.id}']=this.value;render()">${ops.map(([k,t]) => `<option value="${k}" ${k===un?'selected':''}>${t}</option>`).join('')}</select>` : `<div class="sub">${UN_NOME[a.unidade]||a.unidade}</div>`}
+       ${q && un !== a.unidade ? `<div class="conv">= ${fmt(q)} ${a.unidade}</div>` : ''}</div></div>`; }).join('')}</div>
    <button class="btn rapida" onclick="salvarSaida()">✔ CONFIRMAR SAÍDA (${Object.values(saiQtd).filter(Boolean).length} item(ns))</button>
    <div class="note">Os lotes que vencem primeiro saem primeiro do estoque.</div>`;
 };
 const mediaRef = id => { const l = DB.saidas.filter(s => s.alimentoId === id && s.refeicao === saiRef && diasAte(s.data) > -28); return l.length ? l.reduce((t,s) => t + s.qtd, 0) / l.length : 0; };
-function qtdSai(id, d, v) { const a = alim(id); const s = saldo(id); let q = saiQtd[id] || 0;
-  if (v !== undefined) q = parseFloat(String(v).replace(',','.')) || 0; else { const passo = mediaRef(id) >= 5 ? 1 : 0.5; q = q === 0 && d > 0 && mediaRef(id) ? Math.round(mediaRef(id)) || passo : q + d * passo; }
-  saiQtd[id] = Math.max(0, Math.min(s, Math.round(q * 10) / 10)); render(); }
+function qtdSai(id, d, v) { const a = alim(id); const s = saldo(id); let q = saiQtd[id] || 0; const un = saiUn[id] || a.unidade, fu = fatorUn(a, un);
+  if (v !== undefined) q = (parseFloat(String(v).replace(',','.')) || 0) * fu;
+  else if (un !== a.unidade) q = Math.max(0, Math.round(q / fu) + d) * fu;
+  else { const passo = mediaRef(id) >= 5 ? 1 : 0.5; q = q === 0 && d > 0 && mediaRef(id) ? Math.round(mediaRef(id)) || passo : q + d * passo; }
+  if (q > s + 1e-9) toast(`Só tem ${fmt(s)} ${a.unidade} de ${a.nome}.`);
+  saiQtd[id] = Math.max(0, Math.min(s, Math.round(q * 1000) / 1000)); render(); }
 function salvarSaida() {
   const it = Object.entries(saiQtd).filter(([,q]) => q > 0); if (!it.length) return toast('Use + para informar o que foi usado.');
   it.forEach(([id,q]) => DB.saidas.push({id:uid(), alimentoId:id, qtd:q, data:iso(hoje()), refeicao:saiRef, user:DB.sessao}));
@@ -559,21 +603,31 @@ function salvarSaida() {
 // ---------- ALIMENTOS ----------
 TELAS.alimentos = u => { const q = (param || '').toLowerCase();
   return `${voltarBtn(ic('box')+' Alimentos')}<div class="row" style="margin-bottom:10px"><input placeholder="🔍 buscar alimento…" value="${esc(param||'')}" oninput="param=this.value;clearTimeout(window._b);window._b=setTimeout(()=>{render();const i=document.querySelector('.main input');i.focus();i.setSelectionRange(99,99)},350)" style="flex:1"><button class="btn sm" style="padding:11px 14px" onclick="ir('novoAlim')">${ic('plus',18)}</button></div>
-   ${DB.alimentos.filter(a => a.nome.toLowerCase().includes(q)).map(a => { const x = situacao(a); return `<div class="card" onclick="ir('alimento','${a.id}')"><div class="row"><span class="emo" style="font-size:26px">${emo(a)}</span><div style="flex:1;min-width:0"><div class="ttl">${esc(a.nome)}${chipVal(a)}</div><div class="sub">${esc(a.categoria)} • mínimo ${a.minimo} ${a.unidade} • cód. ${esc(a.codigo||'—')}</div></div><b style="color:${x.baixo?'var(--r)':'var(--tx)'}">${fmt(x.s)} ${a.unidade}</b></div>${barra(a)}</div>`; }).join('') || '<div class="empty">Nenhum alimento encontrado.</div>'}`; };
+   ${DB.alimentos.filter(a => a.nome.toLowerCase().includes(q)).map(a => { const x = situacao(a); return `<div class="card" onclick="ir('alimento','${a.id}')"><div class="row">${imgAl(a,'g')}<div style="flex:1;min-width:0"><div class="ttl">${esc(a.nome)}${chipVal(a)}</div><div class="sub">${esc(a.categoria)} • mínimo ${a.minimo} ${a.unidade} • cód. ${esc(a.codigo||'—')}${descEmb(a) ? '<br>📦 ' + esc(descEmb(a)) : ''}</div></div><b style="color:${x.baixo?'var(--r)':'var(--tx)'}">${fmt(x.s)} ${a.unidade}</b></div>${barra(a)}</div>`; }).join('') || '<div class="empty">Nenhum alimento encontrado.</div>'}`; };
 TELAS.alimento = u => { const a = alim(param); if (!a) return voltarBtn('Alimento'); const x = situacao(a); const md = mediaDia(a.id);
   const mov = [...DB.entradas.filter(e => e.alimentoId === a.id).map(e => ({...e, tipo:'e'})), ...DB.saidas.filter(s => s.alimentoId === a.id).map(s => ({...s, tipo:'s'}))].sort((p,q) => q.data.localeCompare(p.data)).slice(0, 10);
-  return `${voltarBtn(emo(a)+' '+esc(a.nome))}<div class="kpis" style="grid-template-columns:1fr 1fr 1fr"><div class="card k"><div class="sub">Tem agora</div><b style="color:${x.baixo?'var(--r)':'var(--tx)'}">${fmt(x.s)}</b><div class="sub">${a.unidade}</div></div>
+  return `${voltarBtn(emo(a)+' '+esc(a.nome))}<div class="card row" style="gap:14px">${a.foto ? `<img class="foto xl" src="${a.foto}" alt="">` : `<span class="emo" style="font-size:52px;width:120px">${emo(a)}</span>`}<div><div class="ttl" style="font-size:18px">${esc(a.nome)}</div><div class="sub">${esc(a.categoria)} • conta em <b>${UN_NOME[a.unidade]||a.unidade}</b></div>${descEmb(a) ? `<div class="sub">📦 ${esc(descEmb(a))}</div>` : ''}<div class="sub" style="margin-top:4px">Tem agora: <b>${fmt(x.s)} ${a.unidade}</b>${esc(emEmb(a, x.s))}</div></div></div><div class="kpis" style="grid-template-columns:1fr 1fr 1fr"><div class="card k"><div class="sub">Tem agora</div><b style="color:${x.baixo?'var(--r)':'var(--tx)'}">${fmt(x.s)}</b><div class="sub">${a.unidade}</div></div>
    <div class="card k"><div class="sub">Mínimo ${infoMin()}</div><b>${a.minimo}</b><div class="sub">${a.unidade}</div></div><div class="card k"><div class="sub">Média/dia</div><b>${fmt(md)}</b><div class="sub">${a.unidade}</div></div></div>
    ${md ? `<div class="card" style="background:${x.baixo?'#fdecee':'#eaf6ee'}">${x.baixo ? '⚠' : '✔'} Dá para uns <b>${Math.floor(x.s / md)} dia(s) letivo(s)</b> pela média de consumo.</div>` : ''}
    <div class="sec">Lotes no estoque (vence primeiro em cima)</div>
    ${x.ls.map(l => { const d = diasAte(l.validade); return `<div class="card row"><div style="flex:1"><div class="ttl">${fmt(l.resto)} ${a.unidade}</div><div class="sub">entrada ${br(l.data)} • ${esc(l.fornecedor||'')}</div></div><span class="sel ${d<0?'s-r':d<=DB.config.diasAlerta?'s-y':'s-ok'}">${d<0?'vencido':'vence '+br(l.validade)}</span></div>`; }).join('') || '<div class="empty">Sem estoque.</div>'}
-   <div class="sec">Últimas movimentações</div><div class="card" style="padding:4px 10px">${mov.map(m => `<div class="li"><span class="sel ${m.tipo==='e'?'s-ok':m.perda?'s-r':'s-b'}">${m.tipo==='e'?'entrada':m.perda?'perda':'saída'}</span><div style="flex:1" class="sub">${br(m.data)} • ${m.tipo==='e'?esc(m.fornecedor||''):esc(m.refeicao)}</div><b>${m.tipo==='e'?'+':'−'}${fmt(m.qtd)}</b></div>`).join('')}</div>
+   <div class="sec">Últimas movimentações</div><div class="card" style="padding:4px 10px">${mov.map(m => `<div class="li"><span class="sel ${m.tipo==='e'?'s-ok':m.perda?'s-r':'s-b'}">${m.tipo==='e'?'entrada':m.perda?'perda':'saída'}</span><div style="flex:1" class="sub">${br(m.data)} • ${m.tipo==='e'?esc(m.fornecedor||''):esc(m.refeicao)}</div><b>${m.tipo==='e'?'+':'−'}${fmt(m.qtd)} ${a.unidade}${m.digitado?`<div class="sub" style="font-weight:500">(${esc(m.digitado)})</div>`:''}</b></div>`).join('')}</div>
    <button class="btn out" onclick="ir('novoAlim','${a.id}')">${ic('edit',18)} Editar alimento</button>`; };
-TELAS.novoAlim = u => { const a = param ? alim(param) : null;
+TELAS.novoAlim = u => { const a = param ? alim(param) : null; delete window._fotoNova;
   return `${voltarBtn(ic(a?'edit':'plus')+(a?' Editar alimento':' Novo alimento'))}<div class="card">
    <label class="lbl" style="margin-top:0">Nome</label><input id="an" value="${esc(a?a.nome:'')}" placeholder="ex.: Açúcar cristal">
-   <div class="row"><div style="flex:1"><label class="lbl">Unidade</label><select id="au">${['kg','g','L','pct','lata','un','cx'].map(x => `<option ${a&&a.unidade===x?'selected':''}>${x}</option>`).join('')}</select></div>
+   <label class="lbl">📷 Foto do produto</label><div class="row" style="gap:12px"><div id="afp">${a&&a.foto ? `<img class="foto xl" src="${a.foto}">` : `<div class="foto xl" style="display:flex;align-items:center;justify-content:center;font-size:40px">${a?emo(a):'📦'}</div>`}</div>
+    <div><label class="btn out" style="display:inline-block;width:auto;padding:9px 14px;margin:0;cursor:pointer">📷 Escolher foto<input type="file" accept="image/*" capture="environment" style="display:none" onchange="fotoAlim(this)"></label>
+    ${a&&a.foto ? `<button class="del" style="margin-left:6px" onclick="window._fotoNova='';$('#afp').innerHTML='<div class=&quot;foto xl&quot;></div>'">Remover</button>` : ''}<div class="sub" style="margin-top:4px">A foto aparece nas listas de estoque, entrada e saída.</div></div></div>
+   <div class="row"><div style="flex:1"><label class="lbl">Como o estoque é contado</label><select id="au" onchange="$('#amed').style.display=['kg','L'].includes(this.value)?'none':'';document.querySelectorAll('.uref').forEach(e=>e.textContent=this.options[this.selectedIndex].text.toLowerCase())">${UN_CONTROLE.map(([k,t]) => `<option value="${k}" ${(a?a.unidade:'kg')===k?'selected':''}>${t}</option>`).join('')}</select></div>
    <div style="flex:1"><label class="lbl">Estoque mínimo ${infoMin()}</label><input id="am" type="number" inputmode="decimal" value="${a?a.minimo:''}" placeholder="ex.: 15"></div></div>
+   <div id="amed" style="${a&&['kg','L'].includes(a.unidade)||!a?'display:none':''}"><label class="lbl">Peso ou volume de cada <span class="uref">${a?(UN_NOME[a.unidade]||a.unidade):'unidade'}</span> (opcional)</label>
+    <div class="qun"><input id="amv" type="number" step="any" inputmode="decimal" placeholder="ex.: 500" value="${a&&a.medida&&a.medida.v ? (a.medida.v < 1 ? a.medida.v*1000 : a.medida.v) : ''}"><select id="amu">${['g','kg','mL','L'].map(x => `<option ${a&&a.medida&&((a.medida.v<1?(a.medida.u==='kg'?'g':'mL'):a.medida.u)===x)?'selected':''}>${x}</option>`).join('')}</select></div>
+    <div class="sub">Assim dá para dar entrada ou saída também em kg/g ou L/mL.</div></div>
+   <label class="lbl">Embalagem fechada (como chega da entrega)</label>
+   <div class="qun"><select id="aet"><option value="">Nenhuma (vem solto)</option>${EMB_TIPOS.map(x => `<option ${a&&a.emb&&a.emb.tipo===x?'selected':''}>${x}</option>`).join('')}</select>
+    <input id="aeq" type="number" step="any" inputmode="decimal" placeholder="quantos vêm" value="${a&&a.emb&&a.emb.qtd?a.emb.qtd:''}"></div>
+   <div class="sub">Quantas <b class="uref">${a?(UN_NOME[a.unidade]||a.unidade):'kg'}</b> vêm em 1 caixa/fardo. Ex.: fardo com 30 pacotes; caixa com 20 garrafas.</div>
    <label class="lbl">Categoria</label><select id="ac">${['Grãos','Massas','Carnes','Laticínios','Enlatados','Óleos','Mercearia','Hortifrúti','Limpeza'].map(x => `<option ${a&&a.categoria===x?'selected':''}>${x}</option>`).join('')}</select>
    <label class="lbl">Preço por ${a?a.unidade:'unidade'} (R$) – para calcular o gasto do mês</label><input id="ap" type="number" step="0.01" inputmode="decimal" value="${a&&a.preco!=null?a.preco:''}" placeholder="ex.: 5,50">
    <label class="lbl">Código de barras (opcional)</label><input id="ab" inputmode="numeric" value="${esc(a?a.codigo:'')}" placeholder="bipe o produto com o leitor">
@@ -582,13 +636,18 @@ TELAS.novoAlim = u => { const a = param ? alim(param) : null;
    ${a ? `<button class="btn out" style="color:var(--r);border-color:var(--r)" onclick="confirmar('Excluir alimento?','O alimento e todo o histórico dele serão apagados.',()=>{DB.alimentos=DB.alimentos.filter(x=>x.id!=='${a.id}');DB.entradas=DB.entradas.filter(x=>x.alimentoId!=='${a.id}');DB.saidas=DB.saidas.filter(x=>x.alimentoId!=='${a.id}');save();pilha=[];ir('alimentos',null,true)},'Excluir')">Excluir alimento</button>` : ''}</div>`; };
 function salvarAlim(id) { const n = $('#an').value.trim(), m = parseFloat(String($('#am').value).replace(',','.')); if (!n) return toast('Digite o nome.'); if (isNaN(m)) return toast('Digite o estoque mínimo.');
   let a = id ? alim(id) : null; if (!a) { a = {id:uid()}; DB.alimentos.push(a); }
-  Object.assign(a, {nome:n, unidade:$('#au').value, minimo:m, categoria:$('#ac').value, codigo:$('#ab').value.trim(), preco:parseFloat(String($('#ap').value).replace(',','.')) || 0}); save(); toast('✔ Alimento salvo!'); pilha = []; ir('alimento', a.id, true); }
+  const un = $('#au').value, mv = parseFloat(String($('#amv').value).replace(',','.')), mu = $('#amu').value, et = $('#aet').value, eq = parseFloat(String($('#aeq').value).replace(',','.'));
+  if (et && !(eq > 0)) return toast('Informe quantos vêm na ' + et.toLowerCase() + '.');
+  Object.assign(a, {nome:n, unidade:un, minimo:m, categoria:$('#ac').value, codigo:$('#ab').value.trim(), preco:parseFloat(String($('#ap').value).replace(',','.')) || 0,
+    medida: !['kg','L'].includes(un) && mv > 0 ? {u: (mu === 'g' || mu === 'kg') ? 'kg' : 'L', v: (mu === 'g' || mu === 'mL') ? mv / 1000 : mv} : null,
+    emb: et ? {tipo:et, qtd:eq} : null});
+  if (window._fotoNova !== undefined) { a.foto = window._fotoNova; delete window._fotoNova; } save(); toast('✔ Alimento salvo!'); pilha = []; ir('alimento', a.id, true); }
 // ---------- COMPRAS ----------
 TELAS.compras = u => { const l = listaCompras();
   const txt = `🛒 LISTA DE COMPRAS — Cozinha IEMA Coroatá (${br(iso(hoje()))})\n` + l.map(x => `• ${x.a.nome}: ${x.q} ${x.a.unidade} (tem ${fmt(x.s)}; mínimo ${x.a.minimo})`).join('\n') + '\n\nGerado pelo StockTech.';
   const tot = l.reduce((t,x) => t + x.q * (x.a.preco || 0), 0);
   return `${voltarBtn(ic('cart')+' Lista de compras')}<div class="card" style="background:var(--g);color:#fff"><b>${l.length} item(ns) para comprar • custo estimado ${rs(tot)}</b><div style="font-size:13px;opacity:.85;margin-top:4px">Quantidade = mínimo + consumo dos últimos 7 dias − o que tem.</div></div>
-   ${l.map(x => `<div class="card"><div class="row"><div style="flex:1"><div class="ttl">${esc(x.a.nome)}</div><div class="sub">tem ${fmt(x.s)} • mínimo ${x.a.minimo} • usou ${fmt(x.sem)} na semana</div></div><div style="text-align:right"><div class="sub">comprar</div><b style="font-size:20px;color:var(--b2)">${x.q} ${x.a.unidade}</b><div class="sub">≈ ${rs(x.q * (x.a.preco||0))}</div></div></div></div>`).join('') || '<div class="empty">Nada para comprar agora. ✔</div>'}
+   ${l.map(x => `<div class="card"><div class="row">${imgAl(x.a,'g')}<div style="flex:1"><div class="ttl">${esc(x.a.nome)}</div><div class="sub">tem ${fmt(x.s)} • mínimo ${x.a.minimo} • usou ${fmt(x.sem)} na semana</div></div><div style="text-align:right"><div class="sub">comprar</div><b style="font-size:20px;color:var(--b2)">${x.q} ${x.a.unidade}</b>${x.a.emb&&x.a.emb.qtd?`<div class="sub">≈ ${Math.ceil(x.q / x.a.emb.qtd)} ${x.a.emb.tipo.toLowerCase()}${Math.ceil(x.q / x.a.emb.qtd)>1?'s':''}</div>`:''}<div class="sub">≈ ${rs(x.q * (x.a.preco||0))}</div></div></div></div>`).join('') || '<div class="empty">Nada para comprar agora. ✔</div>'}
    ${l.length ? `<button class="btn" onclick="imprimirLista()">🖨 Imprimir lista de compras</button>` : ''}
    ${l.length ? `<button class="btn wa" onclick='compartilhar(${JSON.stringify(txt)})'>${ic('share',18)} Enviar lista no WhatsApp</button>` : ''}`; };
 function imprimirLista() {
@@ -641,7 +700,7 @@ TELAS.ajustes = u => `${voltarBtn(ic('gear')+' Ajustes')}<div class="card"><div 
    <div class="card" style="margin-top:12px">🛡 <b>IEMA Pleno de Coroatá</b><div class="sub">Controle do estoque de alimentos da cozinha. Os dados ficam salvos neste computador (protótipo).</div></div>
    <button class="btn gray" onclick="sair()">↪ Sair da conta</button>
    <button class="btn out" style="color:var(--r);border-color:var(--r)" onclick="confirmar('Restaurar dados de exemplo?','Tudo o que foi registrado neste computador será apagado e o app volta ao início.',()=>{localStorage.removeItem(KEY);load();renderLogin();toast('Dados de exemplo restaurados.')},'Restaurar')">Restaurar dados de exemplo</button>
-   <div class="note">StockTech • versão 1.3 para Windows • protótipo do TCC IEMA 2026 (Grupo 2)</div>`;
+   <div class="note">StockTech • versão 1.4 para Windows • protótipo do TCC IEMA 2026 (Grupo 2)</div>`;
 function salvarMeus() { const u = me(); u.nome = $('#un').value.trim() || u.nome; u.cargo = $('#uc').value.trim(); if ($('#us').value.trim()) u.senha = $('#us').value.trim(); save(); toast('Dados salvos!'); render(); }
 TELAS.usuarios = u => `${voltarBtn(ic('users')+' Usuários')}${DB.users.map(x => `<div class="card row"><div class="av" style="margin:0;background:${x.perfil==='cozinha'?'var(--b)':'var(--r)'}">${esc(iniciais(x.nome))}</div><div style="flex:1"><div class="ttl">${esc(x.nome)}</div><div class="sub">${esc(x.cargo)} • login: ${esc(x.login)}</div></div>${x.id!==u.id?`<button class="del" onclick="confirmar('Excluir usuário?','${esc(x.nome)} não poderá mais entrar.',()=>{DB.users=DB.users.filter(y=>y.id!=='${x.id}');save();render()},'Excluir')">Excluir</button>`:''}</div>`).join('')}
    <div class="card"><div class="ttl">+ Cadastrar usuário</div><label class="lbl">Nome</label><input id="nn"><div class="row"><div style="flex:1"><label class="lbl">Perfil</label><select id="np"><option value="cozinha">Cozinha</option><option value="gestao">Gestão</option></select></div><div style="flex:1"><label class="lbl">Cargo</label><input id="nc" placeholder="ex.: Merendeira"></div></div>
