@@ -436,6 +436,11 @@ input:focus,select:focus,textarea:focus{border-color:#2f7a49}
 .kgbox{display:flex;align-items:center;flex:1;border:1.5px solid #d8cdb6;border-radius:10px;overflow:hidden;background:#fff}
 .kgbox input{border:0!important;flex:1;font-size:20px;font-weight:700;padding:11px 12px}.kgbox span{background:#2f7a49;color:#fff;font-weight:800;padding:13px 16px;font-size:18px}
 .sugbox{margin-top:12px;text-align:left}.sugbox input{width:100%;font-size:15px}
+.dtgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}.dtc{display:flex;flex-direction:column;gap:3px;font-size:13px}.dtc b{text-align:center}.dtin{text-align:center;padding:8px 4px!important}
+.fila{display:flex;flex-direction:column;gap:5px}.fl{display:grid;grid-template-columns:42px 60px 1fr 1.4fr;align-items:center;gap:8px;background:#f6f3ea;border-radius:10px;padding:6px 10px}.fl.top{background:#e5f3e8}.fp{font-weight:800;color:var(--mu)}.ft{font-size:18px}.fk{font-size:13px;color:var(--mu)}.fb{height:8px;background:#e3e9ee;border-radius:4px}.fb i{display:block;height:8px;border-radius:4px;background:var(--b)}
+.rodz{display:flex;flex-wrap:wrap;gap:4px}.rodz span{background:#f1ede2;border-radius:6px;padding:2px 6px;font-size:12px;font-weight:700}.rodz span.p1{background:var(--g);color:#fff}
+.tfila{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:12px}.tfila span{background:rgba(255,255,255,.14);border-radius:10px;padding:6px 12px;font-size:20px;font-weight:800}.tfila span.p1{background:#ffd34d;color:#1d3b26}
+.tfila span{font-size:20px}
 </style>
 </head>
 <body>
@@ -537,12 +542,16 @@ function seed() {
       pesagens.push({id:uid(), data:dt, refeicao:r, kg: Math.round(((r === 'Almoço' ? 9 : 2.6) * (1.25 - ac) + R() * 1.2) * 10) / 10});
     });
   }
-  return {users, alunos, cardapio:card, registros, avaliacoes, pesagens, repeticao:{}, provisorias:[], config:{inicioCiclo:ini}, sessao:null};
+  return {users, alunos, cardapio:card, registros, avaliacoes, pesagens, repeticao:{}, provisorias:[], desperdicio:seedDesp(), config:{inicioCiclo:ini}, sessao:null};
 }
+function seedDesp() { const R = rnd(7); const l = []; const peso = {'101':.9,'102':1.3,'103':.7,'104':1.1,'201':1.6,'202':.8,'203':1.4,'204':1.9,'301':.6,'302':1.2,'303':.5,'304':1.0};
+  for (let d = -20; d <= -1; d++) { const dt = addD(d), w = parse(dt).getDay(); if (w === 0 || w === 6) continue;
+    TURMAS_PADRAO.forEach(t => REF.forEach(r => { const base = r === 'Almoço' ? .55 : .18; l.push({id:uid(), data:dt, refeicao:r, turma:t, kg: Math.round(base * peso[t] * (0.6 + R() * .8) * 100) / 100}); })); }
+  return l; }
 function semanaCiclo(card, dt, inicio) { const dias = Math.floor((parse(dt) - parse(inicio)) / 86400000); const w = ((Math.floor(dias / 7) % 4) + 4) % 4 + 1; return w; }
 function cardDia(card, dt, inicio) { const esp = DB && DB.especiais && DB.especiais[dt]; if (esp) return esp; const wd = parse(dt).getDay(); const ini = inicio || (DB && DB.config.inicioCiclo) || addD(-14); const w = semanaCiclo(card, dt, ini); return card[w + '-' + (wd >= 1 && wd <= 5 ? wd : 1)] || {}; }
 let DB = null;
-function load() { try { DB = JSON.parse(localStorage.getItem(KEY)); } catch(e) { DB = null; } if (!DB || !DB.users) { DB = seed(); save(); } DB.users.forEach(u => { if (u.nome === 'Lenilda Ferreira') u.nome = 'Zézé Ferreira'; }); if (!DB.fotos) DB.fotos = {}; if (!DB.especiais) DB.especiais = {}; if (!DB.pratos) DB.pratos = []; if (!DB.descr) DB.descr = {}; if (!DB.sugestoes) DB.sugestoes = [{id:'s1', texto:'Cuscuz com carne de sol', data:addD(-3)}, {id:'s2', texto:'Lasanha', data:addD(-2)}, {id:'s3', texto:'Cuscuz com carne de sol', data:addD(-1)}, {id:'s4', texto:'Salada de frutas no lanche', data:addD(-1)}];
+function load() { try { DB = JSON.parse(localStorage.getItem(KEY)); } catch(e) { DB = null; } if (!DB || !DB.users) { DB = seed(); save(); } DB.users.forEach(u => { if (u.nome === 'Lenilda Ferreira') u.nome = 'Zézé Ferreira'; }); if (!DB.fotos) DB.fotos = {}; if (!DB.desperdicio) DB.desperdicio = seedDesp(); if (!DB.especiais) DB.especiais = {}; if (!DB.pratos) DB.pratos = []; if (!DB.descr) DB.descr = {}; if (!DB.sugestoes) DB.sugestoes = [{id:'s1', texto:'Cuscuz com carne de sol', data:addD(-3)}, {id:'s2', texto:'Lasanha', data:addD(-2)}, {id:'s3', texto:'Cuscuz com carne de sol', data:addD(-1)}, {id:'s4', texto:'Salada de frutas no lanche', data:addD(-1)}];
   if (DB.alunos.some(a => a.id[0] !== 'g')) { const ids = new Set(DB.alunos.filter(a => a.id[0] !== 'g').map(a => a.id)); DB.alunos = DB.alunos.filter(a => !ids.has(a.id)); DB.registros = DB.registros.filter(x => !ids.has(x.alunoId)); DB.avaliacoes = DB.avaliacoes.filter(x => !ids.has(x.alunoId)); DB.provisorias = DB.provisorias.filter(x => !ids.has(x.alunoId)); save(); }
   const faltam = GRUPO3.filter(g => !DB.alunos.some(a => a.id === g.id)); if (faltam.length) { DB.alunos.unshift(...faltam.map(a => ({...a}))); save(); }
   GRUPO3.forEach(g => { const a = DB.alunos.find(x => x.id === g.id); if (a) { a.img = g.img; if (!DB.config.turmasOk) a.turma = g.turma; } }); if (!DB.config.turmasOk) { DB.config.turmasOk = true; save(); } }
@@ -602,10 +611,10 @@ const NAVS = {
   pdv: [['#','Refeitório'],['pdv','card','PDV — registro'],['situacoes','list','Situações da leitura'],['provisoria','card','Carteirinha provisória'],['carteirinhas','users','Carteirinhas (imprimir)'],
         ['#','Telas dos alunos'],['win:totem','tv','Totem do cardápio'],['win:tablet','tablet','Tablet de avaliação'],
         ['#','Sistema'],['ajustes','gear','Ajustes']],
-  cozinha: [['#','Cozinha'],['cozinha','chef','Painel da cozinha'],['cardapio','list','Cardápio'],['fotos','star','Fotos dos pratos'],['pesagem','scale','Pesagem das sobras'],
+  cozinha: [['#','Cozinha'],['cozinha','chef','Painel da cozinha'],['cardapio','list','Cardápio'],['fotos','star','Fotos dos pratos'],['pesagem','scale','Pesagem das sobras'],['fila','trophy','Ordem da fila'],
         ['#','Telas dos alunos'],['win:totem','tv','Totem do cardápio'],['win:tablet','tablet','Tablet de avaliação'],
         ['#','Sistema'],['ajustes','gear','Ajustes']],
-  gestao: [['#','Gestão'],['relatorios','chart','Relatórios'],['mural','trophy','Mural (ranking)'],['alunos','users','Alunos e restrições'],
+  gestao: [['#','Gestão'],['relatorios','chart','Relatórios'],['fila','trophy','Ordem da fila'],['mural','trophy','Mural (ranking)'],['alunos','users','Alunos e restrições'],
         ['#','Refeitório'],['pdv','card','PDV — registro'],['situacoes','list','Situações da leitura'],['provisoria','card','Carteirinha provisória'],['carteirinhas','users','Carteirinhas (imprimir)'],
         ['#','Cozinha'],['cozinha','chef','Painel da cozinha'],['cardapio','list','Cardápio'],['fotos','star','Fotos dos pratos'],['pesagem','scale','Pesagem das sobras'],
         ['#','Telas dos alunos'],['win:totem','tv','Totem do cardápio'],['win:tablet','tablet','Tablet de avaliação'],['win:mural','trophy','Mural em tela cheia'],
@@ -790,6 +799,7 @@ TELAS.cozinha = u => {
      <div class="row" style="margin-top:8px"><div class="kgbox"><input id="kg" type="text" inputmode="decimal" placeholder="ex.: 3,5" value="${pes?String(pes.kg).replace('.',','):''}"><span>kg</span></div><button class="btn sm" style="padding:13px 18px" onclick="salvarPeso('${r}')">Salvar</button></div>
      <div class="sub" style="margin-top:6px">⚖ Digite em <b>quilos (kg)</b>. Se a balança mostrar gramas, divida por 1000: <b>850 g = 0,85 kg</b>.</div>
      <div class="sub" style="margin-top:4px">${pes ? '✔ Pesagem salva: <b>' + kg2(pes.kg) + ' kg</b>' : 'Ainda não pesado.'}</div></div>
+    ${cardDespTurma(r)}
     <div class="card"><div class="ttl">Cardápio de hoje</div>${REF.map(x => `<div class="li"><span class="sel ${x===r?'s-b':'s-g'}">${x}</span><div style="flex:1">${esc(cardHoje()[x] || '—')}</div></div>`).join('')}
      <div class="sub" style="margin-top:6px">Os alunos dizem no tablet se o cardápio foi seguido: ${av.length ? pct(av.filter(a => a.seguido).length, av.length) + '% disseram sim' : 'sem respostas ainda'}.</div></div></div>`;
 };
@@ -802,6 +812,46 @@ TELAS.pesagem = u => { const dias = [...new Set(DB.pesagens.map(p => p.data))].s
   return `${voltarBtn(ic('scale') + ' Pesagem das sobras')}<div class="card" style="padding:6px 14px"><div class="li" style="font-weight:700;color:var(--mu);font-size:12px"><span style="width:120px">DIA</span>${REF.map(r => `<span style="flex:1">${r.toUpperCase()}</span>`).join('')}<span style="width:70px;text-align:right">TOTAL</span></div>
    ${dias.map(d => { const ps = REF.map(r => DB.pesagens.find(p => p.data === d && p.refeicao === r)); const tot = ps.reduce((t,p) => t + (p ? p.kg : 0), 0); const c = cardDia(DB.cardapio, d);
      return `<div class="li"><span style="width:120px"><b>${br(d).slice(0,5)}</b> <span class="sub">${DIASF[parse(d).getDay()].slice(0,3)}</span></span>${ps.map((p,i) => `<span style="flex:1"><div class="row" style="gap:6px"><div style="height:10px;border-radius:5px;background:${p&&p.kg>5?'var(--r)':'var(--b)'};width:${p?Math.max(4,p.kg/mx*100):0}%"></div><b style="font-size:13px">${p?fmt(p.kg):'—'}</b></div><div class="sub" style="font-size:11px">${esc(c[REF[i]]||'')}</div></span>`).join('')}<b style="width:70px;text-align:right">${fmt(tot)} kg</b></div>`; }).join('')}</div>`; };
+
+// ====================== DESPERDÍCIO POR TURMA E ORDEM DA FILA ======================
+const TURMAS_PADRAO = ['101','102','103','104','201','202','203','204','301','302','303','304'];
+const turmasFila = () => (DB.config.turmasFila && DB.config.turmasFila.length ? DB.config.turmasFila : TURMAS_PADRAO).slice().sort();
+const BASE_RODIZIO = '2026-11-25'; // dia de referência do rodízio (101 em 1º)
+function diasLetivosEntre(a, b) { let n = 0; const x = parse(a), y = parse(b); const s = x <= y ? 1 : -1; const d = new Date(x);
+  while ((s > 0 && d < y) || (s < 0 && d > y)) { d.setDate(d.getDate() + s); const w = d.getDay(); if (w >= 1 && w <= 5) n += s; } return n; }
+function rodizio(dt) { const t = turmasFila(), n = t.length; const k = ((diasLetivosEntre(BASE_RODIZIO, dt) % n) + n) % n; return t.slice(n - k).concat(t.slice(0, n - k)); }
+function diasAnteriores(dt, qtd) { const l = []; const d = parse(dt); while (l.length < qtd) { d.setDate(d.getDate() - 1); const w = d.getDay(); if (w >= 1 && w <= 5) l.push(iso(d)); } return l; }
+function ordemFila(dt, per) { per = per || DB.config.periodoFila || 5; const dias = diasAnteriores(dt, per); const rod = rodizio(dt);
+  const kg = {}; turmasFila().forEach(t => kg[t] = 0);
+  DB.desperdicio.filter(x => dias.includes(x.data) && kg[x.turma] !== undefined).forEach(x => kg[x.turma] += x.kg);
+  const algum = Object.values(kg).some(v => v > 0);
+  const ord = rod.slice().sort((a, b) => (Math.round(kg[a] * 100) - Math.round(kg[b] * 100)) || (rod.indexOf(a) - rod.indexOf(b)));
+  return {ord, kg, algum, rod, dias}; }
+const medalha = i => i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '';
+let despRef = null;
+function cardDespTurma(r) { const dt = iso(hoje()); const v = t => { const x = DB.desperdicio.find(y => y.data === dt && y.refeicao === r && y.turma === t); return x ? String(x.kg).replace('.', ',') : ''; };
+  return `<div class="card"><div class="ttl">${ic('scale',18)} Desperdício nos pratos por turma — ${esc(r)}</div><div class="sub" style="margin:4px 0 8px">A merendeira pesa o resto dos pratos de cada turma e digita em <b>kg</b> (0 se não sobrou nada). Isso define a ordem da fila dos próximos dias.</div>
+   <div class="dtgrid">${turmasFila().map(t => `<label class="dtc"><b>${t}</b><input class="dtin" data-t="${t}" type="text" inputmode="decimal" placeholder="kg" value="${v(t)}"></label>`).join('')}</div>
+   <button class="btn sm" style="margin-top:10px" onclick="salvarDespTurma('${r}')">Salvar pesagem das turmas</button> <button class="btn sm out" style="margin-top:10px" onclick="ir('fila')">Ver ordem da fila</button></div>`; }
+function salvarDespTurma(r) { const dt = iso(hoje()); let n = 0, erro = '';
+  document.querySelectorAll('.dtin').forEach(i => { const t = i.dataset.t, raw = i.value.trim(); if (!raw) return; let v = parseFloat(raw.replace(',', '.')); if (isNaN(v) || v < 0) { erro = t; return; }
+    if (v > 30) v = v / 1000; // digitou em gramas
+    const x = DB.desperdicio.find(y => y.data === dt && y.refeicao === r && y.turma === t); if (x) x.kg = v; else DB.desperdicio.push({id:uid(), data:dt, refeicao:r, turma:t, kg:v}); n++; });
+  if (erro) return toast('Confira o peso da turma ' + erro + '.'); save(); toast(n ? `✔ Pesagem de ${n} turma(s) salva.` : 'Digite o peso de pelo menos uma turma.'); render(); }
+function filaHTML(dt, grande) { const f = ordemFila(dt); const mx = Math.max(...Object.values(f.kg), 0.1);
+  return `<div class="fila ${grande?'g':''}">${f.ord.map((t, i) => `<div class="fl ${i < 3 && f.algum ? 'top' : ''}"><span class="fp">${i + 1}º</span><b class="ft">${t}</b>${f.algum ? `<span class="fk">${medalha(i)} ${fmt(f.kg[t])} kg</span><div class="fb"><i style="width:${Math.max(3, f.kg[t] / mx * 100)}%"></i></div>` : '<span class="fk">rodízio</span>'}</div>`).join('')}</div>`; }
+TELAS.fila = u => { const dt = iso(hoje()); const am = (() => { const d = parse(dt); do { d.setDate(d.getDate() + 1); } while (d.getDay() === 0 || d.getDay() === 6); return iso(d); })();
+  const f = ordemFila(dt); const per = DB.config.periodoFila || 5;
+  return `<div class="row" style="margin-bottom:12px"><h2 style="margin:0">${ic('trophy')} Ordem da fila por turma</h2><span style="margin-left:auto" class="chips"><span class="chip ${per===5?'on':''}" onclick="DB.config.periodoFila=5;save();render()">Última semana</span><span class="chip ${per===20?'on':''}" onclick="DB.config.periodoFila=20;save();render()">Último mês</span></span></div>
+   <div class="card" style="background:var(--g);color:#fff"><b>Como funciona:</b> quem <b>desperdiça menos</b> nos pratos lancha e almoça <b>primeiro</b>; quem desperdiça mais fica por último. Conta o desperdício ${per===5?'dos últimos 5 dias letivos':'dos últimos 20 dias letivos'}.
+    Se houver empate – ou se <b>ninguém desperdiçar</b> – vale o <b>rodízio justo</b>: a ordem anda uma posição por dia (a 1ª de hoje vira 2ª amanhã, e a última de hoje vira a 1ª amanhã), em looping.</div>
+   <div class="pdv"><div class="card"><div class="ttl">Hoje – ${DIASF[parse(dt).getDay()]}, ${br(dt).slice(0,5)}</div><div class="sub" style="margin-bottom:8px">${f.algum ? 'Pelo desperdício nos pratos (menor primeiro). Empates pelo rodízio.' : '🌱 Ninguém desperdiçou no período: ordem pelo rodízio justo.'}</div>${filaHTML(dt)}</div>
+    <div class="card"><div class="ttl">Rodízio justo (sem desperdício)</div><div class="sub" style="margin-bottom:8px">Hoje e os próximos dias, caso todas as turmas empatem:</div>
+     ${[0,1,2].map(k => { const d = parse(dt); let c = 0; while (c < k) { d.setDate(d.getDate() + 1); if (d.getDay() >= 1 && d.getDay() <= 5) c++; } const x = iso(d); return `<div class="li"><b style="width:90px">${k===0?'Hoje':DIASF[d.getDay()].slice(0,3)+' '+br(x).slice(0,5)}</b><div class="rodz">${rodizio(x).map((t,i) => `<span class="${i===0?'p1':''}">${t}</span>`).join('')}</div></div>`; }).join('')}
+     <div class="sub" style="margin-top:8px">Amanhã (${br(am).slice(0,5)}) a ordem será recalculada com a pesagem de hoje.</div>
+     <button class="btn sm out" style="margin-top:10px" onclick="abrirJanela('totem')">${ic('tv',16)} Mostrar no totem</button></div></div>
+   <div class="card"><div class="ttl">Desperdício por turma no período (kg)</div>${Object.entries(f.kg).sort((a,b) => b[1] - a[1]).map(([t,k]) => `<div class="row" style="margin:6px 0"><span style="width:50px;font-weight:700">${t}</span><div style="flex:1;height:12px;background:#e3e9ee;border-radius:6px"><div style="height:12px;border-radius:6px;background:${k===Math.max(...Object.values(f.kg))&&k>0?'var(--r)':'var(--b)'};width:${Math.max(2, k / Math.max(...Object.values(f.kg), .1) * 100)}%"></div></div><b style="width:70px;text-align:right">${fmt(k)} kg</b></div>`).join('')}</div>
+   <div class="note">As turmas da fila podem ser mudadas em Ajustes. A pesagem por turma é feita no Painel da cozinha.</div>`; };
 
 // ====================== CARDÁPIO ======================
 let semSel = null;
@@ -956,6 +1006,7 @@ function renderTotem() {
    <div class="semgrid">${[1,2,3,4,5].map(d => { const dt = (() => { const x = hoje(); x.setDate(x.getDate() + (d - (wd >= 1 && wd <= 5 ? wd : 1))); return iso(x); })(); const cc = cardDia(DB.cardapio, dt);
      return `<div class="semd ${d===wd?'on':''}"><b>${DIASF[d].toUpperCase()}${d===wd?' • HOJE':''}</b><div class="al">🍛 ${esc(cc['Almoço']||'—')}</div><div class="ln">🥐 ${esc(cc['1º lanche']||'—')} • 🥤 ${esc(cc['2º lanche']||'—')}</div></div>`; }).join('')}</div>
    ${lib ? `<div class="faixa">🔄 REPETIÇÃO LIBERADA! Passe sua carteirinha no PDV</div>` : ''}
+   <div style="text-align:center;margin-top:12px"><div style="font-size:18px;font-weight:800;letter-spacing:1px">🏆 ORDEM DA FILA HOJE – quem desperdiça menos come primeiro</div><div class="tfila">${ordemFila(iso(hoje())).ord.map((t,i) => `<span class="${i===0?'p1':''}">${i+1}º ${t}</span>`).join('')}</div></div>
    <div style="text-align:center;margin-top:auto;font-size:14px;opacity:.75;padding-top:10px">EcoFood • Projeto Desperdício Zero • Avalie sua refeição no tablet ao lado ⭐</div></div>`;
 }
 
@@ -1019,8 +1070,9 @@ TELAS.ajustes = u => `${voltarBtn(ic('gear') + ' Ajustes')}<div class="card" sty
    <button class="btn out" style="color:var(--r);border-color:var(--r)" onclick="confirmar('Restaurar dados de exemplo?','Tudo o que foi registrado neste computador será apagado e o programa volta ao início.',()=>{localStorage.removeItem(KEY);load();renderLogin();toast('Dados de exemplo restaurados.')},'Restaurar')">Restaurar dados de exemplo</button></div>
    <div class="card" style="max-width:640px"><label class="row" style="cursor:pointer;gap:10px"><input type="checkbox" style="width:22px;height:22px;flex:none" ${DEMO()?'checked':''} onchange="DB.config.demo=this.checked;save();toast(this.checked?'Modo apresentação ligado':'Modo apresentação desligado');render()"><div><div class="ttl">Modo apresentação</div><div class="sub">Ligado: a mesma carteirinha pode passar várias vezes no PDV e avaliar no tablet sem ter pegado a refeição, para mostrar todas as telas. Desligado: regras reais (não libera duas vezes e só avalia quem pegou).</div></div></label></div>
    <div class="card" style="max-width:640px"><label class="row" style="cursor:pointer;gap:10px"><input type="checkbox" style="width:22px;height:22px;flex:none" ${DB.config.som!==false?'checked':''} onchange="DB.config.som=this.checked;save();if(this.checked)bip('ok')"><div><div class="ttl">🔊 Som e cor no PDV</div><div class="sub">Bipe agudo + tela verde quando libera; bipe grave + tela vermelha quando a carteirinha não pode passar.</div></div></label></div>
+   ${u.perfil !== 'pdv' ? `<div class="card" style="max-width:640px"><div class="ttl">🏆 Turmas da fila do refeitório</div><div class="sub">Separe por vírgula. A ordem da fila usa o desperdício de cada turma e, no empate, o rodízio justo.</div><input id="tfl" value="${turmasFila().join(', ')}"><button class="btn sm" style="margin-top:8px" onclick="const l=$('#tfl').value.split(/[,;\s]+/).map(x=>x.trim()).filter(Boolean);if(l.length<2)return toast('Informe pelo menos 2 turmas.');DB.config.turmasFila=[...new Set(l)];save();toast('Turmas da fila salvas.');render()">Salvar turmas</button></div>` : ''}
    <div style="max-width:640px"><button class="btn out" style="color:#c8643b;border-color:#c8643b" onclick="zerarHoje()">↺ Zerar hoje (para passar as carteirinhas ao vivo)</button></div>
-   <div class="note">EcoFood • versão 2.3 para Windows • protótipo do TCC IEMA 2026 (Grupo 3)</div>`;
+   <div class="note">EcoFood • versão 2.4 para Windows • protótipo do TCC IEMA 2026 (Grupo 3)</div>`;
 
 // ====================== início ======================
 load(); render();
