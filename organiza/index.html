@@ -159,6 +159,10 @@ input:focus,select:focus,textarea:focus{border-color:#6c5ce7}
 .carga{border-radius:12px;padding:10px 12px;margin:10px 0 2px;font-size:13px;line-height:1.45}.carga.v{background:#e7f7ee;border:1px solid #9fdcb8}.carga.a{background:#fff6dc;border:1px solid #f2d27a}.carga.r{background:#fde8ea;border:1px solid #f3a5ad}.carga b.t{display:block;margin-bottom:2px}.carga ul{margin:4px 0 0 16px;padding:0}.dia{display:flex;gap:10px;align-items:flex-start}.dia .n{width:46px;flex:none;text-align:center;border-radius:10px;padding:6px 0;font-weight:800;color:#fff}.dia .n small{display:block;font-size:10.5px;font-weight:600;opacity:.9}
 .filtros{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 12px}.filtros .full{grid-column:1/-1}.filtros label{display:block;font-size:11.5px;font-weight:700;color:var(--mu);margin:0 0 4px;letter-spacing:.3px}.filtros select{width:100%;margin:0;padding:10px 12px;font-size:14px}.minhaturma{font-size:12.5px;color:var(--mu);margin:-4px 0 10px}
 .lblf{font-size:11.5px;font-weight:700;color:var(--mu);margin:4px 0 5px;letter-spacing:.3px}
+/* Seleção de turmas: botões reais, sem seleção de texto. */
+.chip.turmaBtn{appearance:none;-webkit-appearance:none;font-family:inherit;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:manipulation;min-width:42px;min-height:30px;display:inline-flex;align-items:center;justify-content:center;line-height:1;white-space:nowrap;outline-offset:3px}
+.chip.turmaBtn:focus-visible{outline:2px solid #7958df}.chip.turmaBtn:not(.on):hover{background:#f1edff}.chip.turmaBtn.on{background:#2b2563;border-color:#2b2563;color:#fff}
+.chip.turmaBtn:active{transform:scale(.96)}
 </style>
 </head>
 <body>
@@ -677,7 +681,7 @@ TELAS.professor.novaAtiv = u => {
   const tipos = ['Trabalho','Prova','Seminário','Lista','Relatório'];
   return `${voltarBtn(copia ? '⧉ Copiar atividade' : a ? ic('edit')+' Editar atividade' : ic('plus')+' Nova atividade')}<div class="card">
    ${copia ? '<div class="sub" style="color:var(--b);margin-bottom:8px">Escolha a(s) nova(s) turma(s). Os outros dados já vêm preenchidos.</div>' : ''}
-   <label class="lbl" style="margin-top:0">Turmas</label><div class="chips" id="tch">${turmasExist().map(t => `<span class="chip ${selTurmas.includes(t)?'on':''}" onclick="togTurma(this,'${t}')">${t}</span>`).join('')}</div>
+   <label class="lbl" style="margin-top:0">Turmas</label><div class="chips" id="tch">${turmasExist().map(t => `<button type="button" class="chip turmaBtn ${selTurmas.includes(t)?'on':''}" aria-pressed="${selTurmas.includes(t)}" onclick="togTurma(this,'${t}')">${t}</button>`).join('')}</div>
    <label class="lbl">Disciplina</label><input id="fd" value="${esc(ag ? (aulaProfessor(u,ag.t,ag.d)[0]||[])[2]||'' : a ? a.disciplina : u.disciplina || '')}">
    <label class="lbl">Título</label><input id="ft" value="${esc(a ? a.titulo : '')}" placeholder="ex.: Trabalho de ${esc(u.disciplina||'')} — tema">
    <label class="lbl">Tipo</label><select id="fy">${tipos.map(t => `<option ${a&&a.tipo===t?'selected':''}>${t}</option>`).join('')}</select>
@@ -692,7 +696,7 @@ TELAS.professor.novaAtiv = u => {
    <button class="btn wa" onclick="salvarAtiv('${a&&!copia?a.id:''}',true)">↗ Publicar e enviar no WhatsApp</button></div>`;
 };
 const turmasExist = () => [...new Set(['101','102','103','104','201','202','203','204','301','302','303','304', ...DB.users.filter(u => u.turma).map(u => u.turma)])].sort();
-function togTurma(el, t) { const i = selTurmas.indexOf(t); if (i >= 0) selTurmas.splice(i,1); else selTurmas.push(t); el.classList.toggle('on'); atualizaCarga(); }
+function togTurma(el, t) { const i = selTurmas.indexOf(t); if (i >= 0) selTurmas.splice(i,1); else selTurmas.push(t); el.classList.toggle('on',selTurmas.includes(t)); el.setAttribute('aria-pressed',String(selTurmas.includes(t))); atualizaCarga(); }
 function salvarAtiv(id, wa) {
   const t = $('#ft').value.trim(), p = $('#fp').value;
   if (!t) return toast('Escreva o título da atividade.'); if (!p) return toast('Escolha o prazo.'); if (!selTurmas.length) return toast('Escolha pelo menos uma turma.');
@@ -712,7 +716,7 @@ function salvarAtiv(id, wa) {
 }
 TELAS.professor.material = u => voltarBtn(ic('book')+' Material de apoio') + `<button class="btn" style="margin:0 0 12px" onclick="ir('novoMat')">+ Adicionar link de material</button>` + listaMateriais(DB.materiais, true);
 TELAS.professor.novoMat = u => { selTurmas = ['301']; return `${voltarBtn(ic('book')+' Novo material')}<div class="card">
-   <label class="lbl" style="margin-top:0">Turmas</label><div class="chips">${turmasExist().map(t => `<span class="chip ${selTurmas.includes(t)?'on':''}" onclick="togTurma(this,'${t}')">${t}</span>`).join('')}</div>
+   <label class="lbl" style="margin-top:0">Turmas</label><div class="chips">${turmasExist().map(t => `<button type="button" class="chip turmaBtn ${selTurmas.includes(t)?'on':''}" aria-pressed="${selTurmas.includes(t)}" onclick="togTurma(this,'${t}')">${t}</button>`).join('')}</div>
    <label class="lbl">Título</label><input id="mt" placeholder="ex.: Resumo da aula 5">
    <label class="lbl">Disciplina</label><input id="md" value="${esc(u.disciplina||'')}">
    <div class="row"><div style="flex:1"><label class="lbl">Tipo do arquivo</label><select id="my">${Object.keys(TIPOS_MAT).map(t => `<option>${t}</option>`).join('')}</select></div>
@@ -745,7 +749,7 @@ TELAS.coord.novoAviso = u => { selTurmas = []; return `${voltarBtn(ic('mega')+' 
    <label class="lbl" style="margin-top:0">Tipo</label><select id="vy"><option>Aviso</option><option>Prova</option><option>Urgente</option><option>Evento</option></select>
    <label class="lbl">Título</label><input id="vt" placeholder="ex.: Reunião de pais">
    <label class="lbl">Texto</label><textarea id="vx" placeholder="Escreva o aviso"></textarea>
-   <label class="lbl">Para quem (deixe sem marcar = todas as turmas)</label><div class="chips">${turmasExist().map(t => `<span class="chip" onclick="togTurma(this,'${t}')">${t}</span>`).join('')}</div>
+   <label class="lbl">Para quem (deixe sem marcar = todas as turmas)</label><div class="chips">${turmasExist().map(t => `<button type="button" class="chip turmaBtn" aria-pressed="${selTurmas.includes(t)}" onclick="togTurma(this,'${t}')">${t}</button>`).join('')}</div>
    <label class="lbl">Também colocar no calendário de eventos?</label><select id="ve"><option value="">Não</option><option value="1">Sim</option></select>
    <label class="lbl">Data do evento (se for para o calendário)</label><input id="vd" type="date">
    <button class="btn" onclick="salvarAviso(false)">Publicar aviso</button><button class="btn wa" onclick="salvarAviso(true)">↗ Publicar e enviar nos grupos das turmas</button></div>`; };
