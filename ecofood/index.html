@@ -1024,12 +1024,31 @@ const barraP = (x, cor) => `<div class="row" style="margin-bottom:7px"><span sty
 function compartilhar(t) { window.open('https://wa.me/?text=' + encodeURIComponent(t), '_blank'); }
 
 // ====================== MURAL ======================
-function muralHTML(cheio) { const pr = estatPratos(30); const top = pr.slice(0,3), piores = pr.slice(-2).reverse(); const ord = [top[1], top[0], top[2]]; const alt = [250, 300, 230]; const med = ['🥈','🥇','🥉'];
-  return `<div style="text-align:center"><div style="font-size:${cheio?34:24}px;font-weight:800">🏆 Ranking dos pratos — ${MESF[hoje().getMonth()]}</div><div class="sub" style="font-size:${cheio?16:13}px">% de avaliações bom ou ótimo no tablet</div></div>
-   <div class="podio">${ord.map((x,i) => x ? `<div class="pd" style="height:${alt[i] * (cheio?1.3:1)}px;background:${i===1?'#fff4cc':i===0?'#eef2f0':'#f8ebe0'}">${fotoP(x.prato) ? `<img src="${fotoP(x.prato)}" style="width:${cheio?150:110}px;height:${cheio?100:74}px;object-fit:contain;border-radius:12px">` : ''}<div style="font-size:${cheio?40:30}px">${med[i]}</div><b style="font-size:${cheio?20:15}px">${esc(x.prato)}</b><div style="font-size:${cheio?40:28}px;font-weight:800;color:var(--b2)">${x.p}%</div></div>` : '').join('')}</div>
-   <div class="card" style="background:#fff8e1;border:1px solid #f3dd9b;max-width:900px;margin:14px auto 0"><b style="color:#8a5a00">Vamos melhorar:</b> ${piores.map(x => `${esc(x.prato)} (${x.p}%)`).join(' • ')} <span class="sub">— a cozinha já está testando novas receitas.</span></div>
-   <div style="text-align:center;margin-top:12px"><span class="sel s-b" style="font-size:${cheio?16:13}px;padding:7px 16px">💡 Sua opinião ajuda a melhorar a alimentação! Avalie no tablet.</span></div>`; }
-TELAS.mural = u => `<div class="row" style="margin-bottom:12px"><h2 style="margin:0">${ic('trophy')} Mural — ranking mensal</h2><button class="btn sm" style="margin-left:auto" onclick="abrirJanela('mural')">${ic('tv',16)} Abrir em tela cheia</button></div><div class="card">${muralHTML(false)}</div>`;
+const MURAL_PERIODOS = ['Dia','Semana','Mês'];
+let muralPeriodo = 'Mês';
+try { const p = localStorage.getItem('ecofood_mural_periodo'); if(MURAL_PERIODOS.includes(p)) muralPeriodo=p; } catch(e){}
+function escolherMural(p) { if(!MURAL_PERIODOS.includes(p)) return; muralPeriodo=p; try{localStorage.setItem('ecofood_mural_periodo',p);}catch(e){} render(); }
+function rankingMural(ini,fim,almoco) {
+  const m=new Map();
+  DB.avaliacoes.filter(a=>a.data>=ini && a.data<=fim && (almoco?a.refeicao==='Almoço':REF.includes(a.refeicao)&&a.refeicao!=='Almoço') && typeof a.prato==='string' && a.prato.trim() && Number(a.nota)>=1 && Number(a.nota)<=4).forEach(a=>{
+    const k=a.prato.trim().toLocaleLowerCase('pt-BR'), x=m.get(k)||{prato:a.prato.trim(),n:0,bom:0,soma:0};
+    x.n++; x.soma+=Number(a.nota); if(Number(a.nota)>=3)x.bom++; m.set(k,x);
+  });
+  return [...m.values()].sort((a,b)=>b.bom/b.n-a.bom/a.n || b.soma/b.n-a.soma/a.n || b.n-a.n || a.prato.localeCompare(b.prato,'pt-BR'));
+}
+function muralHTML(cheio) {
+  const h=hoje(), fim=iso(h), seg=new Date(h); seg.setDate(seg.getDate()-((seg.getDay()+6)%7));
+  const ini=muralPeriodo==='Dia'?fim:muralPeriodo==='Semana'?iso(seg):iso(new Date(h.getFullYear(),h.getMonth(),1));
+  const lan=rankingMural(ini,fim,false), alm=rankingMural(ini,fim,true);
+  const bloco=(titulo,l,pior)=>{
+    const lista=(pior?l.slice().sort((a,b)=>a.bom/a.n-b.bom/b.n || a.soma/a.n-b.soma/b.n || b.n-a.n || a.prato.localeCompare(b.prato,'pt-BR')):l).slice(0,3);
+    return '<div class="card" style="margin:0;min-width:0;border-top:4px solid '+(pior?'#c8643b':'#2f7a49')+'"><div class="ttl" style="font-size:'+(cheio?23:17)+'px;margin-bottom:8px">'+titulo+'</div>'+
+      (lista.length?lista.map((x,i)=>'<div class="li" style="gap:10px;align-items:center"><b style="font-size:'+(cheio?24:17)+'px">'+(pior?(i+1)+'º':['🥇','🥈','🥉'][i])+'</b>'+(fotoP(x.prato)?'<img src="'+fotoP(x.prato)+'" style="width:'+(cheio?86:60)+'px;height:'+(cheio?65:45)+'px;object-fit:contain;border-radius:8px">':'')+'<div style="flex:1;min-width:0;overflow-wrap:anywhere"><b style="font-size:'+(cheio?20:15)+'px">'+esc(x.prato)+'</b><div class="sub">'+x.n+' avaliação(ões) • média '+(x.soma/x.n).toLocaleString('pt-BR',{maximumFractionDigits:2})+'/4</div></div><b style="color:'+(pior?'#a44729':'#2f7a49')+';font-size:'+(cheio?30:22)+'px">'+pct(x.bom,x.n)+'%</b></div>').join(''):'<div class="empty">Sem avaliações neste período.</div>')+'</div>';
+  };
+  return '<div style="text-align:center;margin-bottom:16px"><div style="font-size:'+(cheio?34:24)+'px;font-weight:800">🏆 Ranking das refeições</div><div class="row" style="justify-content:center;flex-wrap:wrap;margin:12px 0">'+MURAL_PERIODOS.map(p=>'<button class="btn sm '+(p===muralPeriodo?'':'out')+'" style="min-width:95px" onclick="escolherMural(\''+p+'\')" aria-pressed="'+(p===muralPeriodo)+'">'+p+'</button>').join('')+'</div><div class="sub">'+br(ini)+(ini===fim?'':' a '+br(fim))+' • % de avaliações Bom ou Ótimo</div></div>'+
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:14px">'+bloco('🏆 Melhores lanches',lan,false)+bloco('🏆 Melhores almoços',alm,false)+bloco('▼ Lanches menos avaliados positivamente',lan,true)+bloco('▼ Almoços menos avaliados positivamente',alm,true)+'</div><div class="sub" style="text-align:center;margin:12px 0">1º e 2º lanches juntos • até 3 pratos por categoria • desempate pela média da nota e quantidade de avaliações. Com poucos pratos, o mesmo prato pode aparecer nas duas listas.</div>';
+}
+TELAS.mural = u => `<div class="row" style="margin-bottom:12px"><h2 style="margin:0">${ic('trophy')} Mural — ranking das refeições</h2><button class="btn sm" style="margin-left:auto" onclick="abrirJanela('mural')">${ic('tv',16)} Abrir em tela cheia</button></div><div class="card">${muralHTML(false)}</div>`;
 function renderMuralCheio() { document.body.classList.add('modo'); $('#app').innerHTML = `<div class="tv"><div class="row" style="justify-content:space-between;margin-bottom:10px"><img src="logo_iema.png" style="height:56px"><div class="row">${ICON.replace('width="34" height="34"','width="50" height="50"')}<b style="font-size:30px"><span style="color:var(--b)">Eco</span><span style="color:var(--r)">Food</span></b></div><div class="row" style="gap:6px">${btnCheia()}</div></div>${muralHTML(true)}</div>`; }
 
 // ====================== TOTEM ======================
@@ -1100,7 +1119,7 @@ function tabEnviar() { if (!tab.nota) return toast('Escolha uma das 4 carinhas.'
 TELAS.janelas = u => `${voltarBtn(ic('tv') + ' Totem e tablet')}<div class="sub" style="margin-bottom:12px">Cada tela abre numa janela própria, ligada ao mesmo sistema. Use o botão ⛶ (ou F11) para tela cheia e ESC para sair.</div>
    <div class="grid3"><div class="qa big" onclick="abrirJanela('totem')">${ic('tv',34)}<b>Totem do cardápio</b><span class="sub">TV de 32" no refeitório: cardápio do dia, da semana e a faixa de repetição.</span></div>
    <div class="qa big" onclick="abrirJanela('tablet')">${ic('tablet',34)}<b>Tablet de avaliação</b><span class="sub">Fora do PDV: o aluno passa a carteirinha e avalia (ruim, razoável, bom, ótimo).</span></div>
-   <div class="qa big" onclick="abrirJanela('mural')">${ic('trophy',34)}<b>Mural do ranking</b><span class="sub">Pratos mais aprovados do mês e os que precisam melhorar.</span></div></div>
+   <div class="qa big" onclick="abrirJanela('mural')">${ic('trophy',34)}<b>Mural do ranking</b><span class="sub">Melhores e piores lanches e almoços do dia, semana ou mês.</span></div></div>
    <div class="note">Dica para a apresentação: deixe o totem aberto ao lado, vá ao painel da cozinha e clique em "Liberar repetição" — a faixa aparece na hora.</div>`;
 TELAS.ajustes = u => `${voltarBtn(ic('gear') + ' Ajustes')}<div class="card" style="max-width:640px"><div class="ttl">Meus dados</div><label class="lbl">Nome</label><input id="un" value="${esc(u.nome)}"><label class="lbl">Nova senha (opcional)</label><input id="us" type="password" placeholder="deixe em branco para manter">
    <button class="btn" onclick="const x=me();x.nome=$('#un').value.trim()||x.nome;if($('#us').value.trim())x.senha=$('#us').value.trim();save();toast('Dados salvos!');render()">Salvar</button></div>
@@ -1118,7 +1137,7 @@ load(); render();
 if (!location.hash) { const s = document.createElement('div'); s.id = 'splash';
   s.innerHTML = '<img src="logo_iema.png" alt="IEMA"><div class="ap">' + ICON.replace('width="34" height="34"','width="50" height="50"') + '<div><span style="color:var(--b)">Eco</span><span style="color:var(--r)">Food</span></div></div><div class="ld"><i></i></div><div style="font-size:11px;letter-spacing:2px;color:#9a8a70;font-weight:600">PROJETO DESPERDÍCIO ZERO</div>';
   document.body.appendChild(s); setTimeout(() => { s.style.opacity = 0; setTimeout(() => s.remove(), 450); }, 1500); }
-window.addEventListener('storage', e => { if (e.key === KEY) { load(); const m = location.hash; if (m === '#totem' || m === '#mural') render(); else if (m === '#tablet') { if (tab.etapa === 'cart') renderTablet(); } else if (!$('input:focus')) render(); } });
+window.addEventListener('storage', e => { if(e.key === 'ecofood_mural_periodo' && MURAL_PERIODOS.includes(e.newValue)){muralPeriodo=e.newValue; if(location.hash==='#mural' || (typeof tela !== 'undefined' && tela==='mural')) render();} if (e.key === KEY) { load(); const m = location.hash; if (m === '#totem' || m === '#mural') render(); else if (m === '#tablet') { if (tab.etapa === 'cart') renderTablet(); } else if (!$('input:focus')) render(); } });
 setInterval(() => { const r = $('#relogio'); if (r) r.textContent = hhmm(); if (location.hash === '#totem') { load(); renderTotem(); } }, 20000);
 window.addEventListener('hashchange', () => render());
 
