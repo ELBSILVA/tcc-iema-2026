@@ -288,6 +288,9 @@ function abrirLinkPendente() {
 }
 window.addEventListener('hashchange', () => { lerLink(); abrirLinkPendente(); });
 function save() { try { localStorage.setItem(KEY, JSON.stringify(DB)); } catch(e) {} }
+function sincronizarDadosLocais(){try{const raw=localStorage.getItem(KEY);if(!raw)return;const fresh=JSON.parse(raw);if(!fresh||!Array.isArray(fresh.users))return;const sessao=DB.sessao;DB=fresh;DB.sessao=sessao;DB.substituicoes=DB.substituicoes||[];}catch(e){}}
+window.addEventListener('storage',e=>{if(e.key!==KEY||!e.newValue)return;sincronizarDadosLocais();if(me()&&['horario','horarioAluno','horarioProfessor','subst','inicio'].includes(tela))render();});
+window.addEventListener('focus',()=>{sincronizarDadosLocais();if(me()&&['horario','horarioAluno','horarioProfessor','subst'].includes(tela))render();});
 const me = () => DB.users.find(u => u.id === DB.sessao);
 const cfg = id => { const c = DB.config[id] || (DB.config[id] = {lembretes:true}); if (!c.antes) c.antes = 3; return c; };
 
@@ -350,13 +353,13 @@ function renderLogin() {
    <button class="btn" onclick="entrar($('#lu').value,$('#ls').value)">Entrar</button></div>
    <div class="note">Não tem conta? Peça à <b>gestão</b> ou ao seu <b>professor</b> para cadastrar você.<br>Protótipo (MVP) — TCC IEMA 2026 • Grupo 1 • IEMA Pleno Coroatá</div></div>`;
 }
-function entrar(l, s) {
+function entrar(l, s) { sincronizarDadosLocais();
   const u = DB.users.find(x => x.login.toLowerCase() === String(l).trim().toLowerCase() && x.senha === String(s).trim());
   if (!u) return toast('Usuário ou senha incorretos.');
   DB.sessao = u.id; save(); pilha = []; tela = 'inicio'; param = null; render(); abrirLinkPendente();
   if (u.perfil === 'aluno') setTimeout(() => verificarLembretes(u, false), 600);
 }
-function sair() { DB.sessao = null; save(); renderLogin(); }
+function sair() { sincronizarDadosLocais(); DB.sessao = null; save(); renderLogin(); }
 function encerrarSimulador() { if (!DB.sessao) return; confirmar('Encerrar o simulador?', 'Você sai do usuário e volta para a tela inicial.', () => { sair(); window.scrollTo(0, 0); }, 'Encerrar'); }
 document.addEventListener('keydown', e => { if (e.key === 'F8') { e.preventDefault(); encerrarSimulador(); } });
 
@@ -436,7 +439,7 @@ function alteradas(u) {
      <div class="ttl" style="margin-top:4px" onclick="ir('ativ','${a.id}')">${esc(a.titulo)}</div><div class="sub">Era <s>${br(x.de)}</s> → agora é <b>${br(x.para)}</b></div></div>`; }).join('');
 }
 function vistoAlt(id) { const x = DB.alteracoes.find(y => y.id === id); if (x) { (x.vistos = x.vistos || []).push(me().id); save(); render(); } }
-TELAS.aluno.horario = u => {
+TELAS.aluno.horario = u => { sincronizarDadosLocais();
   const modo = (param && param.m) || 'semana'; let d0 = hoje().getDay(); if (d0 < 1 || d0 > 5) d0 = 1; const dia = (param && param.d) || d0;
   const ref=param?.ref||iso(hoje()); const segunda=parse(ref); segunda.setDate(segunda.getDate()-((segunda.getDay()+6)%7)); const dataDoDia=d=>{const x=new Date(segunda);x.setDate(x.getDate()+d-1);return iso(x);}; const mudarSemana=n=>{const x=new Date(segunda);x.setDate(x.getDate()+n*7);return iso(x);}; const subs=(DB.substituicoes||[]).filter(x=>String(x.turma).trim()===String(u.turma).trim()); const semanaSubs=subs.filter(x=>x.data>=dataDoDia(1)&&x.data<=dataDoDia(5)).sort((a,b)=>a.data.localeCompare(b.data)||a.idx-b.idx); const futuras=subs.filter(x=>x.data>=iso(hoje())&&x.data>dataDoDia(5)).sort((a,b)=>a.data.localeCompare(b.data));
   const agoraMin = (() => { const n = new Date(); return n.getHours() * 60 + n.getMinutes(); })(); const mins = t => +t.slice(0,2) * 60 + +t.slice(3);
@@ -801,10 +804,10 @@ TELAS.coord.novaSubst = u => `${voltarBtn('🔁 Registrar substituição')}<div 
    <label class="lbl">Motivo (opcional)</label><input id="sm" placeholder="ex.: professor em formação">
    <button class="btn" onclick="salvarSubst()">Salvar substituição</button></div>`;
 function salvarSubst() {
- if(me()?.perfil!=='coord')return; const d=$('#sd').value,t=$('#st').value,prof=$('#sp').value,pu=DB.users.find(x=>x.nome===prof&&x.perfil==='professor'), slots=[...document.querySelectorAll('.sub-slot:checked')].map(x=>Number(x.value));
+ sincronizarDadosLocais(); if(me()?.perfil!=='coord')return; const d=$('#sd').value,t=$('#st').value,prof=$('#sp').value,pu=DB.users.find(x=>x.nome===prof&&x.perfil==='professor'), slots=[...document.querySelectorAll('.sub-slot:checked')].map(x=>Number(x.value));
  if(!d||!t||!pu||!slots.length)return toast('Escolha a data, turma, professor e pelo menos um horário.');
  if(![1,2,3,4,5].includes(parse(d).getDay()))return toast('Escolha um dia de segunda a sexta-feira.');
- const registrar=()=>{for(const i of slots){const antigo=DB.substituicoes.find(x=>x.data===d&&String(x.turma)===t&&x.idx===i);const aula=gradeDia(t,parse(d).getDay())[i];const obj={data:d,turma:t,idx:i,prof,profId:pu.id,disciplina:$('#sdi').value.trim()||aula?.[2]||'Aula',motivo:$('#sm').value.trim()};if(antigo)Object.assign(antigo,obj);else DB.substituicoes.push({id:uid(),...obj});}save();toast('✔ '+slots.length+' horário(s) de substituição registrados.');pilha=[];ir('subst',null,true);};
+ const registrar=()=>{sincronizarDadosLocais();for(const i of slots){const antigo=DB.substituicoes.find(x=>x.data===d&&String(x.turma)===t&&x.idx===i);const aula=gradeDia(t,parse(d).getDay())[i];const obj={data:d,turma:t,idx:i,prof,profId:pu.id,disciplina:$('#sdi').value.trim()||aula?.[2]||'Aula',motivo:$('#sm').value.trim()};if(antigo)Object.assign(antigo,obj);else DB.substituicoes.push({id:uid(),...obj});}save();toast('✔ '+slots.length+' horário(s) de substituição registrados.');pilha=[];ir('subst',null,true);};
  if(DB.substituicoes.some(x=>x.data===d&&String(x.turma)===t&&slots.includes(x.idx)))return confirmar('Atualizar substituição?','Já existe substituição em um ou mais horários selecionados. Deseja substituir os registros anteriores?',registrar,'Atualizar');registrar();
 }
 TELAS.professor.usuarios = u => TELAS.coord.usuarios(u);
