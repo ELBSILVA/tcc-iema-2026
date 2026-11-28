@@ -163,7 +163,7 @@ input:focus,select:focus,textarea:focus{border-color:#6c5ce7}
 .chip.turmaBtn{appearance:none;-webkit-appearance:none;font-family:inherit;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:manipulation;min-width:42px;min-height:30px;display:inline-flex;align-items:center;justify-content:center;line-height:1;white-space:nowrap;outline-offset:3px}
 .chip.turmaBtn:focus-visible{outline:2px solid #7958df}.chip.turmaBtn:not(.on):hover{background:#f1edff}.chip.turmaBtn.on{background:#2b2563;border-color:#2b2563;color:#fff}
 .chip.turmaBtn:active{transform:scale(.96)}
-</style>
+ .nav{overflow-x:auto;justify-content:flex-start}.nav button{flex:1 0 58px;min-width:58px} </style>
 </head>
 <body>
 <div id="app"></div>
@@ -397,6 +397,19 @@ function itemAtiv(u, a, compacto) {
 
 // ====================== telas ======================
 const TELAS = {aluno:{}, professor:{}, coord:{}};
+
+const normalGrade=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+function aulasGerais(data){const dia=parse(data).getDay();if(dia<1||dia>5)return [];const out=[];for(const t of Object.keys(GRADE_RAW).sort()){gradeDia(t,dia).forEach((h,i)=>{const sub=(DB.substituicoes||[]).find(x=>x.data===data&&String(x.turma)===t&&Number(x.idx)===i);out.push({turma:t,i,inicio:h[0],fim:h[1],disc:sub?.disciplina||h[2]||'Não informada',prof:sub?sub.prof:h[3],original:sub?h[3]:null,sub:!!sub});});}return out;}
+function filtroGrade(k,v){param={...(param||{}),[k]:v};render();}
+function telaGradeGeral(u,localizar=false){sincronizarDadosLocais();const p=param||{},data=p.data||iso(hoje()),agora=new Date(),atual=agora.getHours()*60+agora.getMinutes(),min=s=>Number(s.slice(0,2))*60+Number(s.slice(3)),hojeRef=data===iso(hoje()),slot=GRADE_H.findIndex(h=>atual>=min(h[0])&&atual<min(h[1])),turma=p.turma||'',prof=p.prof||'',hora=p.hora??'todos',lista=aulasGerais(data),nomes=[...new Set([...Object.entries(GRADE_NOMES).filter(([k])=>k!=='NE').map(([,n])=>n),...DB.users.filter(x=>x.perfil==='professor').map(x=>x.nome)])].filter(Boolean).sort((a,b)=>a.localeCompare(b,'pt-BR'));
+const filtradas=lista.filter(a=>(!turma||a.turma===turma)&&(!prof||normalGrade(a.prof).includes(normalGrade(prof)))&&(hora==='todos'||hora==='agora'&&hojeRef&&a.i===slot||String(a.i)===hora));
+const profAulas=lista.filter(a=>prof&&normalGrade(a.prof).includes(normalGrade(prof)));const emAula=profAulas.filter(a=>hojeRef&&a.i===slot),prox=profAulas.filter(a=>!hojeRef||min(a.inicio)>atual).sort((a,b)=>a.i-b.i);
+const opts=(ls,v)=>ls.map(n=>'<option value="'+esc(n)+'" '+(n===v?'selected':'')+'>'+esc(n)+'</option>').join('');
+const card=a=>'<div class="card hr '+(hojeRef&&a.i===slot?'agora ':'')+(a.sub?'subst':'')+'"><div class="h">'+a.inicio+'<small>'+a.fim+'</small></div><div class="d"><div class="sub">'+(a.i+1)+'º horário • TURMA '+esc(a.turma)+(hojeRef&&a.i===slot?' • AGORA':'')+(a.sub?' • SUBSTITUIÇÃO':'')+'</div><div class="ttl">'+esc(a.disc)+'</div><div class="sub">'+esc(a.prof||'Professor não informado')+(a.sub?'<br>Original: '+esc(a.original||'Não informado'):'')+'</div></div></div>';
+return voltarBtn(localizar?'Localizar professor':'Horário geral')+'<div class="note">Localização prevista pela grade cadastrada, não rastreamento em tempo real. A turma identifica a sala de referência; ambientes físicos não estão cadastrados separadamente.</div><div class="card"><label class="lbl">Data</label><input type="date" value="'+esc(data)+'" onchange="filtroGrade(\'data\',this.value)"><button class="btn sm out" onclick="param={...param,data:iso(hoje()),hora:\'agora\'};render()">Agora</button><button class="btn sm out" onclick="param={...param,data:iso(hoje()),hora:\'todos\'};render()">Hoje — todos os horários</button><label class="lbl">Professor</label><select onchange="filtroGrade(\'prof\',this.value)"><option value="">Todos os professores</option>'+opts(nomes,prof)+'</select><label class="lbl">Turma</label><select onchange="filtroGrade(\'turma\',this.value)"><option value="">Todas as turmas</option>'+opts(Object.keys(GRADE_RAW).sort(),turma)+'</select><label class="lbl">Horário</label><select onchange="filtroGrade(\'hora\',this.value)"><option value="todos" '+(hora==='todos'?'selected':'')+'>Todos os horários</option><option value="agora" '+(hora==='agora'?'selected':'')+'>Aula agora</option>'+GRADE_H.map((h,i)=>'<option value="'+i+'" '+(hora===String(i)?'selected':'')+'>'+(i+1)+'º • '+h.join(' – ')+'</option>').join('')+'</select><button class="btn sm out" onclick="param=null;render()">Limpar filtros</button></div>'+(prof?'<div class="card"><b>'+esc(prof)+'</b><div class="sub">'+(hojeRef?(emAula.length?'Aula prevista agora: '+emAula.map(a=>'Turma '+a.turma+' — '+a.disc).map(esc).join(' / '):'Sem aula prevista neste momento.'):'Consulta da data selecionada.')+'</div><div class="sub">'+(prox.length?'Próxima aula prevista: '+esc(prox[0].inicio+' • Turma '+prox[0].turma+' — '+prox[0].disc):'Sem próxima aula nesta data.')+'</div></div>':'')+'<div class="sec">'+filtradas.length+' aula(s) na grade</div>'+(filtradas.length?GRADE_H.map((h,i)=>{const l=filtradas.filter(a=>a.i===i);return l.length?'<div class="sec">'+(i+1)+'º horário • '+h.join(' – ')+'</div>'+l.map(card).join(''):''}).join(''):'<div class="empty">Nenhuma aula prevista nos filtros escolhidos. Confira a data e a grade disponível.</div>')+'<div class="note">Grade semanal 2026.2. Substituições cadastradas têm prioridade. Consulte a gestão para confirmar alterações não registradas.</div>';
+}
+for(const p of ['aluno','professor','coord']){TELAS[p].horarioGeral=u=>telaGradeGeral(u);TELAS[p].localizarProfessor=u=>telaGradeGeral(u,true);NAVS[p].push(['horarioGeral','cal','Geral'],['localizarProfessor','users','Localizar']);}
+
 const voltarBtn = t => `<h2><button class="back" onclick="voltar()">‹</button>${t}</h2>`;
 
 // ---------- ALUNO ----------
@@ -410,7 +423,7 @@ TELAS.aluno.inicio = u => {
      <div class="slide" style="background:linear-gradient(130deg,#e8456a,#ff7a93)">${ic('share',70).replace('class="ic"','class="ic big"')}<b>Avisos no WhatsApp</b><div>Compartilhe avisos e trabalhos com o grupo da turma em um toque.</div></div>
    </div><div class="dots"><i class="on"></i><i></i><i></i></div>
    <div class="sec">Acesso rápido</div>
-   <div class="grid">
+   <div class="grid"><div class="qa" onclick="ir('horarioGeral')">${ic('cal')}Horário geral</div><div class="qa" onclick="ir('localizarProfessor')">${ic('users')}Localizar professor</div>
     <div class="qa" onclick="ir('horario')">${ic('cal')}Horário de aulas</div>
     <div class="qa" onclick="ir('trabalhos')">${ic('list')}Trabalhos${at.length?`<span class="sel s-r n">${at.length}</span>`:''}</div>
     <div class="qa" onclick="ir('avisos')">${ic('mega')}Avisos${nAv?`<span class="sel s-b n">${nAv}</span>`:''}</div>
@@ -625,7 +638,7 @@ TELAS.professor.inicio = u => {
   const prox = minhas.filter(a => diasAte(a.prazo) >= 0);
   return `<div class="hero"><b>Olá, ${esc(u.nome)}! 👋</b><div>${esc(u.disciplina)} • ${prox.length} atividade(s) com prazo aberto</div></div>
    <div class="sec">O que você quer fazer?</div>
-   <div class="grid"><div class="qa" onclick="ir('novaAtiv')">${ic('plus')}Nova atividade</div><div class="qa" onclick="ir('novoMat')">${ic('book')}Novo material</div>
+   <div class="grid"><div class="qa" onclick="ir('horarioGeral')">${ic('cal')}Horário geral</div><div class="qa" onclick="ir('localizarProfessor')">${ic('users')}Localizar professor</div><div class="qa" onclick="ir('novaAtiv')">${ic('plus')}Nova atividade</div><div class="qa" onclick="ir('novoMat')">${ic('book')}Novo material</div>
    <div class="qa" onclick="ir('minhas')">${ic('list')}Minhas atividades</div><div class="qa" onclick="ir('avisos')">${ic('mega')}Avisos da escola</div>
    <div class="qa" onclick="ir('horario')">${ic('cal')}Meu horário de aulas</div><div class="qa" onclick="ir('carga')">📊 Agenda das turmas</div><div class="qa" onclick="ir('usuarios','aluno')">${ic('users')}Meus alunos</div>
    <div class="qa" onclick="ir('novoUser','aluno')">${ic('user')}Cadastrar aluno</div></div>
@@ -738,7 +751,7 @@ TELAS.coord.inicio = u => {
     <div class="card" style="margin:0"><div class="sub">Alunos</div><b style="font-size:26px">${al}</b></div><div class="card" style="margin:0"><div class="sub">Professores</div><b style="font-size:26px">${pr}</b></div>
     <div class="card" style="margin:0"><div class="sub">Atividades abertas</div><b style="font-size:26px">${abertas}</b></div><div class="card" style="margin:0"><div class="sub">Avisos publicados</div><b style="font-size:26px">${DB.avisos.length}</b></div></div>
    <div class="sec">O que você quer fazer?</div>
-   <div class="grid"><div class="qa" onclick="ir('novoAviso')">${ic('mega')}Novo aviso</div><div class="qa" onclick="ir('novoEvento')">${ic('star')}Novo evento</div>
+   <div class="grid"><div class="qa" onclick="ir('horarioGeral')">${ic('cal')}Horário geral</div><div class="qa" onclick="ir('localizarProfessor')">${ic('users')}Localizar professor</div><div class="qa" onclick="ir('novoAviso')">${ic('mega')}Novo aviso</div><div class="qa" onclick="ir('novoEvento')">${ic('star')}Novo evento</div>
    <div class="qa" onclick="document.getElementById('importAlunosLocal').click()">📥 Importar alunos (arquivo local)<input id="importAlunosLocal" type="file" accept=".json,application/json" style="display:none" onclick="event.stopPropagation()" onchange="importarAlunosLocal(this)"></div>
    <div class="qa" onclick="ir('novoUser')">${ic('user')}Cadastrar usuário</div><div class="qa" onclick="ir('todas')">${ic('list')}Todas as atividades</div>
    <div class="qa" onclick="ir('subst')">🔁 Substituições</div><div class="qa" onclick="ir('carga')">📊 Agenda das turmas</div>
