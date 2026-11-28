@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>StockTech</title>
 <style>
 :root{--g:#3a3a3c;--b:#0d9ad8;--b2:#0b86c0;--r:#ee2d3d;--y:#e0a100;--ok:#1b8a4a;--bg:#f2f6f9;--card:#fff;--tx:#2a2a2c;--mu:#6b747d;--ln:#dfe7ee;--lb:#e6f3fa}
@@ -238,6 +238,9 @@ input:focus,select:focus,textarea:focus{border-color:#ff8a00}
 .sun{font-size:12px;padding:3px 4px;border-radius:6px;border:1px solid var(--ln);background:#fff;margin-left:4px;max-width:92px}
 .info{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#ff8a00;color:#fff;font-size:11px;font-weight:800;cursor:pointer;margin-left:4px;vertical-align:middle}
 body.grande .main{zoom:1.2}body.grande .nav{zoom:1.1}
+
+/* Ajuste responsivo automático */
+html,body{width:100%;max-width:100%;overflow:hidden}#app{width:100%;height:100%;height:100dvh;min-width:0}.main{min-height:0;min-width:0;overflow:auto;overscroll-behavior:contain}.main img{max-width:100%}.card,.row>*{min-width:0}.ttl,.sub,.note{overflow-wrap:anywhere}.nav{overflow:auto;scrollbar-width:thin}.nav button{cursor:pointer}input,select,textarea{max-width:100%;min-width:0}table{max-width:100%}@media(max-width:899px){#app{max-width:none}.nav{max-width:none;overflow-x:auto;overflow-y:hidden;justify-content:flex-start;bottom:env(safe-area-inset-bottom,0px)}.nav button{flex:1 0 72px;min-height:44px}.main{padding-bottom:calc(90px + env(safe-area-inset-bottom,0px))}.row{flex-wrap:wrap}.grid,.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}input,select,textarea{font-size:16px!important}.login{width:100%;max-width:540px;margin:0 auto}.main .btn{max-width:100%}}@media(max-width:360px){.grid,.kpis{grid-template-columns:1fr}.main{padding-left:8px;padding-right:8px}.top{padding-left:10px;padding-right:10px}}@media(min-width:900px){.main>*{max-width:1400px}.nav{overflow-y:auto}.login{width:100%}}
 </style>
 </head>
 <body>
